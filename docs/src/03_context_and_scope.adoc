@@ -42,6 +42,8 @@ image::modelo.svg[Contexto de negocio]
 
 | _WIChat_ | _Aplicación web principal donde se desarrolla la lógica del juego._
 
+| _WIChat_ | _Aplicación web principal donde se desarrolla la lógica del juego._
+
 | _Wikidata_ | _Fuente de donde se extraeran las preguntas y las respuestas, las cuales no estarán visibles hasta que el usuario interactue con la aplicación tras responder._
 | _LLM_API_ | _API que integra un LLM que se utilizará para generar pistas de forma dinámica y que seguira un diálogo conversacional que ayudará al concursante a responder las preguntas, pero que nunca le dirán implícitamente la respuesta._
 | _Base de Datos_ | _Sistema de almacenamiento que guarda información relevante sobre el usuario y anteriores partidas._
