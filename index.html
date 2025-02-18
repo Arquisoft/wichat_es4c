@@ -453,10 +453,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#section-architecture-constraints">2. Architecture Constraints</a></li>
-<li><a href="#section-context-and-scope">3. Context and Scope</a>
+<li><a href="#section-context-and-scope">3. Contexto y Alcance</a>
 <ul class="sectlevel2">
-<li><a href="#_business_context">3.1. Business Context</a></li>
-<li><a href="#_technical_context">3.2. Technical Context</a></li>
+<li><a href="#_contexto_de_negocio">3.1. Contexto de Negocio</a></li>
+<li><a href="#_contexto_técnico">3.2. Contexto Técnico</a></li>
 </ul>
 </li>
 <li><a href="#section-solution-strategy">4. Solution Strategy</a></li>
@@ -740,101 +740,243 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-context-and-scope">3. Context and Scope</h2>
+<h2 id="section-context-and-scope">3. Contexto y Alcance</h2>
 <div class="sectionbody">
 <div class="sidebarblock arc42help">
 <div class="content">
 <div class="paragraph">
-<div class="title">Contents</div>
-<p>Context and scope - as the name suggests - delimits your system (i.e. your scope) from all its communication partners
-(neighboring systems and users, i.e. the context of your system). It thereby specifies the external interfaces.</p>
+<div class="title">Contenido</div>
+<p>El ámbito y contexto del sistema, como su nombre lo indica, delimita el sistema (es decir, su ámbito) de todos
+sus interlocutores (sistemas y usuarios vecinos, es decir, el contexto del sistema). De este modo, especifica las interfaces externas.</p>
 </div>
 <div class="paragraph">
-<p>If necessary, differentiate the business context (domain specific inputs and outputs) from the technical context (channels, protocols, hardware).</p>
+<p>Si es necesario, diferencie el contexto empresarial (entradas y salidas específicas del dominio) del contexto técnico (canales, protocolos, hardware)..</p>
 </div>
 <div class="paragraph">
-<div class="title">Motivation</div>
-<p>The domain interfaces and technical interfaces to communication partners are among your system&#8217;s most critical aspects. Make sure that you completely understand them.</p>
+<div class="title">Motivación</div>
+<p>Las interfaces de dominio y las interfaces técnicas con los socios de comunicación se encuentran entre los aspectos más críticos de su sistema. Asegúrese de comprenderlas por completo.</p>
 </div>
 <div class="paragraph">
-<div class="title">Form</div>
-<p>Various options:</p>
+<div class="title">Formato</div>
+<p>Varias opciones:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Context diagrams</p>
+<p>Varios diagramas de contexto</p>
 </li>
 <li>
-<p>Lists of communication partners and their interfaces.</p>
+<p>Listas de socios de comunicación y sus interfaces.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<div class="title">Further Information</div>
-<p>See <a href="https://docs.arc42.org/section-3/">Context and Scope</a> in the arc42 documentation.</p>
+<div class="title">Más información</div>
+<p>Vea <a href="https://docs.arc42.org/section-3/">Context and Scope</a> en la documentación arc42.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_business_context">3.1. Business Context</h3>
+<h3 id="_contexto_de_negocio">3.1. Contexto de Negocio</h3>
+<div class="imageblock">
+<div class="content">
+<img src="./images/modelo.svg" alt="Contexto de negocio">
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Elemento</th>
+<th class="tableblock halign-left valign-top">Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Usuario</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>El concursante que interactúa con la aplicación y le puede preguntar al chatbot integrado, y responder a las preguntas mostradas.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>WIChat</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Aplicación web principal donde se desarrolla la lógica del juego.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>WIChat</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Aplicación web principal donde se desarrolla la lógica del juego.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Wikidata</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Fuente de donde se extraeran las preguntas y las respuestas, las cuales no estarán visibles hasta que el usuario interactue con la aplicación tras responder.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>LLM_API</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>API que integra un LLM que se utilizará para generar pistas de forma dinámica y que seguira un diálogo conversacional que ayudará al concursante a responder las preguntas, pero que nunca le dirán implícitamente la respuesta.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Base de Datos</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Sistema de almacenamiento que guarda información relevante sobre el usuario y anteriores partidas.</em></p></td>
+</tr>
+</tbody>
+</table>
 <div class="sidebarblock arc42help">
 <div class="content">
 <div class="paragraph">
-<div class="title">Contents</div>
-<p>Specification of <strong>all</strong> communication partners (users, IT-systems, &#8230;&#8203;) with explanations of domain specific inputs and outputs or interfaces.
-Optionally you can add domain specific formats or communication protocols.</p>
+<div class="title">Contenido</div>
+<p>Especificación de todos los interlocutores (usuarios, sistemas informáticos, etc.) con explicaciones de las entradas y salidas o interfaces específicas del dominio.
+Opcionalmente, puede añadir formatos o protocolos de comunicación específicos del dominio.</p>
 </div>
 <div class="paragraph">
-<div class="title">Motivation</div>
-<p>All stakeholders should understand which data are exchanged with the environment of the system.</p>
+<div class="title">Motivación</div>
+<p>Todas las partes interesadas deben comprender qué datos se intercambian con el entorno del sistema.</p>
 </div>
 <div class="paragraph">
-<div class="title">Form</div>
-<p>All kinds of diagrams that show the system as a black box and specify the domain interfaces to communication partners.</p>
+<div class="title">Formato</div>
+<p>Todo tipo de diagramas que muestran el sistema como una caja negra y especifican las interfaces del dominio con los socios de comunicación.</p>
 </div>
 <div class="paragraph">
-<p>Alternatively (or additionally) you can use a table.
-The title of the table is the name of your system, the three columns contain the name of the communication partner, the inputs, and the outputs.</p>
+<p>Como alternativa (o adicionalmente), puede utilizar una tabla.
+El título de la tabla es el nombre de su sistema, las tres columnas contienen el nombre del interlocutor, las entradas y las salidas.</p>
 </div>
 </div>
-</div>
-<div class="paragraph">
-<p><strong>&lt;Diagram or Table&gt;</strong></p>
-</div>
-<div class="paragraph">
-<p><strong>&lt;optionally: Explanation of external domain interfaces&gt;</strong></p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_technical_context">3.2. Technical Context</h3>
+<h3 id="_contexto_técnico">3.2. Contexto Técnico</h3>
 <div class="sidebarblock arc42help">
 <div class="content">
 <div class="paragraph">
-<div class="title">Contents</div>
-<p>Technical interfaces (channels and transmission media) linking your system to its environment. In addition a mapping of domain specific input/output to the channels, i.e. an explanation which I/O uses which channel.</p>
+<div class="title">Contenido</div>
+<p>Interfaces técnicas (canales y medios de transmisión) que juntan el sistema con su entorno. Además un mapeo del dominio especifico de entrada/salida a los canales, es decir una explicación de qué entrada salida usa cada canal.</p>
 </div>
 <div class="paragraph">
-<div class="title">Motivation</div>
-<p>Many stakeholders make architectural decision based on the technical interfaces between the system and its context. Especially infrastructure or hardware designers decide these technical interfaces.</p>
+<div class="title">Motivación</div>
+<p>Muchos stakeholders toman decisiones arquitectónicas basadas en las interfaces técnicas entre el sistema y su contexto. En especial, los diseñadores de hardware o infraestructura deciden estas interfaces técnicas.</p>
 </div>
 <div class="paragraph">
-<div class="title">Form</div>
-<p>E.g. UML deployment diagram describing channels to neighboring systems,
-together with a mapping table showing the relationships between channels and input/output.</p>
+<div class="title">Forma</div>
+<p>E.g. Diagrama UML de despliegue describiendo canales con los sistemas vecinos,
+junto a una tabla de mapeo mostrando las relaciones entre canales y la entrada/salida.</p>
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_diagrama_de_despliegue">3.2.1. Diagrama de Despliegue</h4>
+<div class="imageblock">
+<div class="content">
+<img src="./images/Diagrama-despliegue.svg" alt="Diagrama de Despliegue">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_explicación_de_interfaces_técnicas">3.2.2. <strong>Explicación de Interfaces Técnicas</strong></h4>
+<div class="sect4">
+<h5 id="_gateway"><strong>Gateway</strong></h5>
 <div class="paragraph">
-<p><strong>&lt;Diagram or Table&gt;</strong></p>
+<p>API que hace de enlace entre las distintas partes de la aplicación.</p>
 </div>
+</div>
+<div class="sect4">
+<h5 id="_aplicación_react"><strong>Aplicación React</strong></h5>
 <div class="paragraph">
-<p><strong>&lt;optionally: Explanation of technical interfaces&gt;</strong></p>
+<p>React aportará al usuario una interfaz con la que interactuar y responder a las preguntas y por medio de la cual hacer las peticiones
+correspondientes a la parte de backEnd de la aplicación.</p>
 </div>
+</div>
+<div class="sect4">
+<h5 id="_base_de_datos_de_usuarios"><strong>Base de Datos de Usuarios</strong></h5>
 <div class="paragraph">
-<p><strong>&lt;Mapping Input/Output to Channels&gt;</strong></p>
+<p>Almacena toda la información referente a los usuarios,datos,historial de partidas.</p>
 </div>
+</div>
+<div class="sect4">
+<h5 id="_servicio_de_autenticación"><strong>Servicio de Autenticación</strong></h5>
+<div class="paragraph">
+<p>Interfaz que se comunica con la base de datos de usuarios para comprobar el si el inicio de sesión es válido o no.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_servicio_de_usuario"><strong>Servicio de Usuario</strong></h5>
+<div class="paragraph">
+<p>Interfaz que se comunica con la base de datos de usuarios para consultar y, o actualizar la información referente a las partidas de los mismos.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_llm_service"><strong>LLM_Service</strong></h5>
+<div class="paragraph">
+<p>Servicio que procesará las pistas de WikiData y devolverá la respuesta a la pregunta del usuario.
+===== <strong>API WikiData</strong>
+Wikidata nos aportará todo lo referente a las preguntas, tanto la imágen, como las respuestas y la respuesta correcta, además de que nos permitirá recopilar pistas que servirán al LLM para responder.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_mapeo_de_canales_de_entradasalida">3.2.3. Mapeo de Canales de Entrada/salida</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Canal</th>
+<th class="tableblock halign-left valign-top">Entrada</th>
+<th class="tableblock halign-left valign-top">Salida</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Aplicación React</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Peticiones HTTP del usuario con las acciones</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Respuesta a través de la interfaz.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gateway</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Peticiones REST de webapp para obtener datos de las preguntas (imágenes,respuestas), o solicitar operaciones como iniciar sesión</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Respuesta con la información solicitada en cada caso.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Servicio Usuario</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Datos que se quieren consultar a la base de datos</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Respuesta a dicha consulta.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Servicio Autenticación</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Datos de inicio de sesión del usuario</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Consulta de comprobación de los datos, para ver si son erróneos o no.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM_Service</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prompt con la solicitud de pistas que quiere el usuario en ese momento</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pista generada por el modelo.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API Wikidata</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Solicitud de las imagenes o pistas en ese momento</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Respuesta sobre la imagen solicitada, ya sea en forma de pista, o bien una nueva imagen en caso de que se solicite una nueva pregunta.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Base de Datos de Usuarios</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Instrucciones SQL para consultas o insercioes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Resultado de las consultas o confirmación de las inserciones.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prometheus</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Métricas de Gateway</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">métricas en su base de datos.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Métricas organizadas en Prometheus</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Visualización de las métricas.</p></td>
+</tr>
+</tbody>
+</table>
 <div style="page-break-after: always;"></div>
+</div>
 </div>
 </div>
 </div>
@@ -1804,7 +1946,7 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <div id="footer">
 <div id="footer-text">
 Version 8.2 EN<br>
-Last updated 2025-02-17 19:19:08 +0100
+Last updated 2025-02-17 14:12:23 +0100
 </div>
 </div>
 </body>
