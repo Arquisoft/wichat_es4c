@@ -1,3 +1,4 @@
+
 const axios = require('axios');
 const express = require('express');
 
@@ -17,9 +18,9 @@ const llmConfigs = {
     transformResponse: (response) => response.data.candidates[0]?.content?.parts[0]?.text
   },
   empathy: {
-    url: () => 'https://empathyai.staging.empathy.co/v1/chat/completions',
+    url: () => 'https://empathyai.prod.empathy.co/v1/chat/completions',
     transformRequest: (question) => ({
-      model: "qwen/Qwen2.5-Coder-7B-Instruct",
+      model: "mistralai/Mistral-7B-Instruct-v0.3",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: question }
@@ -87,5 +88,3 @@ const server = app.listen(port, () => {
 });
 
 module.exports = server
-
-
