@@ -579,6 +579,12 @@ These include</p>
 </div>
 </div>
 </div>
+<div class="paragraph">
+<p>WIChat is an AI-powered web application for <strong>RTVE</strong>, aiming to develop an online quiz inspired by <strong>Saber y Ganar</strong>. This project will introduce a <strong>conversational AI</strong> feature that provides hints to contestants using an LLM.</p>
+</div>
+<div class="paragraph">
+<p>This document describes the key requirements and quality goals for the project. It also identifies the stakeholders and their expectations.</p>
+</div>
 <div class="sect2">
 <h3 id="_requirements_overview">1.1. Requirements Overview</h3>
 <div class="sidebarblock arc42help">
@@ -603,10 +609,41 @@ If requirements documents exist this overview should refer to these documents.</
 <p>Keep these excerpts as short as possible. Balance readability of this document with potential redundancy w.r.t to requirements documents.</p>
 </div>
 <div class="paragraph">
+<p>The WIChat system must fulfill the following essential requirements:</p>
+</div>
+<div class="paragraph">
 <div class="title">Further Information</div>
 <p>See <a href="https://docs.arc42.org/section-1/">Introduction and Goals</a> in the arc42 documentation.</p>
 </div>
 </div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>User registration and authentication</strong>: Users must be able to create accounts and log in.</p>
+</li>
+<li>
+<p><strong>Image-based questions</strong>: The game will display an image, and users must identify its location.</p>
+</li>
+<li>
+<p><strong>AI-generated hints</strong>: Players can request hints about the image through a conversational interface powered by an external <strong>LLM</strong>.</p>
+</li>
+<li>
+<p><strong>Automatic content generation</strong>: Images and hints must be dynamically created using <strong>Wikidata</strong>.</p>
+</li>
+<li>
+<p><strong>Game scoring and rewards</strong>: Users earn points or rewards for correct answers.</p>
+</li>
+<li>
+<p><strong>API access</strong>: External systems should be able to retrieve quiz data and user performance information through an API.</p>
+</li>
+<li>
+<p><strong>Time-limited responses</strong>: Each question must be answered within a given timeframe.</p>
+</li>
+<li>
+<p><strong>Leaderboard</strong>: Users can view their ranking and compare their performance with others.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect2">
@@ -639,6 +676,47 @@ If you as an architect do not know how the quality of your work will be judged&#
 </div>
 </div>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Quality Goal</th>
+<th class="tableblock halign-left valign-top">Motivation</th>
+<th class="tableblock halign-left valign-top">Concrete Scenario</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Usability</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The game must provide an intuitive and engaging user experience</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The UI should be clear and easy to navigate, with a conversational AI that is easy to interact with</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Performance</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AI-generated hints should be delivered quickly to avoid disrupting gameplay</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hints generated via the <strong>LLM</strong> should have a response time of <strong>less than 3 seconds</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Security</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Protecting user data and preventing AI model abuse is critical</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User interactions should be encrypted and respect user privacy and data protection laws.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>AI Adaptability</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <strong>LLM</strong> should provide relevant and contextually appropriate hints</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The AI must be fine-tuned to ensure accurate and helpful responses based on <strong>Wikidata</strong> sources</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scalability</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system must handle multiple simultaneous users without slowdowns</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The game should support multiple concurrent players with minimal latency</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_stakeholders">1.3. Stakeholders</h3>
@@ -681,9 +759,9 @@ These stakeholders determine the extent and the level of detail of your work and
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 20%;">
-<col style="width: 40%;">
-<col style="width: 40%;">
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 50.0001%;">
 </colgroup>
 <thead>
 <tr>
@@ -694,14 +772,35 @@ These stakeholders determine the extent and the level of detail of your work and
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;Role-1&gt;</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;Contact-1&gt;</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;Expectation-1&gt;</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Users</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">General public, quiz players</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Engaging and interactive quiz experience with AI-generated hints</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;Role-2&gt;</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;Contact-2&gt;</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;Expectation-2&gt;</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Development Team</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Carballo Pérez, Andrés (<a href="mailto:UO287983@uniovi.es">UO287983@uniovi.es</a>)<br>
+García Santamarina, Sergio (<a href="mailto:UO294636@uniovi.es">UO294636@uniovi.es</a>)<br>
+Gutiérrez García, Miguel (<a href="mailto:UO295650@uniovi.es">UO295650@uniovi.es</a>)<br>
+Mahía Loredo, Adrián (<a href="mailto:UO289390@uniovi.es">UO289390@uniovi.es</a>)<br>
+Pérez Cuervo, Bruno (<a href="mailto:UO295445@uniovi.es">UO295445@uniovi.es</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Well-documented architecture and a system that is easy to maintain and extend</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Professors</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pablo González González<br>
+(<a href="mailto:gonzalezgpablo@uniovi.es">gonzalezgpablo@uniovi.es</a>)<br>
+Jose Emilio Labra Gayo<br>
+(<a href="mailto:labra@uniovi.es">labra@uniovi.es</a>)<br>
+Diego Martín Fernández<br>
+(<a href="mailto:martinfdiego@uniovi.es">martinfdiego@uniovi.es</a>) <br>
+Irene Cid Rico<br>
+(<a href="mailto:cidirene@uniovi.es">cidirene@uniovi.es</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A project demonstrating <strong>LLM integration</strong> and structured team collaboration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>RTVE</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://www.rtve.es" class="bare">https://www.rtve.es</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An engaging online game that aligns with their brand and audience expectations</p></td>
 </tr>
 </tbody>
 </table>
@@ -736,48 +835,6 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 </div>
 </div>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 66.6667%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Restriction</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Git/GitHub</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Git will be used as the version control system and GitHub as the platform to store the code, allowing for efficient code management, project change tracking, and facilitating collaboration among team members. Additionally, a lack of proficiency with these tools could lead to lower efficiency and greater challenges.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Docker</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application will be deployed using Docker, allowing for a more consistent and flexible deployment, which facilitates the management of scalability and dependencies.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">AsciiDoc</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">All documentation associated with the project must be developed using AsciiDoc, a lightweight and structured format.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The project must be developed, tested, and completed according to the established deadlines, with organization and effective use of time by the team, including meetings and planning, being key.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Web Accessible</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application must be deployed and accessible via the web, allowing users to interact with the system from any device with an internet connection, without the need for local installations.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Wikidata</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The system must obtain data to generate questions and images from Wikidata, ensuring a structured, updated, and verifiable source of information.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">LLM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A language model will be integrated to generate hints for each question through interaction with the application.</p></td>
-</tr>
-</tbody>
-</table>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -1846,7 +1903,7 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <div id="footer">
 <div id="footer-text">
 Version 8.2 EN<br>
-Last updated 2025-02-04 14:19:22 +0100
+Last updated 2025-02-17 10:23:38 +0100
 </div>
 </div>
 </body>
