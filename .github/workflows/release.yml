@@ -150,6 +150,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: ghcr.io
         workdir: gatewayservice
+
   # deploy:
   #   name: Deploy over SSH
   #   runs-on: ubuntu-latest
@@ -165,3 +166,4 @@ jobs:
   #         wget https://raw.githubusercontent.com/arquisoft/wichat_es4c/master/docker-compose.yml -O docker-compose.yml
   #         docker compose --profile prod down
   #         docker compose --profile prod up -d --pull always
+
