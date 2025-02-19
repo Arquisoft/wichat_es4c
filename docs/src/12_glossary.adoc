@@ -36,9 +36,71 @@ endif::arc42help[]
 |===
 |Term |Definition
 
-|<Term-1>
-|<definition-1>
+|WIChat
+|The application providing an interactive Q&A experience.
 
-|<Term-2>
-|<definition-2>
+|User
+|A person interacting with WIChat.
+
+|Question
+|A query generated dynamically using WikiData.
+
+|Answer
+|The correct response to a question in the game.
+
+|Hint
+|AI-generated clues to help users guess the correct answer.
+
+|Empathy AI
+|The LLM service used to generate contextual hints.
+
+|WikiData
+|The external knowledge base used to generate questions.
+
+|Ranking System
+|A system tracking user scores and leaderboards.
+
+|Gateway Service
+|The main entry point handling API requests and routing.
+
+|User Manager
+|A component handling authentication and user data management.
+
+|AuthService	
+|A service responsible for user authentication and security.
+
+|UserService
+|A service managing user-related operations.
+
+|RankingService
+|A service that tracks and updates user scores.
+
+|LLMService
+|A service that connects to Empathy AI for hint generation.
+
+|WebApp
+|The frontend interface used by players to interact with WIChat.
+
+|MongoDB
+|The database system used to store user and game-related data.
+
+|Docker
+|The containerization platform used for deployment and scalability.
+
+|JavaScript
+|The primary programming language used for both frontend and backend development.
+
+|React
+|The JavaScript library used to build the WIChat frontend.
+
+|Express
+|The web framework for Node.js used to build the WIChat backend.
+
+|Node.js
+|The runtime environment for executing JavaScript code server-side.
+
+|CI/CD
+|Continuous Integration and Deployment processes for automation and code deployment.
+
+
 |===
