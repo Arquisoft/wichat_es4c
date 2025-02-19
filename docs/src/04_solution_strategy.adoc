@@ -1,8 +1,5 @@
-ifndef::imagesdir[:imagesdir: ../images]
-
 [[section-solution-strategy]]
 == Solution Strategy
-
 
 ifdef::arc42help[]
 [role="arc42help"]
@@ -25,10 +22,103 @@ Motivate what was decided and why it was decided that way,
 based upon problem statement, quality goals and key constraints.
 Refer to details in the following sections.
 
-
 .Further Information
-
 See https://docs.arc42.org/section-4/[Solution Strategy] in the arc42 documentation.
-
 ****
 endif::arc42help[]
+
+=== 4.1. Technology Decisions  
+
+As part of the project’s initial planning phase, we have identified a set of **technologies** that we believe will be well-suited to implement the WiChat application. These technologies align with the project requirements and will guide the development process once the implementation begins.  
+
+* **JavaScript** – A versatile, high-level programming language widely used for developing dynamic and interactive web applications. It allows for both client-side and server-side development, making it an ideal choice for the full-stack needs of the project.  
+
+* **React** – A JavaScript library designed for building efficient user interfaces for single-page applications. React's component-based architecture will enhance reusability and maintainability, which will be key once development begins.  
+
+* **Node.js** – A runtime environment for executing JavaScript on the server side. Node.js is well-suited to handling asynchronous operations, making it a good choice for scalable network applications and managing database interactions.  
+
+* **Express.js** – A lightweight web framework built on top of Node.js, planned to simplify backend development. Express will provide essential features such as routing, middleware management, and API creation, ensuring smooth backend processes during the project’s development.  
+
+* **MongoDB** – A NoSQL, document-oriented database. MongoDB offers flexibility, scalability, and high availability. Its JSON-like document structure is well-suited for applications that may need to dynamically adjust the database schema as the project evolves.  
+
+* **Docker** – A containerization platform that allows developers to package applications along with their dependencies, ensuring consistent execution across different environments. This will simplify deployment and enhance scalability when the system is up and running.  
+
+* **GitHub** – A version control platform that will be essential for managing the project’s codebase. It will enable collaborative development, tracking of changes, and automation of workflows, particularly important for a smooth development process as the team grows.  
+
+=== 4.2. System Architecture  
+
+The architecture for the WiChat application is currently planned to be based on a **microservices architecture**, a modular approach that allows distinct services to be developed and maintained independently. This structure is chosen to provide scalability, flexibility, and ease of maintainability as the project progresses.  
+
+The system will consist of the following microservices, each designed to handle specific responsibilities:  
+
+* **User Service** – This service will manage user registration, profile management, and the friend system.  
+
+* **Gateway Service** – The gateway service will serve as the public-facing entry point, routing incoming requests to the appropriate microservices.  
+
+* **WebApp Service** – This is the frontend web application, which will interact with the gateway service to provide essential functionalities like user authentication.  
+
+* **Auth Service** – The auth service will manage user authentication processes, ensuring secure login and session handling.  
+
+These decisions are being made with the goal of setting up a solid foundation for the development, ensuring that once work begins, the system will be modular and capable of scaling as needed.
+
+=== 4.3. Decisions Made to Achieve Quality Goals  
+
+Before beginning the development of the project, we identified several **quality goals** that will guide our design and implementation strategy. The following decisions were made to address these goals and ensure the system meets the expected standards once development begins.  
+
+[options="header"]
+|===
+| Quality Goal | Decision Made  
+
+| **Usability**  
+| The application must be designed to be intuitive and accessible for users with various backgrounds.  
+To ensure usability, we have planned:  
+* Conducting user feedback sessions and usability tests at the early stages of development.  
+* Choosing an appropriate typography style and sizing to ensure legibility and user comfort.  
+
+| **Performance Efficiency**  
+| The system needs to be optimized to handle potential traffic surges and deliver quick responses to users.  
+The following strategies are planned to optimize performance:  
+* Reducing request frequency to external services (like WikiData) to avoid overloading the system.  
+
+| **Maintainability & Scalability**  
+| The system must be modular, easy to maintain, and scalable for future growth.  
+To ensure long-term maintainability and scalability, we have outlined the following approaches:  
+* Choosing a **microservices architecture** that allows for modular development and easy updates or additions.  
+* Implementing key **design patterns**, including:  
+  **Gateway Pattern** – A single entry point for external requests to streamline access.  
+  **Single Responsibility Principle** – Ensuring each service has a focused and clear role.  
+* Maintaining clean and documented code, following industry best practices to ensure ease of future modifications.  
+
+| **Security**  
+| Protecting user data and maintaining the security of the system is essential.  
+The following security measures are being considered:  
+* Utilizing **JWT-based authentication** to securely manage user sessions.  
+* Implementing **role-based access control (RBAC)** to restrict access to sensitive functionalities.  
+* Ensuring secure coding practices to protect against threats such as **SQL injection and cross-site scripting (XSS)**.  
+* Enabling **SSL/TLS encryption** to secure data during transmission between clients and servers.  
+
+| **Availability & Reliability**  
+| The application must be available at all times and provide a reliable experience to users.  
+To ensure availability, the following actions are being planned:  
+* Configuring **automated monitoring and alerting systems** to detect potential issues and trigger immediate resolution processes.  
+* Designing the system with **fault tolerance** in mind, so that key services can continue running even in case of failures.  
+|===
+
+=== 4.4. Organizational Decisions  
+
+As we are in the early planning phase of the WiChat application, we have outlined the following **organizational decisions** to help guide the development process once the project begins:  
+
+* **Task Distribution** – We plan to distribute tasks as evenly as possible among team members to ensure a balanced workload. The goal is to make sure that once a task is completed, at least 50% of the team should review it before it is considered valid. This review process will help maintain high-quality standards throughout the development cycle.  
+
+* **GitHub Issues** – To manage tasks effectively, we will utilize **GitHub Issues**. This will allow us to create, assign, and track tasks while also providing a platform for discussing any critical decisions that may arise during development.  
+
+* **GitHub Projects** – We will incorporate **GitHub Projects** to organize our workflow and track the overall progress of the project. This will provide a clear overview of tasks and help ensure we stay on track during development.  
+
+* **Language** – The project will be developed in **English**. This decision ensures that both the code and documentation are accessible to all team members, as well as to future contributors.  
+
+* **External Meetings** – Regular external meetings will be held to review the project’s progress and determine the next steps. These meetings will help ensure we stay aligned with the project goals and timelines.  
+
+* **Internal Communication** – We will use **Discord** as the primary communication platform for internal discussions. This tool will facilitate real-time collaboration and help resolve issues as they arise during development. Additionally, **GitHub Webhooks** will be integrated to notify the team of any changes made in the repository, ensuring that everyone stays updated.  
+
+* **Documentation** – For documentation purposes, we have decided to use **Asciidoc**. This tool was chosen because it simplifies the process of deploying and maintaining project documentation, making it easier for the team to collaborate and contribute.
+
