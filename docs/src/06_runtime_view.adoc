@@ -39,29 +39,137 @@ See https://docs.arc42.org/section-6/[Runtime View] in the arc42 documentation.
 ****
 endif::arc42help[]
 
-=== <Runtime Scenario 1>
+=== Login
 
-
-* _<insert runtime diagram or textual description of the scenario>_
-* _<insert description of the notable aspects of the interactions between the
-building block instances depicted in this diagram.>_
-
-It is possible to use a sequence diagram:
-
-[plantuml,"Sequence diagram",png]
-----
-actor Alice
-actor Bob
-database Pod as "Bob's Pod"
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-Alice  --> Pod: Store route
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+[plantuml, Question Generation Diagram, png]
 ----
 
-=== <Runtime Scenario 2>
+@startuml
 
-=== ...
+actor User
+participant WebApp
+participant GatewayService
+participant AuthService
 
-=== <Runtime Scenario n>
+User -> WebApp: Fills the form and attemps to log in
+WebApp -> GatewayService: Sends login request
+GatewayService -> AuthService: Foorwards request
+AuthService --> AuthService: Validates auth data
+AuthService --> AuthService: Generates session token
+AuthService --> GatewayService: Returns response
+GatewayService --> WebApp: Returns response
+WebApp --> User: Displays response and redirects the user
+
+@enduml
+
+----
+
+=== Question Generation
+
+[plantuml, Question Generation Diagram, png]
+----
+@startuml
+
+actor User
+participant WebApp
+participant GatewayService
+participant QuestionGeneratorService
+database Wikidata
+database MongoDB
+
+User -> WebApp: Starts game
+WebApp -> GatewayService: Requests question
+GatewayService -> QuestionGeneratorService: Requests question
+QuestionGeneratorService -> Wikidata: Fetches relevant info
+Wikidata --> QuestionGeneratorService: Returns relevan info
+QuestionGeneratorService --> QuestionGeneratorService: Generates question
+QuestionGeneratorService -> MongoDB: Stores question
+QuestionGeneratorService --> GatewayService: Returns question
+GatewayService --> WebApp: Returns Question
+WebApp --> User: Displays question to the user
+
+@enduml
+----
+
+=== Clue Generation
+
+[plantuml, Clue Generation Diagram, png]
+----
+
+@startuml
+
+actor User
+participant WebApp
+participant GatewayService
+participant LLMService
+entity EmpathyAI
+
+User -> WebApp: Asks for a hint
+WebApp -> GatewayService: Requests hint
+GatewayService -> LLMService: Foorwards Request
+LLMService -> EmpathyAI: Queries hint
+EmpathyAI --> EmpathyAI: Generates hint
+EmpathyAI --> LLMService: Returns hint
+LLMService --> GatewayService: Returns hint
+GatewayService --> WebApp: Returns hint
+WebApp --> User: Displays hint to the user
+
+@enduml
+
+----
+
+=== Game
+
+[plantuml, Clue Generation Diagram, png]
+----
+
+@startuml
+
+actor User
+participant WebApp
+participant GatewayService
+participant UserService
+database MongoDB
+
+User -> WebApp: Selects an answer
+WebApp --> WebApp: Checks correct answer
+WebApp --> User: Displays correct answer
+User -> WebApp: Repeats n times until finish
+WebApp -> GatewayService: Requests sending user data
+GatewayService -> UserService: Sends user data
+UserService -> MongoDB: Stores user data
+WebApp -> GatewayService: Requests sending score data
+GatewayService -> RankingService: Sends score data
+RankingService -> MongoDB: Stores score data
+WebApp --> User: Displays stats
+
+@enduml
+
+----
+
+=== Show User Info
+
+[plantuml, Clue Generation Diagram, png]
+----
+
+@startuml
+
+actor User
+participant WebApp
+participant GatewayService
+participant UserService
+database MongoDB
+
+User -> WebApp: Asks for user info
+WebApp -> GatewayService: Requests user info
+GatewayService -> UserService: Forwards request
+UserService -> MongoDB: Queries user info
+MongoDB --> UserService: Returns user info
+UserService --> GatewayService: Returns user info
+GatewayService --> WebApp: Returns user info
+WebApp --> User: Displays user info
+
+@enduml
+
+
+----
