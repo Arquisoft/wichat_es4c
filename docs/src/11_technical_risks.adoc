@@ -26,7 +26,7 @@ See https://docs.arc42.org/section-11/[Risks and Technical Debt] in the arc42 do
 ****
 endif::arc42help[]
 
-== Risks
+=== Risks
 
 [options="header",cols="1,2"]
 |===
@@ -39,7 +39,7 @@ endif::arc42help[]
 | Wikidata | Every aspect related to Wikidata: lack of knowledge wiht the platform, incorrect use, possible unavailability of the platform...
 |===
 
-== Technical Debt
+=== Technical Debt
 
 [options="header",cols="1,2"]
 |===
