@@ -27,3 +27,15 @@ See https://docs.arc42.org/section-2/[Architecture Constraints] in the arc42 doc
 
 ****
 endif::arc42help[]
+
+[options="header",cols="1,2"]
+|===
+|Restriction|Description
+| Git/GitHub| Git will be used as the version control system and GitHub as the platform to store the code, allowing for efficient code management, project change tracking, and facilitating collaboration among team members. Additionally, a lack of proficiency with these tools could lead to lower efficiency and greater challenges.
+| Docker | The application will be deployed using Docker, allowing for a more consistent and flexible deployment, which facilitates the management of scalability and dependencies.
+| AsciiDoc | All documentation associated with the project must be developed using AsciiDoc, a lightweight and structured format.
+| Time | The project must be developed, tested, and completed according to the established deadlines, with organization and effective use of time by the team, including meetings and planning, being key.
+| Web Accessible | The application must be deployed and accessible via web, allowing users to interact with the system from any device with an internet connection, without the need for local installations.
+| Wikidata | The system must obtain data to generate questions and images from Wikidata, ensuring a structured, updated, and verifiable source of information.
+| LLM | A language model will be integrated to generate hints for each question through interaction with the application.
+|===
