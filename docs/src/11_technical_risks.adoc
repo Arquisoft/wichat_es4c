@@ -25,3 +25,27 @@ See https://docs.arc42.org/section-11/[Risks and Technical Debt] in the arc42 do
 
 ****
 endif::arc42help[]
+
+=== Risks
+
+[options="header",cols="1,2"]
+|===
+|Risk|Description
+| Familiarity with technologies| Many of the base technologies used by the project, such as docker, asciidoc or react, are new to the team. The unfamiliarity, specially at the begginging, can cause a slow development and bad decisions.
+| Implementation | Team members mistakes such as the incorrect/unefficient implementation of a solution can cause big errors. Finding or fixing this errors takes time, which is a very limited reosurce in this project.
+| Time | This project must be submmited within the agreed dates, and any decision taken to meet this deadlines can cause very different problems. These decisions include deleting functionalities, lack of testing, bad coding or insufficient documentation(including both the GitHub and the source code).
+| Teamwork | The methodology used and the participation, communication and commitment of the team are cruzial for the succes of this project. 
+| Design | A bad desing decision at the beggining of the project can cause a more difficult development, with more complications when updating or scalating the project, specially in a an application of this size and complexity.
+| Wikidata | Every aspect related to Wikidata: lack of knowledge wiht the platform, incorrect use, possible unavailability of the platform...
+|===
+
+=== Technical Debt
+
+[options="header",cols="1,2"]
+|===
+|Technical Debt|Description
+| Documentation| The lack of proper documentation can make the project difficult to mantain or upgrade in the future, as it can increase the difficulty of finding mistakes.
+| Quality code | Prioritizing time over quality when coding can decrease the efficiency of the project. Unefficient methods and repetitive structures should be avoided.
+| Test-coverage | A bad test-coverage can cause long-term problems, as the project could keep developing with udentified mistakes.
+| Obsolote technologies | The use of obsolete or unsupported technologies such as frameworks or libraries can lead to reducted performance or security issues.
+|===
