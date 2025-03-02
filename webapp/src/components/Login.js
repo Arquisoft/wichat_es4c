@@ -69,8 +69,10 @@ const Login = () => {
             variant="contained"
             color="primary"
             sx={{ marginTop: 2 }}
-            onClick={() => setGoToGame(true)} 
-          ></Button>
+            onClick={() => setGoToGame(true)}
+          >
+            Ir al Juego
+          </Button>
         </div>
       ) : (
         <div>

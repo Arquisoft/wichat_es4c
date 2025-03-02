@@ -1,7 +1,7 @@
 // src/components/Home.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Typography, Button, Radio, RadioGroup, FormControlLabel } from "@mui/material";
+import { Container, Typography, Button, Radio, RadioGroup, FormControlLabel, Box } from "@mui/material";
 
 const Game = () => {
   const [questionData, setQuestionData] = useState(null);
@@ -25,7 +25,7 @@ const Game = () => {
   };
 
   const handleAnswerSubmit = () => {
-    if (selectedAnswer === questionData.correctAnswer) {
+    if (selectedAnswer === questionData.answer) {
       setFeedback("Correcto 🎉");
     } else {
       setFeedback("Incorrecto ❌");
@@ -40,12 +40,22 @@ const Game = () => {
 
       {questionData ? (
         <div>
+          {questionData.image && (
+            <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
+              <img 
+                src={questionData.image} 
+                alt={`Bandera de ${questionData.question}`} 
+                style={{ width: "150px", height: "auto", borderRadius: "5px", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }} 
+              />
+            </Box>
+          )}
+
           <Typography variant="h6" sx={{ marginTop: 3 }}>
             {questionData.question}
           </Typography>
 
           <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
-            {questionData.options.map((option, index) => (
+            {questionData.choices.map((option, index) => (
               <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
             ))}
           </RadioGroup>
@@ -74,4 +84,3 @@ const Game = () => {
 };
 
 export default Game;
-
