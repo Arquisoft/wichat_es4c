@@ -13,6 +13,8 @@ const port = 8000;
 const llmServiceUrl = process.env.LLM_SERVICE_URL || 'http://localhost:8003';
 const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:8002';
 const userServiceUrl = process.env.USER_SERVICE_URL || 'http://localhost:8001';
+const questionServiceUrl = process.env.QUESTION_SERVICE_URL || 'http://localhost:8004';
+
 
 app.use(cors());
 app.use(express.json());
@@ -71,6 +73,16 @@ if (fs.existsSync(openapiPath)) {
 } else {
   console.log("Not configuring OpenAPI. Configuration file not present.")
 }
+
+
+app.get('/question', async (req, res) => {
+    try {
+        const response = await axios.get(`${questionServiceUrl}/question`);
+        res.json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json({ error: error.message });
+    }
+});
 
 
 // Start the gateway service

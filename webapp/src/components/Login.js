@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Typography, TextField, Button, Snackbar } from '@mui/material';
 import { Typewriter } from "react-simple-typewriter";
+import Game from './Game';
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
@@ -12,6 +13,7 @@ const Login = ({ onLoginSuccess }) => {
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [createdAt, setCreatedAt] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [goToGame, setGoToGame] = useState(false);
 
   const navigate = useNavigate();
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:8000';
@@ -49,6 +51,10 @@ const Login = ({ onLoginSuccess }) => {
     }
   };
 
+  if (goToGame) {
+    return <Game />;
+  }
+
   return (
     <Container component="main" maxWidth="xs" sx={{ marginTop: 4 }}>
       {loginSuccess ? (
@@ -57,6 +63,14 @@ const Login = ({ onLoginSuccess }) => {
           <Typography variant="body1" sx={{ textAlign: 'center', marginTop: 2 }}>
             Your account was created on {new Date(createdAt).toLocaleDateString()}.
           </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ marginTop: 2 }}
+            onClick={() => setGoToGame(true)}
+          >
+            Ir al Juego
+          </Button>
         </div>
       ) : (
         <div>

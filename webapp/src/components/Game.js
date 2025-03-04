@@ -1,9 +1,9 @@
-import React from 'react';
-import { Container, Typography, Box, Button, Grid, CssBaseline } from '@mui/material';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Container, Typography, Box, Button, Grid, CssBaseline, Radio, RadioGroup, FormControlLabel } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
 
-// Crear un tema personalizado para mejorar la estética
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -33,6 +33,34 @@ const darkTheme = createTheme({
 });
 
 const Game = () => {
+  const [questionData, setQuestionData] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
+
+  useEffect(() => {
+    fetchQuestion();
+  }, []);
+
+  const fetchQuestion = async () => {
+    try {
+      const response = await axios.get(`${apiEndpoint}/question`);
+      setQuestionData(response.data);
+      setSelectedAnswer("");
+      setFeedback("");
+    } catch (error) {
+      console.error("Error fetching question:", error);
+    }
+  };
+
+  const handleAnswerSubmit = () => {
+    if (selectedAnswer === questionData.answer) {
+      setFeedback("Correcto 🎉");
+    } else {
+      setFeedback("Incorrecto ❌");
+    }
+  };
+
   const renderer = ({ minutes, seconds }) => (
     <Typography variant="h4" color="secondary" sx={{ fontWeight: 'bold' }}>
       {minutes}:{seconds < 10 ? '0' : ''}{seconds}
@@ -46,30 +74,35 @@ const Game = () => {
         <Grid container spacing={4} alignItems="stretch" sx={{ height: '100vh' }}>
           {/* Imagen y test */}
           <Grid item xs={12} md={6}>
-            <Box
-              component="img"
-              src="https://phantom-elmundo.unidadeditorial.es/6e8c8b3a133c654746642bad3c52e5bd/resize/828/f/webp/assets/multimedia/imagenes/2022/08/03/16595421832009.jpg"
-              alt="Imagen del juego"
-              sx={{
-                width: '100%',
-                borderRadius: 3,
-                boxShadow: 3,
-              }}
-            />
+            {questionData?.image && (
+              <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
+                <img 
+                  src={questionData.image} 
+                  alt={`Imagen de la pregunta`} 
+                  style={{ width: "100%", borderRadius: "5px", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }}
+                />
+              </Box>
+            )}
             <Box sx={{ mt: 3, p: 3, bgcolor: 'background.paper', borderRadius: 3, boxShadow: 3 }}>
               <Typography variant="h6" gutterBottom>
-                Pregunta: ¿Cuál es la capital de Francia?
+                {questionData?.question || "Cargando pregunta..."}
               </Typography>
-              {["Respuesta 1", "Respuesta 2", "Respuesta 3", "Respuesta 4"].map((respuesta, index) => (
-                <Button
-                  key={index}
-                  variant="contained"
-                  fullWidth
-                  sx={{ my: 1, bgcolor: 'secondary.main', '&:hover': { bgcolor: 'secondary.dark' } }}
-                >
-                  {respuesta}
-                </Button>
-              ))}
+              <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
+                {questionData?.choices?.map((option, index) => (
+                  <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
+                ))}
+              </RadioGroup>
+              <Button variant="contained" color="primary" onClick={handleAnswerSubmit} sx={{ mt: 2 }}>
+                Enviar Respuesta
+              </Button>
+              {feedback && (
+                <Typography variant="h6" sx={{ mt: 2, color: feedback === "Correcto 🎉" ? "green" : "red" }}>
+                  {feedback}
+                </Typography>
+              )}
+              <Button variant="outlined" color="secondary" onClick={fetchQuestion} sx={{ mt: 2 }}>
+                Siguiente Pregunta
+              </Button>
             </Box>
           </Grid>
           

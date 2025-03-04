@@ -55,7 +55,7 @@ First, start the database. Either install and run Mongo or run it using docker:
 
 You can use also services like Mongo Altas for running a Mongo database in the cloud.
 
-Now launch the auth, user and gateway services. Just go to each directory and run `npm install` followed by `npm start`.
+Now launch the auth, user, question and gateway services. Just go to each directory and run `npm install` followed by `npm start`.
 
 Lastly, go to the webapp directory and launch this component with `npm install` followed by `npm start`.
 
