@@ -88,7 +88,7 @@ const Home = () => {
         {/* Imagen */}
         <Box
           component="img"
-          src="https://piks.eldesmarque.com/bin/2020/01/24/fali_celebra_el_gol_de_cala_ante_el_racing_foto_cristo_gonzalez_001.jpeg"
+          src="https://cdn.pixabay.com/photo/2020/09/23/07/53/quiz-5595288_1280.jpg"
           alt="Imagen"
           sx={{
             maxWidth: 500,
