@@ -7,28 +7,14 @@ import Countdown from 'react-countdown';
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
-    background: {
-      default: '#121212',
-      paper: '#1E1E1E',
-    },
-    primary: {
-      main: '#BB86FC',
-    },
-    secondary: {
-      main: '#03DAC6',
-    },
-    text: {
-      primary: '#FFFFFF',
-      secondary: '#B0B0B0',
-    },
+    background: { default: '#121212', paper: '#1E1E1E' },
+    primary: { main: '#BB86FC' },
+    secondary: { main: '#03DAC6' },
+    text: { primary: '#FFFFFF', secondary: '#B0B0B0' },
   },
   typography: {
-    h4: {
-      fontWeight: 'bold',
-    },
-    h6: {
-      fontSize: '1.2rem',
-    },
+    h4: { fontWeight: 'bold' },
+    h6: { fontSize: '1.2rem' },
   },
 });
 
@@ -54,7 +40,7 @@ const Game = () => {
   };
 
   const handleAnswerSubmit = () => {
-    if (selectedAnswer === questionData.answer) {
+    if (selectedAnswer === questionData?.answer) {
       setFeedback("Correcto 🎉");
     } else {
       setFeedback("Incorrecto ❌");
@@ -72,20 +58,15 @@ const Game = () => {
       <CssBaseline />
       <Container component="main" maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={4} alignItems="stretch" sx={{ height: '100vh' }}>
-          {/* Imagen y test */}
           <Grid item xs={12} md={6}>
             {questionData?.image && (
-              <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-                <img 
-                  src={questionData.image} 
-                  alt={`Imagen de la pregunta`} 
-                  style={{ width: "100%", borderRadius: "5px", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }}
-                />
-              </Box>
+              <Box component="img" src={questionData.image} alt="Imagen de la pregunta"
+                sx={{ width: '100%', borderRadius: 3, boxShadow: 3 }}
+              />
             )}
             <Box sx={{ mt: 3, p: 3, bgcolor: 'background.paper', borderRadius: 3, boxShadow: 3 }}>
               <Typography variant="h6" gutterBottom>
-                {questionData?.question || "Cargando pregunta..."}
+                {questionData ? questionData.question : "Cargando pregunta..."}
               </Typography>
               <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
                 {questionData?.choices?.map((option, index) => (
@@ -96,7 +77,7 @@ const Game = () => {
                 Enviar Respuesta
               </Button>
               {feedback && (
-                <Typography variant="h6" sx={{ mt: 2, color: feedback === "Correcto 🎉" ? "green" : "red" }}>
+                <Typography variant="h6" sx={{ mt: 2, color: feedback.includes("Correcto") ? "green" : "red" }}>
                   {feedback}
                 </Typography>
               )}
@@ -105,35 +86,14 @@ const Game = () => {
               </Button>
             </Box>
           </Grid>
-          
-          {/* Contador y espacio para componente futuro */}
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-            <Box sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              p: 3,
-              bgcolor: 'background.paper',
-              borderRadius: 3,
-              boxShadow: 3,
-            }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3, bgcolor: 'background.paper', borderRadius: 3, boxShadow: 3 }}>
               <Typography variant="h5" gutterBottom>
                 Tiempo restante:
               </Typography>
               <Countdown date={Date.now() + 60000} renderer={renderer} />
             </Box>
-            <Box sx={{
-              mt: 4,
-              p: 3,
-              bgcolor: 'background.paper',
-              borderRadius: 3,
-              boxShadow: 3,
-              textAlign: 'center',
-              flex: 1,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
+            <Box sx={{ mt: 4, p: 3, bgcolor: 'background.paper', borderRadius: 3, boxShadow: 3, textAlign: 'center', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <Typography variant="h6" color="text.secondary">
                 Espacio para componente futuro
               </Typography>

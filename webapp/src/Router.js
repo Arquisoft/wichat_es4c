@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Game from './components/Game';
 import AddUser from './components/AddUser';
+import Home from './components/Home';
 
 const AppRouter = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,7 +15,7 @@ const AppRouter = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Game />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route path="/register" element={<AddUser />} />
         <Route path="/game" element={isLoggedIn ? <Game /> : <Navigate to="/login" />} />
