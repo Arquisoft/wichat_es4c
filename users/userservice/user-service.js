@@ -48,6 +48,32 @@ const server = app.listen(port, () => {
   console.log(`User Service listening at http://localhost:${port}`);
 });
 
+// 🔹 NUEVO: Endpoint para obtener los datos del perfil de un usuario
+app.get('/profile/:username', async (req, res) => {
+  try {
+      // 🔹 Buscar usuario en la base de datos por el nombre de usuario
+      const user = await User.findOne({ username: req.params.username });
+
+      if (!user) {
+          return res.status(404).json({ error: "Usuario no encontrado" }); // 🔹 Devolver error si el usuario no existe
+      }
+
+      // 🔹 Devolver solo los datos necesarios del usuario (sin la contraseña)
+      res.json({
+          username: user.username,
+          gamesPlayed: user.gamesPlayed,
+          correctAnswers: user.correctAnswers,
+          wrongAnswers: user.wrongAnswers,
+          totalTimePlayed: user.totalTimePlayed,
+          gameHistory: user.gameHistory
+      });
+  } catch (error) {
+    console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error); // 🔹 NUEVO: Log de error con username
+    res.status(500).json({ error: `Error al obtener el perfil del usuario ${req.params.username}ww` });
+  }
+});
+
+
 // Listen for the 'close' event on the Express.js server
 server.on('close', () => {
     // Close the Mongoose connection

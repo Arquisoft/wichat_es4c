@@ -1,3 +1,4 @@
+
 // src/components/Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
@@ -5,7 +6,7 @@ import { Container, Typography, TextField, Button, Snackbar } from '@mui/materia
 import { Typewriter } from "react-simple-typewriter";
 import Game from './Game';
 
-const Login = () => {
+const Login  = ({ setIsLoggedIn}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -24,7 +25,7 @@ const Login = () => {
 
       const question = "Please, generate a greeting message for a student called " + username + " that is a student of the Software Architecture course in the University of Oviedo. Be nice and polite. Two to three sentences max.";
       const model = "empathy"
-
+      
       if (apiKey==='None'){
         setMessage("LLM API key is not set. Cannot contact the LLM.");
       }
@@ -37,6 +38,7 @@ const Login = () => {
 
       setCreatedAt(userCreatedAt);
       setLoginSuccess(true);
+      setIsLoggedIn(true);
 
       setOpenSnackbar(true);
     } catch (error) {
