@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Game from './components/Game';
 import AddUser from './components/AddUser';
 import Home from './components/Home';
+import StartMenu from './components/StartMenu';
 
 const AppRouter = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -15,10 +16,11 @@ const AppRouter = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Game />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route path="/register" element={<AddUser />} />
-        <Route path="/game" element={isLoggedIn ? <Game /> : <Navigate to="/login" />} />
+        <Route path="/startmenu" element={isLoggedIn ? <StartMenu /> : <Navigate to="/login" />} />
+        <Route path="/game" element={<Game />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

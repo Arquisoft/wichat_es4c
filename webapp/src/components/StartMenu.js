@@ -1,16 +1,10 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Typography,
-  Menu,
-  MenuItem,
-} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { Box, Button, Card, CardContent, Typography, Menu, MenuItem } from "@mui/material";
 
-const Home = () => {
+const StartMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate(); // Hook para redirigir
 
   // Controla la apertura del menú
   const handleClick = (event) => {
@@ -20,6 +14,11 @@ const Home = () => {
   // Controla el cierre del menú
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  // Redirige a la página del juego
+  const handleStartGame = () => {
+    navigate("/game");
   };
 
   return (
@@ -126,7 +125,7 @@ const Home = () => {
               gutterBottom
             >
               Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto.
-              Se te mostrará una imagen y 5 posibles respuestas.Cada pregunta
+              Se te mostrará una imagen y 5 posibles respuestas. Cada pregunta
               debe ser respondida en un tiempo determinado. Se ofrece la
               posibilidad de obtener pistas mediante un chatbot.
             </Typography>
@@ -143,6 +142,7 @@ const Home = () => {
               display: "flex",
               alignSelf: "center",
             }}
+            onClick={handleStartGame} // Agrega la función aquí
           >
             Comenzar
           </Button>
@@ -152,4 +152,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default StartMenu;
