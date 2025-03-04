@@ -7,7 +7,6 @@ import {
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
 
-// Crear un tema personalizado para mejorar la estética
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -39,7 +38,7 @@ const darkTheme = createTheme({
 const Game = () => {
   const [questionData, setQuestionData] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [feedback, setFeedback] = useState("");
+  const [feedback, setFeedback] = useState({});
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
 
   useEffect(() => {
@@ -51,18 +50,17 @@ const Game = () => {
       const response = await axios.get(`${apiEndpoint}/question`);
       setQuestionData(response.data);
       setSelectedAnswer("");
-      setFeedback("");
+      setFeedback({});
     } catch (error) {
       console.error("Error fetching question:", error);
     }
   };
 
   const handleAnswerSubmit = () => {
-    if (selectedAnswer === questionData.answer) {
-      setFeedback("Correcto 🎉");
-    } else {
-      setFeedback("Incorrecto ❌");
-    }
+    setFeedback({
+      ...feedback,
+      [selectedAnswer]: selectedAnswer === questionData.answer ? "✅" : "❌"
+    });
   };
 
   const renderer = ({ minutes, seconds }) => (
@@ -83,7 +81,7 @@ const Game = () => {
                   <img 
                     src={questionData.image} 
                     alt={`Bandera de ${questionData.question}`} 
-                    style={{ width: "150px", height: "auto", borderRadius: "5px", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }} 
+                    style={{ width: "500px", height: "auto", borderRadius: "5px", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }} 
                   />
                 </Box>
               )}
@@ -93,20 +91,20 @@ const Game = () => {
                 </Typography>
                 <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
                   {questionData.choices.map((option, index) => (
-                    <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
+                    <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+                      <FormControlLabel value={option} control={<Radio />} label={option} />
+                      {feedback[option] && (
+                        <Typography variant="h6" sx={{ ml: 2, color: feedback[option] === "✅" ? "green" : "red" }}>
+                          {feedback[option]}
+                        </Typography>
+                      )}
+                    </Box>
                   ))}
                 </RadioGroup>
                 <Button variant="contained" color="primary" onClick={handleAnswerSubmit} sx={{ marginTop: 2 }}>
                   Enviar Respuesta
                 </Button>
-
-                {feedback && (
-                  <Typography variant="h6" sx={{ marginTop: 2, color: feedback === "Correcto 🎉" ? "green" : "red" }}>
-                    {feedback}
-                  </Typography>
-                )}
-
-                <Button variant="outlined" color="secondary" onClick={fetchQuestion} sx={{ marginTop: 2 }}>
+                <Button variant="outlined" color="secondary" onClick={fetchQuestion} sx={{ marginTop: 2, marginLeft: 17 }}>
                   Siguiente Pregunta
                 </Button>
               </Box>
@@ -116,7 +114,6 @@ const Game = () => {
               Cargando pregunta...
             </Typography>
           )}
-          {/* Contador y espacio para componente futuro */}
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
             <Box sx={{
               display: 'flex',

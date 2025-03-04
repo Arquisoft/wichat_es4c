@@ -15,7 +15,7 @@ const AppRouter = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Game />} />
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route path="/register" element={<AddUser />} />
         <Route path="/game" element={isLoggedIn ? <Game /> : <Navigate to="/login" />} />
