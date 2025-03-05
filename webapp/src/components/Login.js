@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Typography, TextField, Button, Snackbar } from '@mui/material';
 import { Typewriter } from "react-simple-typewriter";
-import Game from './Game';
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
@@ -13,7 +12,6 @@ const Login = ({ onLoginSuccess }) => {
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [createdAt, setCreatedAt] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [goToGame, setGoToGame] = useState(false);
 
   const navigate = useNavigate();
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:8000';
@@ -45,15 +43,12 @@ const Login = ({ onLoginSuccess }) => {
       setOpenSnackbar(true);
 
       onLoginSuccess();
-      navigate('/game'); // Redirigir al juego
+      navigate('/startmenu');
     } catch (error) {
       setError(error.response?.data?.error || "Login failed. Please try again.");
     }
   };
 
-  if (goToGame) {
-    return <Game />;
-  }
 
   return (
     <Container component="main" maxWidth="xs" sx={{ marginTop: 4 }}>
@@ -67,7 +62,6 @@ const Login = ({ onLoginSuccess }) => {
             variant="contained"
             color="primary"
             sx={{ marginTop: 2 }}
-            onClick={() => setGoToGame(true)}
           >
             Ir al Juego
           </Button>
