@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { BrowserRouter } from 'react-router-dom';  // Importa BrowserRouter
 import AddUser from './AddUser';
 
 const mockAxios = new MockAdapter(axios);
@@ -12,7 +13,11 @@ describe('AddUser component', () => {
   });
 
   it('should add user successfully', async () => {
-    render(<AddUser />);
+    render(
+      <BrowserRouter> {/* Asegúrate de envolver el componente en un Router */}
+        <AddUser />
+      </BrowserRouter>
+    );
 
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
@@ -28,14 +33,18 @@ describe('AddUser component', () => {
     // Trigger the add user button click
     fireEvent.click(addUserButton);
 
-    // Wait for the Snackbar to be open
+    // Wait for the Snackbar to appear
     await waitFor(() => {
       expect(screen.getByText(/User added successfully/i)).toBeInTheDocument();
     });
   });
 
   it('should handle error when adding user', async () => {
-    render(<AddUser />);
+    render(
+      <BrowserRouter> {/* Asegúrate de envolver el componente en un Router */}
+        <AddUser />
+      </BrowserRouter>
+    );
 
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
@@ -51,7 +60,7 @@ describe('AddUser component', () => {
     // Trigger the add user button click
     fireEvent.click(addUserButton);
 
-    // Wait for the error Snackbar to be open
+    // Wait for the error Snackbar to appear
     await waitFor(() => {
       expect(screen.getByText(/Error: Internal Server Error/i)).toBeInTheDocument();
     });

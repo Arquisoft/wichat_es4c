@@ -43,7 +43,7 @@ const Login = ({ onLoginSuccess }) => {
       setOpenSnackbar(true);
 
       onLoginSuccess();
-      navigate('/startmenu'); // Redirigir al juego
+      navigate('/startmenu');
     } catch (error) {
       setError(error.response?.data?.error || "Login failed. Please try again.");
     }
