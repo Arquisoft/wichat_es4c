@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, fireEvent, screen, waitFor, act } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom'; // ⬅ Importamos BrowserRouter
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import Login from './Login';
@@ -12,7 +13,11 @@ describe('Login component', () => {
   });
 
   it('should log in successfully', async () => {
-    render(<Login />);
+    render(
+      <BrowserRouter> 
+        <Login />
+      </BrowserRouter>
+    );
 
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
@@ -23,18 +28,22 @@ describe('Login component', () => {
     mockAxios.onPost('http://localhost:8000/askllm').reply(200, { answer: 'Hello test user' });
 
     // Simulate user input
-    await act(async () => {
-        fireEvent.change(usernameInput, { target: { value: 'testUser' } });
-        fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
-        fireEvent.click(loginButton);
-      });
+    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+    fireEvent.click(loginButton);
 
-    // Verify that the user information is displayed
-    expect(screen.getByText(/Your account was created on 1\/1\/2024/i)).toBeInTheDocument();
+    // Wait for the successful response and verify the user information is displayed
+    await waitFor(() => {
+      expect(screen.getByText(/Your account was created on 1\/1\/2024/i)).toBeInTheDocument();
+    });
   });
 
   it('should handle error when logging in', async () => {
-    render(<Login />);
+    render(
+      <BrowserRouter> 
+        <Login />
+      </BrowserRouter>
+    );
 
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
