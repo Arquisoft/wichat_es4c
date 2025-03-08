@@ -1,10 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Card, CardContent, Typography, Menu, MenuItem } from "@mui/material";
 
 const StartMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [username, setUsername] = useState(null);
   const navigate = useNavigate(); // Hook para redirigir
+  const storedUsername = localStorage.getItem("username");
+
+  useEffect(() => {
+    
+    if (storedUsername) {
+      console.log(`Username stored: ${storedUsername}`);
+      
+      setUsername(storedUsername);
+    }
+  }, []);
 
   // Controla la apertura del menú
   const handleClick = (event) => {
@@ -19,6 +30,15 @@ const StartMenu = () => {
   // Redirige a la página del juego
   const handleStartGame = () => {
     navigate("/game");
+  };
+
+  const handleOpenProfile = () => {
+    if (username) {
+      console.log(`Intentando abrir perfil de usuario: ${storedUsername}`);
+      navigate(`/profile/${storedUsername}`); 
+    } else {
+      alert("No se ha iniciado sesión.");
+    }
   };
 
   return (
@@ -43,36 +63,17 @@ const StartMenu = () => {
         >
           Ranking
         </Button>
+
         {/* Botón de cuenta */}
+        
         <Button
           variant="contained"
-          onClick={handleClick}
+          onClick={handleOpenProfile}
           sx={{ mr: 1, backgroundColor: "#00FFFF", color: "#212121" }}
         >
+  
           Cuenta
         </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-          sx={{ "& .MuiPaper-root": { backgroundColor: "#333" } }} // Fondo del menú en gris oscuro
-        >
-          <MenuItem onClick={handleClose} sx={{ color: "#00FFFF" }}>
-            Info
-          </MenuItem>
-          <MenuItem onClick={handleClose} sx={{ color: "#00FFFF" }}>
-            Estadísticas
-          </MenuItem>
-          <MenuItem onClick={handleClose} sx={{ color: "#00FFFF" }}>
-            Amigos
-          </MenuItem>
-          <MenuItem
-            onClick={handleClose}
-            sx={{ color: "red" }} // Color rojo para "Cerrar sesión"
-          >
-            Cerrar sesión
-          </MenuItem>
-        </Menu>
       </Box>
 
       {/* Contenido principal */}

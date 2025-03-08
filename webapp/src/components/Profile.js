@@ -1,97 +1,93 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Container, Typography, Button, CircularProgress } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Box, Card, CardContent, Typography, CircularProgress, Grid, Button } from "@mui/material";
 
-const Profile = ({ username, setShowProfile }) => { // 🔹 NUEVO: Recibe setShowProfile como prop
-  const [userData, setUserData] = useState(null);
+const Profile = () => {
+  const { username } = useParams();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:8001';
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!username) {
-      setError("No se recibió un usuario válido.");
-      setLoading(false);
+      navigate("/startmenu");
       return;
     }
-  
-    const fetchProfile = async () => {
+
+    const fetchUserProfile = async () => {
       try {
-        console.log(`Haciendo petición a: ${apiEndpoint}/profile/${username}`);
-        const response = await axios.get(`${apiEndpoint}/profile/${username}`);
-        setUserData(response.data);
-      } catch (err) {
-        setError("Error al cargar el perfil.");
+        const response = await fetch(`http://localhost:8001/profile/${username}`);
+        if (!response.ok) {
+          throw new Error("No se pudo obtener la información del perfil");
+        }
+        const data = await response.json();
+        setUser(data);
+      } catch (error) {
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchProfile();
-  }, [username]);
+
+    fetchUserProfile();
+  }, [username, navigate]);
 
   if (loading) {
     return (
-      <Container component="main" maxWidth="xs">
-        <CircularProgress sx={{ marginTop: 4 }} />
-      </Container>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#212121" }}>
+        <CircularProgress sx={{ color: "#00FFFF" }} />
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Container component="main" maxWidth="xs">
-        <Typography variant="h6" color="error" sx={{ marginTop: 4 }}>
-          {error}
-        </Typography>
-      </Container>
+      <Box sx={{ textAlign: "center", color: "red", marginTop: "20px" }}>
+        <Typography variant="h6">{error}</Typography>
+      </Box>
     );
   }
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Typography variant="h4" sx={{ marginTop: 3 }}>
-        Perfil de {userData.username}
-      </Typography>
-      <Typography variant="body1" sx={{ marginTop: 2 }}>
-        Juegos Jugados: {userData.gamesPlayed}
-      </Typography>
-      <Typography variant="body1">
-        Preguntas Acertadas: {userData.correctAnswers}
-      </Typography>
-      <Typography variant="body1">
-        Preguntas Falladas: {userData.wrongAnswers}
-      </Typography>
-      <Typography variant="body1">
-        Tiempo Total Jugado: {userData.totalTimePlayed} segundos
-      </Typography>
-      
-      <Typography variant="h6" sx={{ marginTop: 2 }}>Historial de Partidas</Typography>
-      {userData.gameHistory.length > 0 ? (
-        userData.gameHistory.map((game, index) => (
-          <Typography key={index} variant="body2">
-            {new Date(game.date).toLocaleDateString()} - Correctas: {game.correct}, Incorrectas: {game.wrong}, Tiempo: {game.timePlayed}s
-          </Typography>
-        ))
-      ) : (
-        <Typography variant="body2">No hay partidas registradas.</Typography>
-      )}
+    <Box sx={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#212121", color: "#00FFFF" }}>
+      <Card sx={{ backgroundColor: "#333", color: "#00FFFF", borderRadius: 3, p: 4, minWidth: 450, maxWidth: 600 }}>
+        <CardContent>
+          {/* 📌 Sección del nombre de usuario */}
+          <Box sx={{ textAlign: "center", mb: 3 }}>
+            <Typography variant="h4" sx={{ fontWeight: "bold" }}>{user.username}</Typography>
+            <Typography variant="body1" sx={{ color: "#aaa" }}>Jugador activo</Typography>
+          </Box>
 
-      <Button variant="contained" color="secondary" sx={{ marginTop: 2 }}>
-        Editar Perfil
-      </Button>
+          {/* 📌 Sección de estadísticas */}
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Typography variant="h6">🎮 Juegos Jugados</Typography>
+              <Typography variant="body1">{user.gamesPlayed}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6">✅ Respuestas Correctas</Typography>
+              <Typography variant="body1">{user.correctAnswers}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6">❌ Respuestas Incorrectas</Typography>
+              <Typography variant="body1">{user.wrongAnswers}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6">⏳ Tiempo Jugado</Typography>
+              <Typography variant="body1">{user.totalTimePlayed} seg</Typography>
+            </Grid>
+          </Grid>
 
-      {/* 🔹 NUEVO: Botón de volver que mantiene la sesión activa */}
-      <Button
-        variant="outlined"
-        color="primary"
-        sx={{ marginTop: 2, marginLeft: 2 }}
-        onClick={() => setShowProfile(false)} // 🔹 Cambia showProfile a false sin afectar isLoggedIn
-      >
-        Volver
-      </Button>
-    </Container>
+          {/* 📌 Botón para volver */}
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+            <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
+              Volver al menú
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

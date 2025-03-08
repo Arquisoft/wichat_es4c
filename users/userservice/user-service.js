@@ -2,19 +2,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
+const app = express();
+
+
+
 const User = require('./user-model')
 
-const app = express();
+
 const port = 8001;
 
 // Middleware to parse JSON in request body
 app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/userdb';
 mongoose.connect(mongoUri);
 
-
+app.use
 
 // Function to validate required fields in the request body
 function validateRequiredFields(req, requiredFields) {
