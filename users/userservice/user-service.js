@@ -79,6 +79,22 @@ app.get('/profile/:username', async (req, res) => {
   }
 });
 
+app.get('/ranking', async (req, res) => {
+  try {
+    const sortBy = req.query.sortBy || "correctAnswers"; 
+    const validSortFields = ["correctAnswers", "wrongAnswers", "gamesPlayed"];
+    
+    if (!validSortFields.includes(sortBy)) {
+      return res.status(400).json({ error: "Criterio de ordenación inválido" });
+    }
+
+    const players = await User.find().sort({ [sortBy]: -1 }).limit(10); 
+    res.json(players);
+  } catch (error) {
+    console.error("Error al obtener el ranking:", error);
+    res.status(500).json({ error: "Error al obtener el ranking" });
+  }
+});
 
 // Listen for the 'close' event on the Express.js server
 server.on('close', () => {

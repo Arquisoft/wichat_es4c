@@ -17,6 +17,11 @@ const StartMenu = () => {
     }
   }, []);
 
+
+  const handleOpenRanking = () => {
+    navigate("/ranking"); 
+  };
+  
   // Controla la apertura del menú
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -59,6 +64,7 @@ const StartMenu = () => {
       <Box sx={{ position: "absolute", top: 16, right: 16 }}>
         <Button
           variant="contained"
+          onClick={handleOpenRanking}
           sx={{ mr: 1, backgroundColor: "#00FFFF", color: "#212121" }}
         >
           Ranking
