@@ -42,6 +42,7 @@ const Login = ({ onLoginSuccess }) => {
       setLoginSuccess(true);
       setOpenSnackbar(true);
 
+      localStorage.setItem("username", username);
       onLoginSuccess();
       navigate('/startmenu');
     } catch (error) {

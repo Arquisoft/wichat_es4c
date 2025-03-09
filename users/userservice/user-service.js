@@ -2,19 +2,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
+const app = express();
+
+
+
 const User = require('./user-model')
 
-const app = express();
+
 const port = 8001;
 
 // Middleware to parse JSON in request body
 app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/userdb';
 mongoose.connect(mongoUri);
 
-
+app.use
 
 // Function to validate required fields in the request body
 function validateRequiredFields(req, requiredFields) {
@@ -46,6 +52,48 @@ app.post('/adduser', async (req, res) => {
 
 const server = app.listen(port, () => {
   console.log(`User Service listening at http://localhost:${port}`);
+});
+
+// 🔹 NUEVO: Endpoint para obtener los datos del perfil de un usuario
+app.get('/profile/:username', async (req, res) => {
+  try {
+      // 🔹 Buscar usuario en la base de datos por el nombre de usuario
+      const user = await User.findOne({ username: req.params.username });
+
+      if (!user) {
+          return res.status(404).json({ error: "Usuario no encontrado" }); // 🔹 Devolver error si el usuario no existe
+      }
+
+      // 🔹 Devolver solo los datos necesarios del usuario (sin la contraseña)
+      res.json({
+          username: user.username,
+          gamesPlayed: user.gamesPlayed,
+          correctAnswers: user.correctAnswers,
+          wrongAnswers: user.wrongAnswers,
+          totalTimePlayed: user.totalTimePlayed,
+          gameHistory: user.gameHistory
+      });
+  } catch (error) {
+    console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error); // 🔹 NUEVO: Log de error con username
+    res.status(500).json({ error: `Error al obtener el perfil del usuario ${req.params.username}ww` });
+  }
+});
+
+app.get('/ranking', async (req, res) => {
+  try {
+    const sortBy = req.query.sortBy || "correctAnswers"; 
+    const validSortFields = ["correctAnswers", "wrongAnswers", "gamesPlayed"];
+    
+    if (!validSortFields.includes(sortBy)) {
+      return res.status(400).json({ error: "Criterio de ordenación inválido" });
+    }
+
+    const players = await User.find().sort({ [sortBy]: -1 }).limit(10); 
+    res.json(players);
+  } catch (error) {
+    console.error("Error al obtener el ranking:", error);
+    res.status(500).json({ error: "Error al obtener el ranking" });
+  }
 });
 
 // Listen for the 'close' event on the Express.js server
