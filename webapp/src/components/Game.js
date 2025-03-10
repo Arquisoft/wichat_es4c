@@ -12,23 +12,23 @@ const Game = () => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [feedback, setFeedback] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(60);
-  const [gameRegistered, setGameRegistered] = useState(false); // 🔹 Estado para saber si la partida ya se registró
+  const [gameRegistered, setGameRegistered] = useState(false);
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
 
   useEffect(() => {
-    registerGame(); // 🔹 Registrar la partida al entrar
+    registerGame(); 
     fetchQuestion();
   }, []);
 
   const registerGame = async () => {
-    if (gameRegistered) return; // 🔹 Si ya se registró la partida, no hacer nada
+    if (gameRegistered) return; 
 
     const loggedInUser = localStorage.getItem("username");
     if (!loggedInUser) return;
 
     try {
       await axios.post("http://localhost:8001/incrementGamesPlayed", { username: loggedInUser });
-      setGameRegistered(true); // 🔹 Marcar la partida como registrada
+      setGameRegistered(true); 
     } catch (error) {
       console.error("Error al registrar la partida:", error);
     }
@@ -60,7 +60,7 @@ const Game = () => {
       [selectedAnswer]: isCorrect ? "✅" : "❌"
     });
 
-    // 🔹 Enviar datos al backend
+   
     try {
       await axios.post("http://localhost:8001/updateStats", {
         username: loggedInUser,

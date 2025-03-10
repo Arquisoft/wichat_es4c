@@ -53,13 +53,11 @@ const Profile = () => {
     <Box sx={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#212121", color: "#00FFFF" }}>
       <Card sx={{ backgroundColor: "#333", color: "#00FFFF", borderRadius: 3, p: 4, minWidth: 450, maxWidth: 600 }}>
         <CardContent>
-          {/* 📌 Sección del nombre de usuario */}
           <Box sx={{ textAlign: "center", mb: 3 }}>
             <Typography variant="h4" sx={{ fontWeight: "bold" }}>{user.username}</Typography>
             <Typography variant="body1" sx={{ color: "#aaa" }}>Jugador activo</Typography>
           </Box>
 
-          {/* 📌 Sección de estadísticas */}
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="h6">🎮 Juegos Jugados</Typography>
@@ -79,7 +77,7 @@ const Profile = () => {
             </Grid>
           </Grid>
 
-          {/* 📌 Botón para volver */}
+          
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
               Volver al menú
