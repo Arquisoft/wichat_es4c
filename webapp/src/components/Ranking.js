@@ -51,7 +51,7 @@ const Ranking = () => {
         <CardContent>
           {/* 📌 Título y Selector */}
           <Box sx={{ textAlign: "center", mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>🏆 Ranking de Jugadores</Typography>
+            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>Ranking de Jugadores</Typography>
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2 }}>
               <Typography>Ordenar por:</Typography>
               <Select
@@ -59,9 +59,9 @@ const Ranking = () => {
                 onChange={(e) => setSortBy(e.target.value)}
                 sx={{ backgroundColor: "#222", color: "#00FFFF", borderRadius: 1, padding: "5px 10px" }}
               >
-                <MenuItem value="correctAnswers">✅ Aciertos</MenuItem>
-                <MenuItem value="wrongAnswers">❌ Fallos</MenuItem>
-                <MenuItem value="gamesPlayed">🎮 Partidas Jugadas</MenuItem>
+                <MenuItem value="correctAnswers">Aciertos</MenuItem>
+                <MenuItem value="wrongAnswers">Fallos</MenuItem>
+                <MenuItem value="gamesPlayed">Partidas Jugadas</MenuItem>
               </Select>
             </Box>
           </Box>
@@ -108,7 +108,7 @@ const Ranking = () => {
           {/* 📌 Botón de regreso */}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121", fontWeight: "bold" }}>
-              🔙 Volver al menú
+              Volver al menú
             </Button>
           </Box>
         </CardContent>

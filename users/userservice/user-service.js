@@ -79,6 +79,43 @@ app.get('/profile/:username', async (req, res) => {
   }
 });
 
+app.post('/updateStats', async (req, res) => {
+  try {
+    const { username, isCorrect, timeTaken } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    if (isCorrect) {
+      user.correctAnswers += 1;
+    } else {
+      user.wrongAnswers += 1;
+    }
+
+    user.totalTimePlayed += timeTaken;
+
+    user.gameHistory.push({
+      date: new Date(),
+      correct: isCorrect ? 1 : 0,
+      wrong: isCorrect ? 0 : 1,
+      timePlayed: timeTaken
+    });
+
+    await user.save();
+    res.json({ message: "Estadísticas actualizadas", user });
+  } catch (error) {
+    console.error("Error al actualizar estadísticas:", error);
+    res.status(500).json({ error: "Error al actualizar estadísticas" });
+  }
+});
+
+
 app.get('/ranking', async (req, res) => {
   try {
     const sortBy = req.query.sortBy || "correctAnswers"; 
@@ -95,6 +132,31 @@ app.get('/ranking', async (req, res) => {
     res.status(500).json({ error: "Error al obtener el ranking" });
   }
 });
+
+app.post('/incrementGamesPlayed', async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // 🔹 Incrementar las partidas jugadas
+    user.gamesPlayed += 1;
+
+    await user.save();
+    res.json({ message: "Partida registrada", gamesPlayed: user.gamesPlayed });
+  } catch (error) {
+    console.error("Error al registrar la partida:", error);
+    res.status(500).json({ error: "Error al registrar la partida" });
+  }
+});
+
 
 // Listen for the 'close' event on the Express.js server
 server.on('close', () => {

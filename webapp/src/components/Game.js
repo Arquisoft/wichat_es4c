@@ -7,43 +7,32 @@ import {
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
 
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    background: {
-      default: '#121212',
-      paper: '#1E1E1E',
-    },
-    primary: {
-      main: '#BB86FC',
-    },
-    secondary: {
-      main: '#03DAC6',
-    },
-    text: {
-      primary: '#FFFFFF',
-      secondary: '#B0B0B0',
-    },
-  },
-  typography: {
-    h4: {
-      fontWeight: 'bold',
-    },
-    h6: {
-      fontSize: '1.2rem',
-    },
-  },
-});
-
 const Game = () => {
   const [questionData, setQuestionData] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [feedback, setFeedback] = useState({});
+  const [timeRemaining, setTimeRemaining] = useState(60);
+  const [gameRegistered, setGameRegistered] = useState(false); // 🔹 Estado para saber si la partida ya se registró
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
 
   useEffect(() => {
+    registerGame(); // 🔹 Registrar la partida al entrar
     fetchQuestion();
   }, []);
+
+  const registerGame = async () => {
+    if (gameRegistered) return; // 🔹 Si ya se registró la partida, no hacer nada
+
+    const loggedInUser = localStorage.getItem("username");
+    if (!loggedInUser) return;
+
+    try {
+      await axios.post("http://localhost:8001/incrementGamesPlayed", { username: loggedInUser });
+      setGameRegistered(true); // 🔹 Marcar la partida como registrada
+    } catch (error) {
+      console.error("Error al registrar la partida:", error);
+    }
+  };
 
   const fetchQuestion = async () => {
     try {
@@ -51,26 +40,56 @@ const Game = () => {
       setQuestionData(response.data);
       setSelectedAnswer("");
       setFeedback({});
+      setTimeRemaining(60);
     } catch (error) {
       console.error("Error fetching question:", error);
     }
   };
 
-  const handleAnswerSubmit = () => {
+  const handleAnswerSubmit = async () => {
+    if (!selectedAnswer) {
+      alert("Selecciona una respuesta antes de enviar.");
+      return;
+    }
+
+    const loggedInUser = localStorage.getItem("username"); 
+    const isCorrect = selectedAnswer === questionData.answer;
+
     setFeedback({
       ...feedback,
-      [selectedAnswer]: selectedAnswer === questionData.answer ? "✅" : "❌"
+      [selectedAnswer]: isCorrect ? "✅" : "❌"
     });
+
+    // 🔹 Enviar datos al backend
+    try {
+      await axios.post("http://localhost:8001/updateStats", {
+        username: loggedInUser,
+        isCorrect,
+        timeTaken: 60 - timeRemaining
+      });
+    } catch (error) {
+      console.error("Error al actualizar estadísticas:", error);
+    }
   };
 
-  const renderer = ({ minutes, seconds }) => (
-    <Typography variant="h4" color="secondary" sx={{ fontWeight: 'bold' }}>
-      {minutes}:{seconds < 10 ? '0' : ''}{seconds}
-    </Typography>
-  );
+  const handleTick = ({ total }) => {
+    setTimeRemaining(Math.ceil(total / 1000));
+  };
+
+  const renderer = ({ minutes, seconds, completed }) => {
+    if (completed) {
+      return <Typography variant="h4" color="error" sx={{ fontWeight: 'bold' }}>⏳ Tiempo agotado</Typography>;
+    } else {
+      return (
+        <Typography variant="h4" color="secondary" sx={{ fontWeight: 'bold' }}>
+          {minutes}:{seconds < 10 ? '0' : ''}{seconds}
+        </Typography>
+      );
+    }
+  };
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
       <CssBaseline />
       <Container component="main" maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={4} alignItems="stretch" sx={{ height: '100vh' }}>
@@ -80,7 +99,7 @@ const Game = () => {
                 <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
                   <img 
                     src={questionData.image} 
-                    alt={`Bandera de ${questionData.question}`} 
+                    alt={`Imagen de ${questionData.question}`} 
                     style={{ width: "500px", height: "auto", borderRadius: "5px", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }} 
                   />
                 </Box>
@@ -115,35 +134,11 @@ const Game = () => {
             </Typography>
           )}
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-            <Box sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              p: 3,
-              bgcolor: 'background.paper',
-              borderRadius: 3,
-              boxShadow: 3,
-            }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3, bgcolor: 'background.paper', borderRadius: 3, boxShadow: 3 }}>
               <Typography variant="h5" gutterBottom>
                 Tiempo restante:
               </Typography>
-              <Countdown date={Date.now() + 60000} renderer={renderer} />
-            </Box>
-            <Box sx={{
-              mt: 4,
-              p: 3,
-              bgcolor: 'background.paper',
-              borderRadius: 3,
-              boxShadow: 3,
-              textAlign: 'center',
-              flex: 1,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-              <Typography variant="h6" color="text.secondary">
-                Espacio para componente futuro
-              </Typography>
+              <Countdown date={Date.now() + 60000} renderer={renderer} onTick={handleTick} />
             </Box>
           </Grid>
         </Grid>
