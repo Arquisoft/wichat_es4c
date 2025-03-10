@@ -44,13 +44,13 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-    - run: npm --prefix users/authservice install
-    - run: npm --prefix users/userservice install
-    - run: npm --prefix llmservice install
-    - run: npm --prefix gatewayservice install
-    - run: npm --prefix webapp install
-    - run: npm --prefix webapp run build
-    - run: npm --prefix webapp run test:e2e
+    - run: CI=false npm --prefix users/authservice install
+    - run: CI=false npm --prefix users/userservice install
+    - run: CI=false npm --prefix llmservice install
+    - run: CI=false npm --prefix gatewayservice install
+    - run: CI=false npm --prefix webapp install
+    - run: CI=false npm --prefix webapp run build
+    - run: CI=false npm --prefix webapp run test:e2e
   docker-push-webapp:
     name: Push webapp Docker Image to GitHub Packages
     runs-on: ubuntu-latest
