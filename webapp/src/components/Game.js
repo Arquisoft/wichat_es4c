@@ -13,6 +13,7 @@ const Game = () => {
   const [feedback, setFeedback] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(60);
   const [gameRegistered, setGameRegistered] = useState(false);
+  const [answered, setAnswered] = useState(false);
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
 
   useEffect(() => {
@@ -22,10 +23,8 @@ const Game = () => {
 
   const registerGame = async () => {
     if (gameRegistered) return; 
-
     const loggedInUser = localStorage.getItem("username");
     if (!loggedInUser) return;
-
     try {
       await axios.post("http://localhost:8001/incrementGamesPlayed", { username: loggedInUser });
       setGameRegistered(true); 
@@ -41,26 +40,21 @@ const Game = () => {
       setSelectedAnswer("");
       setFeedback({});
       setTimeRemaining(60);
+      setAnswered(false);
     } catch (error) {
       console.error("Error fetching question:", error);
     }
   };
 
   const handleAnswerSubmit = async () => {
-    if (!selectedAnswer) {
-      alert("Selecciona una respuesta antes de enviar.");
-      return;
-    }
-
+    if (!selectedAnswer) return;
     const loggedInUser = localStorage.getItem("username"); 
     const isCorrect = selectedAnswer === questionData.answer;
-
     setFeedback({
       ...feedback,
       [selectedAnswer]: isCorrect ? "✅" : "❌"
     });
-
-   
+    setAnswered(true);
     try {
       await axios.post("http://localhost:8001/updateStats", {
         username: loggedInUser,
@@ -78,6 +72,7 @@ const Game = () => {
 
   const renderer = ({ minutes, seconds, completed }) => {
     if (completed) {
+      setAnswered(true);
       return <Typography variant="h4" color="error" sx={{ fontWeight: 'bold' }}>⏳ Tiempo agotado</Typography>;
     } else {
       return (
@@ -108,10 +103,13 @@ const Game = () => {
                 <Typography variant="h6" gutterBottom>
                   {questionData.question}
                 </Typography>
-                <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
+                <RadioGroup
+                  value={selectedAnswer}
+                  onChange={(e) => !answered && setSelectedAnswer(e.target.value)}
+                >
                   {questionData.choices.map((option, index) => (
                     <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
-                      <FormControlLabel value={option} control={<Radio />} label={option} />
+                      <FormControlLabel value={option} control={<Radio disabled={answered} />} label={option} />
                       {feedback[option] && (
                         <Typography variant="h6" sx={{ ml: 2, color: feedback[option] === "✅" ? "green" : "red" }}>
                           {feedback[option]}
@@ -120,10 +118,10 @@ const Game = () => {
                     </Box>
                   ))}
                 </RadioGroup>
-                <Button variant="contained" color="primary" onClick={handleAnswerSubmit} sx={{ marginTop: 2 }}>
+                <Button variant="contained" color="primary" onClick={handleAnswerSubmit} sx={{ marginTop: 2 }} disabled={!selectedAnswer || answered}>
                   Enviar Respuesta
                 </Button>
-                <Button variant="outlined" color="secondary" onClick={fetchQuestion} sx={{ marginTop: 2, marginLeft: 17 }}>
+                <Button variant="outlined" color="secondary" onClick={fetchQuestion} sx={{ marginTop: 2, marginLeft: 17 }} disabled={!answered}>
                   Siguiente Pregunta
                 </Button>
               </Box>
