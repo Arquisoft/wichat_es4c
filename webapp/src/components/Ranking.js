@@ -8,7 +8,7 @@ const Ranking = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("correctAnswers");
-  const loggedInUser = localStorage.getItem("username"); // 🔹 Obtener usuario logueado
+  const loggedInUser = localStorage.getItem("username"); 
 
   useEffect(() => {
     const fetchRanking = async () => {
@@ -49,9 +49,8 @@ const Ranking = () => {
     <Box sx={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#1a1a1a", color: "#00FFFF", padding: "20px" }}>
       <Card sx={{ backgroundColor: "#2b2b2b", color: "#00FFFF", borderRadius: 3, p: 4, minWidth: 600, maxWidth: 800, boxShadow: "0px 4px 10px rgba(0, 255, 255, 0.3)" }}>
         <CardContent>
-          {/* 📌 Título y Selector */}
           <Box sx={{ textAlign: "center", mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>🏆 Ranking de Jugadores</Typography>
+            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>Ranking de Jugadores</Typography>
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2 }}>
               <Typography>Ordenar por:</Typography>
               <Select
@@ -59,14 +58,13 @@ const Ranking = () => {
                 onChange={(e) => setSortBy(e.target.value)}
                 sx={{ backgroundColor: "#222", color: "#00FFFF", borderRadius: 1, padding: "5px 10px" }}
               >
-                <MenuItem value="correctAnswers">✅ Aciertos</MenuItem>
-                <MenuItem value="wrongAnswers">❌ Fallos</MenuItem>
-                <MenuItem value="gamesPlayed">🎮 Partidas Jugadas</MenuItem>
+                <MenuItem value="correctAnswers">Aciertos</MenuItem>
+                <MenuItem value="wrongAnswers">Fallos</MenuItem>
+                <MenuItem value="gamesPlayed">Partidas Jugadas</MenuItem>
               </Select>
             </Box>
           </Box>
 
-          {/* 📌 Contenedor de la tabla con scroll interno */}
           <TableContainer component={Paper} sx={{ backgroundColor: "#1a1a1a", color: "#00FFFF", maxHeight: "400px", overflowY: "auto", borderRadius: 2 }}>
             <Table stickyHeader>
               <TableHead>
@@ -87,13 +85,13 @@ const Ranking = () => {
                     sx={{ 
                       cursor: "pointer", 
                       "&:hover": { backgroundColor: "#00FFFF33" }, 
-                      backgroundColor: player.username === loggedInUser ? "#00AAFF55" : "inherit" // 🔹 Resaltar usuario logueado
+                      backgroundColor: player.username === loggedInUser ? "#00AAFF55" : "inherit"
                     }}
-                    onClick={() => navigate(`/profile/${player.username}`)} // 🔹 Redirige al perfil al hacer clic
+                    onClick={() => navigate(`/profile/${player.username}`)} 
                   >
                     <TableCell sx={{ color: "#fff" }}>{index + 1}</TableCell>
                     <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>
-                      {player.username} {player.username === loggedInUser && "⭐"} {/* 🔹 Agregar estrella al usuario logueado */}
+                      {player.username} {player.username === loggedInUser && "⭐"}
                     </TableCell>
                     <TableCell sx={{ color: "#fff" }}>{player.gamesPlayed}</TableCell>
                     <TableCell sx={{ color: "#0f0" }}>{player.correctAnswers}</TableCell>
@@ -105,10 +103,9 @@ const Ranking = () => {
             </Table>
           </TableContainer>
 
-          {/* 📌 Botón de regreso */}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121", fontWeight: "bold" }}>
-              🔙 Volver al menú
+              Volver al menú
             </Button>
           </Box>
         </CardContent>
