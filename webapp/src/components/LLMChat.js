@@ -38,6 +38,7 @@ const LLMChat = () => {
         boxShadow: 3,
         textAlign: "center",
         width: "100%",
+        mt: "400px",
       }}
     >
       <Typography variant="h6" gutterBottom>
