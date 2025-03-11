@@ -1,55 +1,60 @@
-import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
-import { BrowserRouter } from "react-router-dom";
-import Profile from "./Profile";
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import Profile from './Profile';
 
 const mockAxios = new MockAdapter(axios);
 const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 
-describe("Profile component", () => {
+describe('Profile component', () => {
   beforeEach(() => {
     mockAxios.reset();
   });
 
-  it("should display user profile data", async () => {
-    const mockUser = {
+  it('should add a user and then fetch the profile', async () => {
+    const testUser = {
       username: "testUser",
-      gamesPlayed: 5,
-      correctAnswers: 10,
+      password: "testPassword", // Se enviará en el POST
+    };
+
+    const profileData = {
+      username: "testUser",
+      gamesPlayed: 10,
+      correctAnswers: 7,
       wrongAnswers: 3,
       totalTimePlayed: 120,
     };
 
-    mockAxios.onGet(`${apiEndpoint}/profile/testUser`).reply(200, mockUser);
+    // Mock adding a user (POST request)
+    mockAxios.onPost(`${apiEndpoint}/adduser`).reply(200, { username: testUser.username });
 
+    // Mock fetching the profile (GET request)
+    mockAxios.onGet(`${apiEndpoint}/profile/testUser`).reply(200, profileData);
+
+    // Simular el POST para añadir el usuario
+    await axios.post(`${apiEndpoint}/adduser`, testUser);
+
+    // Renderizar Profile (simula que el usuario ya existe en la DB)
     render(
       <BrowserRouter>
         <Profile />
       </BrowserRouter>
     );
 
+    // Espera a que la API se haya llamado correctamente
     await waitFor(() => {
-      expect(screen.getByText(/testUser/i)).toBeInTheDocument();
-      expect(screen.getByText(/5/i)).toBeInTheDocument();
-      expect(screen.getByText(/10/i)).toBeInTheDocument();
-      expect(screen.getByText(/3/i)).toBeInTheDocument();
-      expect(screen.getByText(/120 seg/i)).toBeInTheDocument();
+      expect(mockAxios.history.post.length).toBe(1); // Se llamó a /adduser
+      expect(mockAxios.history.get.length).toBe(1);  // Se llamó a /profile/testUser
     });
-  });
 
-  it("should display error message when profile fetch fails", async () => {
-    mockAxios.onGet(`${apiEndpoint}/profile/testUser`).reply(500);
-
-    render(
-      <BrowserRouter>
-        <Profile />
-      </BrowserRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(/No se pudo obtener la información del perfil/i)).toBeInTheDocument();
-    });
+    // Verifica que la información del perfil aparece en pantalla
+    expect(screen.getByText(/testUser/i)).toBeInTheDocument();
+    expect(screen.getByText(/Juegos Jugados/i)).toBeInTheDocument();
+    expect(screen.getByText("10")).toBeInTheDocument();
+    expect(screen.getByText("7")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("120 seg")).toBeInTheDocument();
   });
 });

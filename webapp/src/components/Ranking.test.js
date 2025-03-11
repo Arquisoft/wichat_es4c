@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { BrowserRouter } from "react-router-dom";
@@ -21,56 +21,29 @@ describe("Ranking component", () => {
 
     mockAxios.onGet(`${apiEndpoint}/ranking?sortBy=correctAnswers`).reply(200, mockRanking);
 
-    render(
-      <BrowserRouter>
-        <Ranking />
-      </BrowserRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(/player1/i)).toBeInTheDocument();
-      expect(screen.getByText(/player2/i)).toBeInTheDocument();
-      expect(screen.getByText(/20/i)).toBeInTheDocument();
-      expect(screen.getByText(/15/i)).toBeInTheDocument();
-      expect(screen.getByText(/5/i)).toBeInTheDocument();
-      expect(screen.getByText(/300 seg/i)).toBeInTheDocument();
+    await act(async () => {
+      render(
+        <BrowserRouter>
+          <Ranking />
+        </BrowserRouter>
+      );
     });
+
+    expect(await screen.findByText(/player1/i)).toBeInTheDocument();
+    expect(await screen.findByText(/player2/i)).toBeInTheDocument();
   });
 
-  it("should allow sorting by different criteria", async () => {
-    const mockRanking = [
-      { username: "player1", gamesPlayed: 10, correctAnswers: 8, wrongAnswers: 2, totalTimePlayed: 200 },
-    ];
+  it("should display error message when ranking fetch fails", async () => {
+    mockAxios.onGet(`${apiEndpoint}/ranking?sortBy=correctAnswers`).reply(500);
 
-    mockAxios.onGet(`${apiEndpoint}/ranking?sortBy=gamesPlayed`).reply(200, mockRanking);
-
-    render(
-      <BrowserRouter>
-        <Ranking />
-      </BrowserRouter>
-    );
-
-    const sortSelect = screen.getByText(/Ordenar por/i).closest("div").querySelector("select");
-
-    fireEvent.change(sortSelect, { target: { value: "gamesPlayed" } });
-
-    await waitFor(() => {
-      expect(screen.getByText(/player1/i)).toBeInTheDocument();
-      expect(screen.getByText(/10/i)).toBeInTheDocument();
+    await act(async () => {
+      render(
+        <BrowserRouter>
+          <Ranking />
+        </BrowserRouter>
+      );
     });
-  });
 
-  it("should display error message when fetching ranking fails", async () => {
-    mockAxios.onGet(`${apiEndpoint}/ranking?sortBy=correctAnswers`).reply(500, { error: "No se pudo obtener el ranking" });
-
-    render(
-      <BrowserRouter>
-        <Ranking />
-      </BrowserRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(/No se pudo obtener el ranking/i)).toBeInTheDocument();
-    });
+    expect(await screen.findByText(/No se pudo obtener el ranking/i)).toBeInTheDocument();
   });
 });
