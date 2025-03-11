@@ -6,6 +6,36 @@ import {
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
+import LLMChat from "./LLMChat";
+
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#121212',
+      paper: '#1E1E1E',
+    },
+    primary: {
+      main: '#BB86FC',
+    },
+    secondary: {
+      main: '#03DAC6',
+    },
+    text: {
+      primary: '#FFFFFF',
+      secondary: '#B0B0B0',
+    },
+  },
+  typography: {
+    h4: {
+      fontWeight: 'bold',
+    },
+    h6: {
+      fontSize: '1.2rem',
+    },
+  },
+});
 
 const Game = () => {
   const [questionData, setQuestionData] = useState(null);
@@ -23,8 +53,10 @@ const Game = () => {
 
   const registerGame = async () => {
     if (gameRegistered) return; 
+
     const loggedInUser = localStorage.getItem("username");
     if (!loggedInUser) return;
+
     try {
       await axios.post("http://localhost:8001/incrementGamesPlayed", { username: loggedInUser });
       setGameRegistered(true); 
@@ -39,7 +71,6 @@ const Game = () => {
       setQuestionData(response.data);
       setSelectedAnswer("");
       setFeedback({});
-      setTimeRemaining(60);
       setAnswered(false);
     } catch (error) {
       console.error("Error fetching question:", error);
@@ -47,13 +78,17 @@ const Game = () => {
   };
 
   const handleAnswerSubmit = async () => {
+
     if (!selectedAnswer) return;
     const loggedInUser = localStorage.getItem("username"); 
     const isCorrect = selectedAnswer === questionData.answer;
+
     setFeedback({
       ...feedback,
       [selectedAnswer]: isCorrect ? "✅" : "❌"
     });
+
+   
     setAnswered(true);
     try {
       await axios.post("http://localhost:8001/updateStats", {
@@ -64,10 +99,6 @@ const Game = () => {
     } catch (error) {
       console.error("Error al actualizar estadísticas:", error);
     }
-  };
-
-  const handleTick = ({ total }) => {
-    setTimeRemaining(Math.ceil(total / 1000));
   };
 
   const renderer = ({ minutes, seconds, completed }) => {
@@ -83,8 +114,9 @@ const Game = () => {
     }
   };
 
+
   return (
-    <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
+    <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Container component="main" maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={4} alignItems="stretch" sx={{ height: '100vh' }}>
@@ -94,7 +126,7 @@ const Game = () => {
                 <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
                   <img 
                     src={questionData.image} 
-                    alt={`Imagen de ${questionData.question}`} 
+                    alt={`Bandera de ${questionData.question}`} 
                     style={{ width: "500px", height: "auto", borderRadius: "5px", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }} 
                   />
                 </Box>
@@ -103,10 +135,7 @@ const Game = () => {
                 <Typography variant="h6" gutterBottom>
                   {questionData.question}
                 </Typography>
-                <RadioGroup
-                  value={selectedAnswer}
-                  onChange={(e) => !answered && setSelectedAnswer(e.target.value)}
-                >
+                <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
                   {questionData.choices.map((option, index) => (
                     <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
                       <FormControlLabel value={option} control={<Radio disabled={answered} />} label={option} />
@@ -132,11 +161,33 @@ const Game = () => {
             </Typography>
           )}
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3, bgcolor: 'background.paper', borderRadius: 3, boxShadow: 3 }}>
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              p: 3,
+              bgcolor: 'background.paper',
+              borderRadius: 3,
+              boxShadow: 3,
+            }}>
               <Typography variant="h5" gutterBottom>
                 Tiempo restante:
               </Typography>
-              <Countdown date={Date.now() + 60000} renderer={renderer} onTick={handleTick} />
+              <Countdown date={Date.now() + 60000} renderer={renderer} />
+            </Box>
+            <Box sx={{
+              mt: 4,
+              p: 3,
+              bgcolor: 'background.paper',
+              borderRadius: 3,
+              boxShadow: 3,
+              textAlign: 'center',
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <LLMChat />
             </Box>
           </Grid>
         </Grid>
