@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Typography, TextField, Button, Snackbar } from '@mui/material';
+import { Container, Typography, TextField, Button, Snackbar, Paper, Box } from '@mui/material';
 import { Typewriter } from "react-simple-typewriter";
 
 const Login = ({ onLoginSuccess }) => {
@@ -20,10 +20,10 @@ const Login = ({ onLoginSuccess }) => {
   const loginUser = async () => {
     try {
       const response = await axios.post(`${apiEndpoint}/login`, { username, password });
-
+      
       const question = `Please, generate a greeting message for a student called ${username} that is a student of the Software Architecture course in the University of Oviedo. Be nice and polite.`;
       const model = "empathy";
-
+      
       let greetingMessage = "Welcome!";
       
       if (apiKey !== 'None') {
@@ -50,34 +50,71 @@ const Login = ({ onLoginSuccess }) => {
     }
   };
 
-
   return (
-    <Container component="main" maxWidth="xs" sx={{ marginTop: 4 }}>
-      {loginSuccess ? (
-        <div>
-          <Typewriter words={[message]} cursor cursorStyle="|" typeSpeed={50} />
-          <Typography variant="body1" sx={{ textAlign: 'center', marginTop: 2 }}>
-            Your account was created on {new Date(createdAt).toLocaleDateString()}.
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ marginTop: 2 }}
-          >
-            Ir al Juego
-          </Button>
-        </div>
-      ) : (
-        <div>
-          <Typography component="h1" variant="h5">Login</Typography>
-          <TextField margin="normal" fullWidth label="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-          <TextField margin="normal" fullWidth label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <Button variant="contained" color="primary" onClick={loginUser}>Login</Button>
-          <Snackbar open={openSnackbar} autoHideDuration={6000} message="Login successful" />
-          {error && <Snackbar open={!!error} autoHideDuration={6000} message={`Error: ${error}`} />}
-        </div>
-      )}
-    </Container>
+    <Box sx={{
+      height: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: 'linear-gradient(to right, #6a11cb, #2575fc)',
+    }}>
+      <Container component="main" maxWidth="xs">
+        <Paper elevation={10} sx={{ p: 4, borderRadius: 3, backdropFilter: 'blur(10px)', textAlign: 'center' }}>
+          {loginSuccess ? (
+            <div>
+              <Typewriter words={[message]} cursor cursorStyle="|" typeSpeed={50} />
+              <Typography variant="body1" sx={{ textAlign: 'center', marginTop: 2 }}>
+                Your account was created on {new Date(createdAt).toLocaleDateString()}.
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ marginTop: 2 }}
+                onClick={() => navigate('/startmenu')}
+              >
+                Ir al Juego
+              </Button>
+            </div>
+          ) : (
+            <div>
+              <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom>
+                Login
+              </Typography>
+              <TextField 
+                margin="normal" 
+                fullWidth 
+                label="Username" 
+                variant="outlined"
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)}
+                sx={{ bgcolor: 'white', borderRadius: 1 }}
+              />
+              <TextField 
+                margin="normal" 
+                fullWidth 
+                label="Password" 
+                type="password"
+                variant="outlined"
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)}
+                sx={{ bgcolor: 'white', borderRadius: 1 }}
+              />
+              <Button 
+                fullWidth 
+                variant="contained" 
+                color="secondary" 
+                sx={{ mt: 2, borderRadius: 2 }} 
+                onClick={loginUser}
+              >
+                Login
+              </Button>
+              <Snackbar open={openSnackbar} autoHideDuration={6000} message="Login successful" />
+              {error && <Snackbar open={!!error} autoHideDuration={6000} message={`Error: ${error}`} />}
+            </div>
+          )}
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

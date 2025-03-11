@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { 
-  Container, Typography, Box, Button, Grid, CssBaseline, 
-  Radio, RadioGroup, FormControlLabel 
+import {
+  Container, Typography, Box, Button, Grid, CssBaseline,
+  Radio, RadioGroup, FormControlLabel, Paper, CircularProgress
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
-
+import LLMChat from "./LLMChat";
 
 const darkTheme = createTheme({
   palette: {
@@ -33,46 +33,46 @@ const darkTheme = createTheme({
     h6: {
       fontSize: '1.2rem',
     },
+    button: {
+      textTransform: 'none',
+      fontWeight: 'bold',
+    },
   },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          padding: '20px',
+          borderRadius: '12px',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)'
+        }
+      }
+    }
+  }
 });
 
 const Game = () => {
   const [questionData, setQuestionData] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [feedback, setFeedback] = useState({});
-  const [timeRemaining, setTimeRemaining] = useState(10);
   const [timerEndTime, setTimerEndTime] = useState(Date.now() + 10000);
-  const [gameRegistered, setGameRegistered] = useState(false);
   const [answered, setAnswered] = useState(false);
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
 
   useEffect(() => {
-    registerGame(); 
     fetchQuestion();
   }, []);
 
-
-
-  const registerGame = async () => {
-    if (gameRegistered) return; 
-    const loggedInUser = localStorage.getItem("username");
-    if (!loggedInUser) return;
-    try {
-      await axios.post("http://localhost:8001/incrementGamesPlayed", { username: loggedInUser });
-      setGameRegistered(true); 
-    } catch (error) {
-      console.error("Error al registrar la partida:", error);
-    }
-  };
-
   const fetchQuestion = async () => {
     try {
-      const response = await axios.get(`${apiEndpoint}/question`);
-      setQuestionData(response.data);
+      // Limpia el estado antes de hacer la solicitud
+      setQuestionData(null);
       setSelectedAnswer("");
       setFeedback({});
       setAnswered(false);
-      
+
+      const response = await axios.get(`${apiEndpoint}/question`);
+      setQuestionData(response.data);
       setTimerEndTime(Date.now() + 10000);
     } catch (error) {
       console.error("Error fetching question:", error);
@@ -81,122 +81,95 @@ const Game = () => {
 
   const handleAnswerSubmit = async () => {
     if (!selectedAnswer) return;
-    const loggedInUser = localStorage.getItem("username");
     const isCorrect = selectedAnswer === questionData.answer;
-  
+
     setFeedback({
       ...feedback,
       [selectedAnswer]: isCorrect ? "✅" : "❌"
     });
     setAnswered(true);
-  
-    // Si la respuesta es incorrecta, ponemos el contador a 0
-    if (!isCorrect) {
-      setTimeRemaining(0);
-    }
-  
-    try {
-      await axios.post("http://localhost:8001/updateStats", {
-        username: loggedInUser,
-        isCorrect,
-        timeTaken: 10 - timeRemaining
-      });
-    } catch (error) {
-      console.error("Error al actualizar estadísticas:", error);
-    }
-  
-    // Si la respuesta es correcta, cargamos la siguiente pregunta
+
     if (isCorrect) {
-      fetchQuestion();
-    }
-  };
-
-
-  const handleTick = ({ total }) => {
-    if (timeRemaining === 0) {
-
-    }else {
-      setTimeRemaining(Math.ceil(total / 1000));
+      setTimeout(() => {
+        fetchQuestion();
+      }, 1000); // Espera 1 segundo antes de cargar la siguiente pregunta
     }
   };
 
   const renderer = ({ minutes, seconds, completed }) => {
-    if (completed || timeRemaining === 0) {
+    if (completed) {
       setAnswered(true);
-      return <Typography variant="h4" color="error" sx={{ fontWeight: 'bold' }}>⏳ Tiempo agotado</Typography>;
-    } else {
-      return (
-        <Typography variant="h4" color="secondary" sx={{ fontWeight: 'bold' }}>
-          {minutes}:{seconds < 10 ? '0' : ''}{seconds}
-        </Typography>
-      );
+      return <Typography variant="h4" color="error">⏳ Tiempo agotado</Typography>;
     }
+    return (
+      <Typography variant="h4" color="secondary">
+        {minutes}:{seconds < 10 ? '0' : ''}{seconds}
+      </Typography>
+    );
   };
 
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Container component="main" maxWidth="lg" sx={{ py: 4 }}>
-        <Grid container spacing={4} alignItems="stretch" sx={{ height: '100vh' }}>
-          {questionData ? (
-            <Grid item xs={12} md={6}>
-              {questionData.image && (
-                <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
-                  <img 
-                    src={questionData.image} 
-                    alt={`Imagen de ${questionData.question}`} 
-                    style={{ width: "500px", height: "auto", borderRadius: "5px", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }} 
-                  />
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Grid container spacing={4} alignItems="stretch">
+          <Grid item xs={12} md={6}>
+            <Paper>
+              {questionData ? (
+                <>
+                  {questionData.image && (
+                    <Box display="flex" justifyContent="center" my={2}>
+                      <img 
+                        src={questionData.image} 
+                        alt={`Bandera de ${questionData.question}`} 
+                        style={{ width: "100%", maxWidth: "450px", borderRadius: "8px" }}
+                      />
+                    </Box>
+                  )}
+                  <Typography variant="h6" gutterBottom>{questionData.question}</Typography>
+                  <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
+                    {questionData.choices.map((option, index) => (
+                      <Box key={index} display='flex' alignItems='center'>
+                        <FormControlLabel 
+                          value={option} 
+                          control={<Radio disabled={answered} />} 
+                          label={option} 
+                        />
+                        {feedback[option] && (
+                          <Typography variant="h6" sx={{ ml: 2, color: feedback[option] === "✅" ? "green" : "red" }}>
+                            {feedback[option]}
+                          </Typography>
+                        )}
+                      </Box>
+                    ))}
+                  </RadioGroup>
+                  <Button 
+                    variant="contained" 
+                    color="primary" 
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    onClick={handleAnswerSubmit} 
+                    disabled={!selectedAnswer || answered}
+                  >
+                    Enviar Respuesta
+                  </Button>
+                </>
+              ) : (
+                <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+                  <CircularProgress />
                 </Box>
               )}
-              <Box sx={{ mt: 3, p: 3, bgcolor: 'background.paper', borderRadius: 3, boxShadow: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  {questionData.question}
-                </Typography>
-                <RadioGroup
-                  value={selectedAnswer}
-                  onChange={(e) => !answered && setSelectedAnswer(e.target.value)}
-                >
-                  {questionData.choices.map((option, index) => (
-                    <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
-                      <FormControlLabel value={option} control={<Radio disabled={answered} />} label={option} />
-                      {feedback[option] && (
-                        <Typography variant="h6" sx={{ ml: 2, color: feedback[option] === "✅" ? "green" : "red" }}>
-                          {feedback[option]}
-                        </Typography>
-                      )}
-                    </Box>
-                  ))}
-                </RadioGroup>
-                <Button variant="contained" color="primary" onClick={handleAnswerSubmit} sx={{ marginTop: 2 }} disabled={!selectedAnswer || answered}>
-                  Enviar Respuesta
-                </Button>
-              </Box>
-            </Grid>
-          ) : (
-            <Typography variant="h6" align="center" sx={{ marginTop: 3 }}>
-              Cargando pregunta...
-            </Typography>
-          )}
-          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3, bgcolor: 'background.paper', borderRadius: 3, boxShadow: 3 }}>
-              <Typography variant="h5" gutterBottom>
-                Tiempo restante:
-              </Typography>
-              <Countdown date={timerEndTime} renderer={renderer} onTick={handleTick} />
-            </Box>
-            <Box sx={{
-              mt: 4,
-              p: 3,
-              bgcolor: 'background.paper',
-              borderRadius: 3,
-              boxShadow: 3,
-              textAlign: 'center',
-              flex: 1,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}></Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
+              <Typography variant="h5" gutterBottom>Tiempo restante:</Typography>
+              <Countdown date={timerEndTime} renderer={renderer} />
+            </Paper>
+            <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}>
+              <LLMChat />
+            </Paper>
           </Grid>
         </Grid>
       </Container>
