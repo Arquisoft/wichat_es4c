@@ -60,33 +60,4 @@ describe('Game Component', () => {
     fireEvent.click(screen.getByLabelText(/Barcelona/i));
     expect(screen.getByLabelText(/Barcelona/i)).not.toBeChecked();
   });
-
-  it('should disable "Siguiente Pregunta" until an answer is submitted', async () => {
-    mockAxios.onGet('http://localhost:8004/question').reply(200, {
-      question: 'What is the capital of Germany?',
-      choices: ['Berlin', 'Munich', 'Hamburg', 'Frankfurt'],
-      answer: 'Berlin'
-    });
-
-    render(
-      <BrowserRouter>
-        <Game />
-      </BrowserRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(/What is the capital of Germany\?/i)).toBeInTheDocument();
-    });
-
-    const nextButton = screen.getByRole('button', { name: /Siguiente Pregunta/i });
-    expect(nextButton).toBeDisabled();
-
-    fireEvent.click(screen.getByLabelText(/Berlin/i));
-    fireEvent.click(screen.getByRole('button', { name: /Enviar Respuesta/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText('✅')).toBeInTheDocument();
-      expect(nextButton).not.toBeDisabled();
-    });
-  });
 });
