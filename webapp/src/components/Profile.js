@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Card, CardContent, Typography, CircularProgress, Grid, Button } from "@mui/material";
+import axios from "axios";
+import { Box, Card, CardContent, Typography, CircularProgress, Grid, Button, Snackbar } from "@mui/material";
+
+const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 
 const Profile = () => {
   const { username } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     if (!username) {
@@ -17,14 +21,11 @@ const Profile = () => {
 
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:8001/profile/${username}`);
-        if (!response.ok) {
-          throw new Error("No se pudo obtener la información del perfil");
-        }
-        const data = await response.json();
-        setUser(data);
+        const response = await axios.get(`${apiEndpoint}/profile/${username}`);
+        setUser(response.data);
       } catch (error) {
-        setError(error.message);
+        setError(error.response?.data?.error || "No se pudo obtener la información del perfil");
+        setOpenSnackbar(true);
       } finally {
         setLoading(false);
       }
@@ -41,43 +42,34 @@ const Profile = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Box sx={{ textAlign: "center", color: "red", marginTop: "20px" }}>
-        <Typography variant="h6">{error}</Typography>
-      </Box>
-    );
-  }
-
   return (
     <Box sx={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#212121", color: "#00FFFF" }}>
       <Card sx={{ backgroundColor: "#333", color: "#00FFFF", borderRadius: 3, p: 4, minWidth: 450, maxWidth: 600 }}>
         <CardContent>
           <Box sx={{ textAlign: "center", mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold" }}>{user.username}</Typography>
+            <Typography variant="h4" sx={{ fontWeight: "bold" }}>{user?.username}</Typography>
             <Typography variant="body1" sx={{ color: "#aaa" }}>Jugador activo</Typography>
           </Box>
 
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="h6">🎮 Juegos Jugados</Typography>
-              <Typography variant="body1">{user.gamesPlayed}</Typography>
+              <Typography variant="body1">{user?.gamesPlayed}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6">✅ Respuestas Correctas</Typography>
-              <Typography variant="body1">{user.correctAnswers}</Typography>
+              <Typography variant="body1">{user?.correctAnswers}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6">❌ Respuestas Incorrectas</Typography>
-              <Typography variant="body1">{user.wrongAnswers}</Typography>
+              <Typography variant="body1">{user?.wrongAnswers}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6">⏳ Tiempo Jugado</Typography>
-              <Typography variant="body1">{user.totalTimePlayed} seg</Typography>
+              <Typography variant="body1">{user?.totalTimePlayed} seg</Typography>
             </Grid>
           </Grid>
 
-          
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
               Volver al menú
@@ -85,6 +77,8 @@ const Profile = () => {
           </Box>
         </CardContent>
       </Card>
+
+      <Snackbar open={openSnackbar} autoHideDuration={6000} message={`Error: ${error}`} onClose={() => setOpenSnackbar(false)} />
     </Box>
   );
 };
