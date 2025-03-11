@@ -7,11 +7,41 @@ import {
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
 
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#121212',
+      paper: '#1E1E1E',
+    },
+    primary: {
+      main: '#BB86FC',
+    },
+    secondary: {
+      main: '#03DAC6',
+    },
+    text: {
+      primary: '#FFFFFF',
+      secondary: '#B0B0B0',
+    },
+  },
+  typography: {
+    h4: {
+      fontWeight: 'bold',
+    },
+    h6: {
+      fontSize: '1.2rem',
+    },
+  },
+});
+
 const Game = () => {
   const [questionData, setQuestionData] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [feedback, setFeedback] = useState({});
-  const [timeRemaining, setTimeRemaining] = useState(60);
+  const [timeRemaining, setTimeRemaining] = useState(10);
+  const [timerEndTime, setTimerEndTime] = useState(Date.now() + 10000);
   const [gameRegistered, setGameRegistered] = useState(false);
   const [answered, setAnswered] = useState(false);
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
@@ -20,6 +50,8 @@ const Game = () => {
     registerGame(); 
     fetchQuestion();
   }, []);
+
+
 
   const registerGame = async () => {
     if (gameRegistered) return; 
@@ -39,8 +71,9 @@ const Game = () => {
       setQuestionData(response.data);
       setSelectedAnswer("");
       setFeedback({});
-      setTimeRemaining(60);
       setAnswered(false);
+      
+      setTimerEndTime(Date.now() + 10000);
     } catch (error) {
       console.error("Error fetching question:", error);
     }
@@ -48,30 +81,47 @@ const Game = () => {
 
   const handleAnswerSubmit = async () => {
     if (!selectedAnswer) return;
-    const loggedInUser = localStorage.getItem("username"); 
+    const loggedInUser = localStorage.getItem("username");
     const isCorrect = selectedAnswer === questionData.answer;
+  
     setFeedback({
       ...feedback,
       [selectedAnswer]: isCorrect ? "✅" : "❌"
     });
     setAnswered(true);
+  
+    // Si la respuesta es incorrecta, ponemos el contador a 0
+    if (!isCorrect) {
+      setTimeRemaining(0);
+    }
+  
     try {
       await axios.post("http://localhost:8001/updateStats", {
         username: loggedInUser,
         isCorrect,
-        timeTaken: 60 - timeRemaining
+        timeTaken: 10 - timeRemaining
       });
     } catch (error) {
       console.error("Error al actualizar estadísticas:", error);
     }
+  
+    // Si la respuesta es correcta, cargamos la siguiente pregunta
+    if (isCorrect) {
+      fetchQuestion();
+    }
   };
 
+
   const handleTick = ({ total }) => {
-    setTimeRemaining(Math.ceil(total / 1000));
+    if (timeRemaining === 0) {
+
+    }else {
+      setTimeRemaining(Math.ceil(total / 1000));
+    }
   };
 
   const renderer = ({ minutes, seconds, completed }) => {
-    if (completed) {
+    if (completed || timeRemaining === 0) {
       setAnswered(true);
       return <Typography variant="h4" color="error" sx={{ fontWeight: 'bold' }}>⏳ Tiempo agotado</Typography>;
     } else {
@@ -84,7 +134,7 @@ const Game = () => {
   };
 
   return (
-    <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
+    <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Container component="main" maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={4} alignItems="stretch" sx={{ height: '100vh' }}>
@@ -121,9 +171,6 @@ const Game = () => {
                 <Button variant="contained" color="primary" onClick={handleAnswerSubmit} sx={{ marginTop: 2 }} disabled={!selectedAnswer || answered}>
                   Enviar Respuesta
                 </Button>
-                <Button variant="outlined" color="secondary" onClick={fetchQuestion} sx={{ marginTop: 2, marginLeft: 17 }} disabled={!answered}>
-                  Siguiente Pregunta
-                </Button>
               </Box>
             </Grid>
           ) : (
@@ -136,8 +183,20 @@ const Game = () => {
               <Typography variant="h5" gutterBottom>
                 Tiempo restante:
               </Typography>
-              <Countdown date={Date.now() + 60000} renderer={renderer} onTick={handleTick} />
+              <Countdown date={timerEndTime} renderer={renderer} onTick={handleTick} />
             </Box>
+            <Box sx={{
+              mt: 4,
+              p: 3,
+              bgcolor: 'background.paper',
+              borderRadius: 3,
+              boxShadow: 3,
+              textAlign: 'center',
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}></Box>
           </Grid>
         </Grid>
       </Container>
