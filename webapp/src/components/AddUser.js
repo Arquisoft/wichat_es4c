@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Typography, TextField, Button, Snackbar } from '@mui/material';
+import { Container, Typography, TextField, Button, Snackbar, Paper, Box } from '@mui/material';
 
 const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:8000';
 
@@ -24,14 +24,47 @@ const AddUser = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs" sx={{ marginTop: 4 }}>
-      <Typography component="h1" variant="h5">Add User</Typography>
-      <TextField margin="normal" fullWidth label="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-      <TextField margin="normal" fullWidth label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <Button variant="contained" color="primary" onClick={addUser}>Add User</Button>
-      <Snackbar open={openSnackbar} autoHideDuration={6000} message="User added successfully" />
-      {error && <Snackbar open={!!error} autoHideDuration={6000} message={`Error: ${error}`} />}
-    </Container>
+    <Box sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    }}>
+      <Container component="main" maxWidth="xs">
+        <Paper elevation={6} sx={{ p: 4, borderRadius: 3, textAlign: 'center' }}>
+          <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom>
+            Register
+          </Typography>
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="secondary"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={addUser}
+          >
+            Sign Up
+          </Button>
+          <Snackbar open={openSnackbar} autoHideDuration={6000} message="User added successfully" />
+          {error && <Snackbar open={!!error} autoHideDuration={6000} message={`Error: ${error}`} />}
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

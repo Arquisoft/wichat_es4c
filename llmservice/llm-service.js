@@ -1,12 +1,17 @@
-
 const axios = require('axios');
 const express = require('express');
+const cors = require('cors'); // Importa el paquete cors
 
 const app = express();
 const port = 8003;
 
 // Middleware to parse JSON in request body
 app.use(express.json());
+
+// Habilitar CORS para permitir solicitudes desde http://localhost:3000
+app.use(cors({
+  origin: 'http://localhost:3000', // Aquí puedes cambiar el origen según necesites
+}));
 
 // Define configurations for different LLM APIs
 const llmConfigs = {
@@ -87,4 +92,4 @@ const server = app.listen(port, () => {
   console.log(`LLM Service listening at http://localhost:${port}`);
 });
 
-module.exports = server
+module.exports = server;
