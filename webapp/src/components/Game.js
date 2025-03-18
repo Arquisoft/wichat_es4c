@@ -11,43 +11,18 @@ import LLMChat from "./LLMChat";
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
-    background: {
-      default: '#121212',
-      paper: '#1E1E1E',
-    },
-    primary: {
-      main: '#BB86FC',
-    },
-    secondary: {
-      main: '#03DAC6',
-    },
-    text: {
-      primary: '#FFFFFF',
-      secondary: '#B0B0B0',
-    },
+    background: { default: '#121212', paper: '#1E1E1E' },
+    primary: { main: '#BB86FC' },
+    secondary: { main: '#03DAC6' },
+    text: { primary: '#FFFFFF', secondary: '#B0B0B0' },
   },
   typography: {
-    h4: {
-      fontWeight: 'bold',
-    },
-    h6: {
-      fontSize: '1.2rem',
-    },
-    button: {
-      textTransform: 'none',
-      fontWeight: 'bold',
-    },
+    h4: { fontWeight: 'bold' },
+    h6: { fontSize: '1.2rem' },
+    button: { textTransform: 'none', fontWeight: 'bold' },
   },
   components: {
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          padding: '20px',
-          borderRadius: '12px',
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)'
-        }
-      }
-    }
+    MuiPaper: { styleOverrides: { root: { padding: '20px', borderRadius: '12px', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)' } } }
   }
 });
 
@@ -57,31 +32,48 @@ const Game = () => {
   const [feedback, setFeedback] = useState({});
   const [timerEndTime, setTimerEndTime] = useState(Date.now() + 10000);
   const [answered, setAnswered] = useState(false);
-  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
+  const [startTime, setStartTime] = useState(null);
+
+  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
+  const username = localStorage.getItem("username");
 
   useEffect(() => {
+    newGame();
     fetchQuestion();
   }, []);
 
   const fetchQuestion = async () => {
     try {
-      // Limpia el estado antes de hacer la solicitud
       setQuestionData(null);
       setSelectedAnswer("");
       setFeedback({});
       setAnswered(false);
+      setStartTime(Date.now());
 
       const response = await axios.get(`${apiEndpoint}/question`);
       setQuestionData(response.data);
       setTimerEndTime(Date.now() + 10000);
+
+      
     } catch (error) {
       console.error("Error fetching question:", error);
+    }
+  };
+  const newGame = async () => {
+    try {
+
+      if (username) {
+        await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
+      }
+    } catch (error) {
+      console.error("Error incrementing game:", error);
     }
   };
 
   const handleAnswerSubmit = async () => {
     if (!selectedAnswer) return;
     const isCorrect = selectedAnswer === questionData.answer;
+    const timeTaken = Math.floor((Date.now() - startTime) / 1000); // Tiempo en segundos
 
     setFeedback({
       ...feedback,
@@ -89,11 +81,22 @@ const Game = () => {
     });
     setAnswered(true);
 
-    if (isCorrect) {
-      setTimeout(() => {
-        fetchQuestion();
-      }, 1000); // Espera 1 segundo antes de cargar la siguiente pregunta
+    // 🔹 Llamar a updateStats sin puntuaciones, solo aciertos/fallos
+    if (username) {
+      try {
+        await axios.post(`${apiEndpoint}/updateStats`, {
+          username,
+          isCorrect,
+          timeTaken
+        });
+      } catch (error) {
+        console.error("Error al actualizar estadísticas:", error);
+      }
     }
+
+    setTimeout(() => {
+      fetchQuestion();
+    }, 1000);
   };
 
   const renderer = ({ minutes, seconds, completed }) => {
@@ -121,7 +124,7 @@ const Game = () => {
                     <Box display="flex" justifyContent="center" my={2}>
                       <img 
                         src={questionData.image} 
-                        alt={`Bandera de ${questionData.question}`} 
+                        alt={`Imagen`} 
                         style={{ width: "100%", maxWidth: "450px", borderRadius: "8px" }}
                       />
                     </Box>

@@ -70,9 +70,13 @@ const Profile = () => {
             </Grid>
           </Grid>
 
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+          {/* Contenedor para los botones alineados horizontalmente */}
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 4 }}>
             <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
               Volver al menú
+            </Button>
+            <Button variant="contained" onClick={() => navigate("/ranking")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
+              Ver en ranking
             </Button>
           </Box>
         </CardContent>
