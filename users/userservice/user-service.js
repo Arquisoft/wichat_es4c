@@ -147,7 +147,7 @@ app.get('/ranking', async (req, res) => {
             return res.status(400).json({ error: "Criterio de ordenación inválido" });
         }
 
-        const players = await User.find().sort({ [sortBy]: -1 }).limit(10);
+        const players = await User.find().sort({ [sortBy]: -1 }).limit(20);
         res.json(players);
     } catch (error) {
         console.error("Error al obtener el ranking:", error);
