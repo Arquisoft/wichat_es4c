@@ -4,26 +4,35 @@ import { Box, TextField, Button, Typography, CircularProgress } from "@mui/mater
 
 const LLMChat = () => {
   const [question, setQuestion] = useState("");
-  const [response, setResponse] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const apiEndpoint = "http://localhost:8003";
 
   const handleAskLLM = async () => {
     if (!question.trim()) return;
     setLoading(true);
-    setResponse("");
+    
     try {
       const res = await axios.post(`${apiEndpoint}/ask`, {
         question,
         model: "gemini", // Cambia según el modelo deseado
         apiKey: process.env.REACT_APP_LLM_API_KEY,
       });
-      setResponse(res.data.answer);
+      
+      setChatHistory(prevHistory => [
+        ...prevHistory,
+        { question, response: res.data.answer }
+      ]);
+      
     } catch (error) {
       console.error("Error al consultar el LLM:", error);
-      setResponse("Error al obtener la respuesta.");
+      setChatHistory(prevHistory => [
+        ...prevHistory,
+        { question, response: "Error al obtener la respuesta." }
+      ]);
     }
     setLoading(false);
+    setQuestion("");
   };
 
   return (
@@ -38,7 +47,6 @@ const LLMChat = () => {
         boxShadow: 3,
         textAlign: "center",
         width: "100%",
-        mt: "400px",
       }}
     >
       <Typography variant="h6" gutterBottom>
@@ -60,11 +68,31 @@ const LLMChat = () => {
       >
         {loading ? <CircularProgress size={24} /> : "Enviar"}
       </Button>
-      {response && (
-        <Typography variant="body1" sx={{ mt: 2, bgcolor: "#1E1E1E", p: 2, borderRadius: 2 }}>
-          {response}
-        </Typography>
-      )}
+      
+      <Box
+        sx={{
+          mt: 2,
+          width: "100%",
+          maxHeight: 300,
+          overflowY: "auto",
+          bgcolor: "#1E1E1E",
+          p: 2,
+          borderRadius: 2,
+        }}
+      >
+        {chatHistory.map((chat, index) => (
+          <Box key={index} sx={{ mb: 2, textAlign: "left" }}>
+            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#BB86FC" }}>
+              Pregunta:
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>{chat.question}</Typography>
+            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#03DAC6" }}>
+              Respuesta:
+            </Typography>
+            <Typography variant="body1">{chat.response}</Typography>
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
 };
