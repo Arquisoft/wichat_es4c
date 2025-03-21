@@ -51,7 +51,7 @@ For launching the propotipe using docker compose, just type:
 ### Component by component start
 First, start the database. Either install and run Mongo or run it using docker:
 
-```docker run -d -p 27017:27017 --name=my-mongo mongo:latest```
+``````
 
 You can use also services like Mongo Altas for running a Mongo database in the cloud.
 
@@ -98,7 +98,7 @@ deploy:
     name: Deploy over SSH
     runs-on: ubuntu-latest
     needs: [docker-push-userservice,docker-push-authservice,docker-push-llmservice,docker-push-gatewayservice,docker-push-webapp]
-    steps:
+    steps:docker run -d -p 27017:27017 --name=my-mongo mongo:latest
     - name: Deploy over SSH
       uses: fifsky/ssh-action@master
       with:

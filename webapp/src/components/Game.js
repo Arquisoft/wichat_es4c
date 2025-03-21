@@ -81,7 +81,6 @@ const Game = () => {
     });
     setAnswered(true);
 
-    // 🔹 Llamar a updateStats sin puntuaciones, solo aciertos/fallos
     if (username) {
       try {
         await axios.post(`${apiEndpoint}/updateStats`, {
@@ -165,12 +164,13 @@ const Game = () => {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
             <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
               <Typography variant="h5" gutterBottom>Tiempo restante:</Typography>
               <Countdown date={timerEndTime} renderer={renderer} />
             </Paper>
-            <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}>
+            
+            <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}> {/* Se redujo el margen superior */}
               <LLMChat />
             </Paper>
           </Grid>
