@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { Box, TextField, Button, Typography, CircularProgress } from "@mui/material";
 
@@ -7,32 +7,53 @@ const LLMChat = () => {
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const apiEndpoint = "http://localhost:8003";
+  const inputRef = useRef(null); // Referencia al cuadro de texto
+  const chatBoxRef = useRef(null); // Referencia al contenedor del historial de chat
+
+  useEffect(() => {
+    // Enfocar el cuadro de texto al cargar el componente
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Desplazar el contenedor del historial hacia abajo cuando cambie el historial
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
 
   const handleAskLLM = async () => {
     if (!question.trim()) return;
     setLoading(true);
-    
+
     try {
       const res = await axios.post(`${apiEndpoint}/ask`, {
         question,
         model: "gemini", // Cambia según el modelo deseado
         apiKey: process.env.REACT_APP_LLM_API_KEY,
       });
-      
-      setChatHistory(prevHistory => [
+
+      setChatHistory((prevHistory) => [
         ...prevHistory,
-        { question, response: res.data.answer }
+        { question, response: res.data.answer },
       ]);
-      
     } catch (error) {
       console.error("Error al consultar el LLM:", error);
-      setChatHistory(prevHistory => [
+      setChatHistory((prevHistory) => [
         ...prevHistory,
-        { question, response: "Error al obtener la respuesta." }
+        { question, response: "Error al obtener la respuesta." },
       ]);
     }
     setLoading(false);
     setQuestion("");
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleAskLLM();
+    }
   };
 
   return (
@@ -58,6 +79,8 @@ const LLMChat = () => {
         label="Escribe tu pregunta"
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
+        onKeyPress={handleKeyPress} // Detectar la tecla "Enter"
+        inputRef={inputRef} // Asignar la referencia al cuadro de texto
         sx={{ mb: 2 }}
       />
       <Button
@@ -68,8 +91,9 @@ const LLMChat = () => {
       >
         {loading ? <CircularProgress size={24} /> : "Enviar"}
       </Button>
-      
+
       <Box
+        ref={chatBoxRef} // Asignar la referencia al contenedor del historial
         sx={{
           mt: 2,
           width: "100%",
