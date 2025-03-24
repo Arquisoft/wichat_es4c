@@ -20,6 +20,12 @@ describe('Gateway Service', () => {
     }
   });
 
+  axios.get.mockImplementation((url) => {
+    if (url.endsWith('/question')) {
+      return Promise.resolve({ data: { question: 'What is the capital of France?', options: ['Paris', 'Madrid', 'Berlin', 'Rome'], answer: 'Paris' } });
+    }
+  });
+
   // Test /login endpoint
   it('should forward login request to auth service', async () => {
     const response = await request(app)
@@ -48,5 +54,16 @@ describe('Gateway Service', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.body.answer).toBe('llmanswer');
+  });
+
+   // Test /question endpoint
+   it('should forward question request to the question service', async () => {
+    const response = await request(app).get('/question');
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveProperty('question', 'What is the capital of France?');
+    expect(response.body).toHaveProperty('options');
+    expect(response.body.options).toEqual(['Paris', 'Madrid', 'Berlin', 'Rome']);
+    expect(response.body).toHaveProperty('answer', 'Paris');
   });
 });

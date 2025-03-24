@@ -3,72 +3,74 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-concepts]]
 == Cross-cutting Concepts
 
+=== Domain Concepts
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content
-This section describes overall, principal regulations and solution ideas that are relevant in multiple parts (= cross-cutting) of your system.
-Such concepts are often related to multiple building blocks.
-They can include many different topics, such as
+The WIChat system is built around the concept of an interactive question-and-answer game where users receive hints to guess the correct answer. The system integrates data from WikiData and utilizes a Large Language Model (LLM) to generate dynamic hints.
 
-* models, especially domain models
-* architecture or design patterns
-* rules for using specific technology
-* principal, often technical decisions of an overarching (= cross-cutting) nature
-* implementation rules
+Key domain concepts include:
 
+Users: Participants interacting with WIChat.
 
-.Motivation
-Concepts form the basis for _conceptual integrity_ (consistency, homogeneity) of the architecture. 
-Thus, they are an important contribution to achieve inner qualities of your system.
+Questions & Answers: Content dynamically generated from WikiData.
 
-Some of these concepts cannot be assigned to individual building blocks, e.g. security or safety. 
+Hints: AI-generated assistance to guide users.
 
+Ranking System: Scores and leaderboards to enhance engagement.
 
-.Form
-The form can be varied:
+=== User Experience (UX) Concepts
 
-* concept papers with any kind of structure
-* cross-cutting model excerpts or scenarios using notations of the architecture views
-* sample implementations, especially for technical concepts
-* reference to typical usage of standard frameworks (e.g. using Hibernate for object/relational mapping)
+User experience is a fundamental aspect of WIChat, ensuring seamless interaction and intuitive design.
 
-.Structure
-A potential (but not mandatory) structure for this section could be:
+Minimalist UI Design: A clean and distraction-free interface.
 
-* Domain concepts
-* User Experience concepts (UX)
-* Safety and security concepts
-* Architecture and design patterns
-* "Under-the-hood"
-* development concepts
-* operational concepts
+Real-time Feedback: Immediate responses to user input.
 
-Note: it might be difficult to assign individual concepts to one specific topic
-on this list.
+Gamification Elements: Leaderboards and achievements to boost user engagement.
 
-image::08-concepts-EN.drawio.png["Possible topics for crosscutting concepts"]
+=== Security and Safety Concepts
+
+Security is a critical component of WIChat, ensuring safe interactions and data integrity.
+
+Authentication and Authorization: User authentication through secure protocols.
+
+Input Validation: Preventing injection attacks and ensuring data integrity.
 
 
-.Further Information
+=== Architecture and Design Patterns
 
-See https://docs.arc42.org/section-8/[Concepts] in the arc42 documentation.
-****
-endif::arc42help[]
+WIChat follows established software design principles to ensure scalability and maintainability.
 
-=== _<Concept 1>_
+Microservices Architecture: Decoupled services to improve scalability.
 
-_<explanation>_
+MVC Pattern: Structuring the web application using Model-View-Controller.
 
 
+=== "Under-the-hood" - Technical Implementation
 
-=== _<Concept 2>_
+Backend: Implemented using Node.js with Express.
 
-_<explanation>_
+Frontend: Built with React for a dynamic user experience.
 
-...
+Database: MongoDB as the primary data store.
 
-=== _<Concept n>_
+LLM Integration: Empathy AI used for hint generation.
 
-_<explanation>_
+External Data Source: WikiData for retrieving question-related information.
+
+=== Development Concepts
+
+Version Control: Git and GitHub for source code management.
+
+Continuous Integration/Deployment (CI/CD): Automated testing and deployment pipelines.
+
+Code Reviews: Peer reviews to maintain code quality.
+
+
+=== Operational Concepts
+
+Logging & Monitoring: Centralized logging and performance monitoring tools.
+
+Error Handling: Graceful degradation strategies for unexpected failures.
+
+
+

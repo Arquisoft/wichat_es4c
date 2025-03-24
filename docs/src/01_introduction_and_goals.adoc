@@ -17,6 +17,11 @@ These include
 ****
 endif::arc42help[]
 
+WIChat is an AI-powered web application for **RTVE**, aiming to develop an online quiz inspired by *Saber y Ganar*. This project will introduce a **conversational AI** feature that provides hints to contestants using an LLM.
+
+This document describes the key requirements and quality goals for the project. It also identifies the stakeholders and their expectations.
+
+
 === Requirements Overview
 
 ifdef::arc42help[]
@@ -37,6 +42,9 @@ If requirements documents exist this overview should refer to these documents.
 
 Keep these excerpts as short as possible. Balance readability of this document with potential redundancy w.r.t to requirements documents.
 
+The WIChat system must fulfill the following essential requirements:
+
+
 
 .Further Information
 
@@ -44,6 +52,16 @@ See https://docs.arc42.org/section-1/[Introduction and Goals] in the arc42 docum
 
 ****
 endif::arc42help[]
+
+
+* **User registration and authentication**: Users must be able to create accounts and log in.
+* **Image-based questions**: The game will display an image, and users must identify its location.
+* **AI-generated hints**: Players can request hints about the image through a conversational interface powered by an external **LLM**.
+* **Automatic content generation**: Images and hints must be dynamically created using **Wikidata**.
+* **Game scoring and rewards**: Users earn points or rewards for correct answers.
+* **API access**: External systems should be able to retrieve quiz data and user performance information through an API.
+* **Time-limited responses**: Each question must be answered within a given timeframe.
+* **Leaderboard**: Users can view their ranking and compare their performance with others.
 
 === Quality Goals
 
@@ -69,6 +87,21 @@ A table with quality goals and concrete scenarios, ordered by priorities
 ****
 endif::arc42help[]
 
+[options="header",cols="1,2,2"]
+|===
+| Quality Goal | Motivation | Concrete Scenario 
+
+| *Usability* | The game must provide an intuitive and engaging user experience | The UI should be clear and easy to navigate, with a conversational AI that is easy to interact with 
+
+| *Performance* | AI-generated hints should be delivered quickly to avoid disrupting gameplay | Hints generated via the **LLM** should have a response time of **less than 3 seconds**
+
+| *Security* | Protecting user data and preventing AI model abuse is critical | User interactions should be encrypted and respect user privacy and data protection laws.
+
+| *AI Adaptability* | The **LLM** should provide relevant and contextually appropriate hints | The AI must be fine-tuned to ensure accurate and helpful responses based on **Wikidata** sources
+
+| *Scalability* | The system must handle multiple simultaneous users without slowdowns | The game should support multiple concurrent players with minimal latency
+|===
+
 === Stakeholders
 
 ifdef::arc42help[]
@@ -92,10 +125,30 @@ These stakeholders determine the extent and the level of detail of your work and
 Table with role names, person names, and their expectations with respect to the architecture and its documentation.
 ****
 endif::arc42help[]
-
-[options="header",cols="1,2,2"]
+[options="header",cols="1,2,3"]
 |===
-|Role/Name|Contact|Expectations
-| _<Role-1>_ | _<Contact-1>_ | _<Expectation-1>_
-| _<Role-2>_ | _<Contact-2>_ | _<Expectation-2>_
+| Role/Name | Contact | Expectations
+
+| _Users_ | General public, quiz players | Engaging and interactive quiz experience with AI-generated hints
+
+| _Development Team_ | 
+Carballo Pérez, Andrés (UO287983@uniovi.es) +
+García Santamarina, Sergio (UO294636@uniovi.es) +
+Gutiérrez García, Miguel (UO295650@uniovi.es) +
+Mahía Loredo, Adrián (UO289390@uniovi.es) +
+Pérez Cuervo, Bruno (UO295445@uniovi.es) | Well-documented architecture and a system that is easy to maintain and extend
+
+| _Professors_ |
+Pablo González González +
+(gonzalezgpablo@uniovi.es) +
+Jose Emilio Labra Gayo +
+(labra@uniovi.es) +
+Diego Martín Fernández +
+(martinfdiego@uniovi.es)  +
+Irene Cid Rico +
+(cidirene@uniovi.es) 
+| A project demonstrating **LLM integration** and structured team collaboration
+
+| _RTVE_ | https://www.rtve.es | An engaging online game that aligns with their brand and audience expectations
+
 |===

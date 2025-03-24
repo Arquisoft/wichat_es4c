@@ -48,6 +48,17 @@ services:
     networks:
       - mynetwork
 
+  questionservice:
+    container_name: questionservice-wichat_es4c
+    image: ghcr.io/arquisoft/wichat_es4c/questionservice:latest
+    profiles: ["dev", "prod"]
+    build: ./questionservice
+    ports:
+      - "8004:8004"
+    networks:
+      - mynetwork
+    
+
   gatewayservice:
     container_name: gatewayservice-wichat_es4c
     image: ghcr.io/arquisoft/wichat_es4c/gatewayservice:latest
@@ -58,6 +69,7 @@ services:
       - userservice
       - authservice
       - llmservice
+      - questionservice
     ports:
       - "8000:8000"
     networks:
@@ -66,6 +78,7 @@ services:
       AUTH_SERVICE_URL: http://authservice:8002
       USER_SERVICE_URL: http://userservice:8001
       LLM_SERVICE_URL: http://llmservice:8003
+      QUESTION_SERVICE_URL: http://questionservice:8004
 
   webapp:
     container_name: webapp-wichat_es4c
