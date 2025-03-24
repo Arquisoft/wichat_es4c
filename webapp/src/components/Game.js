@@ -121,7 +121,13 @@ const Game = () => {
                     <Box display="flex" justifyContent="center" my={2}>
                       <img 
                         src={questionData.image} 
-                        alt={`Bandera de ${questionData.question}`} 
+                        alt={
+                          questionData.type === 'monument' ? 'Monumento' :
+                          questionData.type === 'food' ? 'Comida típica' :
+                          questionData.type === 'flag' ? 'Bandera' :
+                          questionData.type === 'capital' ? 'Capital' :
+                          `Imagen de ${questionData.question}`
+                        } 
                         style={{ width: "100%", maxWidth: "450px", borderRadius: "8px" }}
                       />
                     </Box>
