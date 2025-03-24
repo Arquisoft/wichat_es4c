@@ -1,59 +1,58 @@
 const axios = require('axios');
 const express = require('express');
-const cors = require('cors'); // Importa el paquete cors
+const cors = require('cors');
 
 const app = express();
 const port = 8003;
 
-// Middleware to parse JSON in request body
 app.use(express.json());
 
-// Habilitar CORS para permitir solicitudes desde http://localhost:3000
 app.use(cors({
-  origin: 'http://localhost:3000', // Aquí puedes cambiar el origen según necesites
+  origin: 'http://localhost:3000',
 }));
 
-// Define configurations for different LLM APIs
 const llmConfigs = {
   gemini: {
     url: (apiKey) => `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-    transformRequest: (question) => ({
+    transformRequest: (question, correctAnswer) => ({
       contents: [
         {
           parts: [
             {
               text: `Eres un asistente en un juego de preguntas sobre países y sus capitales. El jugador verá imágenes relacionadas con un
-               país (como su bandera, comida típica o paisajes) y deberá adivinar la capital correcta entre cuatro opciones. Tu única función
-               es proporcionar pistas sobre la capital correcta sin revelar directamente su nombre.
+              país (como su bandera, comida típica o paisajes) y deberá adivinar la capital correcta entre cuatro opciones. Tu única función
+              es proporcionar pistas sobre la capital correcta sin revelar directamente su nombre.
 
-Reglas estrictas de comportamiento:**
+              Reglas estrictas de comportamiento:
 
-NO debes decir directamente el nombre de la capital ni de su país.
+              NO debes decir directamente el nombre de la capital ni de su país.
 
-Solo puedes dar pistas generales sobre la capital, como:
+              Solo puedes dar pistas generales sobre la capital, como:
 
-Información histórica o cultural.
+              Información histórica o cultural.
 
-Monumentos o lugares emblemáticos.
+              Monumentos o lugares emblemáticos.
 
-Datos sobre su clima, idioma o población.
+              Datos sobre su clima, idioma o población.
 
-Curiosidades sobre la ciudad o eventos importantes que han ocurrido allí.
+              Curiosidades sobre la ciudad o eventos importantes que han ocurrido allí.
 
-Si el jugador pide la respuesta directamente, responde con algo como: "No puedo decirte la respuesta, pero aquí tienes una pista: ..."
+              Si el jugador pide la respuesta directamente, responde con algo como: "No puedo decirte la respuesta, pero aquí tienes una pista: ..."
 
-Mantén las respuestas breves y relevantes al contexto del juego.
+              Mantén las respuestas breves y relevantes al contexto del juego.
 
-No respondas preguntas fuera del ámbito del juego. Si el jugador pregunta algo irrelevante, dile: "Solo puedo darte pistas sobre la capital en esta ronda del juego."
+              No respondas preguntas fuera del ámbito del juego. Si el jugador pregunta algo irrelevante, dile: "Solo puedo darte pistas sobre la capital en esta ronda del juego."
 
-Ejemplo de interacción correcta:
-Jugador: Dame una pista.
-IA: "Esta ciudad es famosa por su torre de televisión, una de las más altas del mundo."
+              Ejemplo de interacción correcta:
+              Jugador: Dame una pista.
+              IA: "Esta ciudad es famosa por su torre de televisión, una de las más altas del mundo."
 
-Jugador: ¿Cuál es la capital de Alemania?
-IA: "No puedo decirte la respuesta, pero aquí tienes una pista: en esta ciudad se encuentra la icónica Puerta de Brandeburgo."
+              Jugador: ¿Cuál es la capital de Alemania?
+              IA: "No puedo decirte la respuesta, pero aquí tienes una pista: en esta ciudad se encuentra la icónica Puerta de Brandeburgo."
 
-Si en algún momento se detecta una solicitud que no está relacionada con el juego, simplemente responde con: "Mi función es solo dar pistas sobre la capital correcta en este juego." Pregunta: ${question}`
+              Si en algún momento se detecta una solicitud que no está relacionada con el juego, simplemente responde con: "Mi función es solo dar pistas sobre la capital correcta en este juego."
+
+              La respuesta correcta a la pregunta es: ${correctAnswer}. Pregunta: ${question}`
             }
           ]
         }
@@ -78,7 +77,6 @@ Si en algún momento se detecta una solicitud que no está relacionada con el ju
   }
 };
 
-// Function to validate required fields in the request body
 function validateRequiredFields(req, requiredFields) {
   for (const field of requiredFields) {
     if (!(field in req.body)) {
@@ -87,8 +85,7 @@ function validateRequiredFields(req, requiredFields) {
   }
 }
 
-// Generic function to send questions to LLM
-async function sendQuestionToLLM(question, apiKey, model = 'gemini') {
+async function sendQuestionToLLM(question, apiKey, model = 'gemini', correctAnswer = '') {
   try {
     const config = llmConfigs[model];
     if (!config) {
@@ -96,7 +93,7 @@ async function sendQuestionToLLM(question, apiKey, model = 'gemini') {
     }
 
     const url = config.url(apiKey);
-    const requestData = config.transformRequest(question);
+    const requestData = config.transformRequest(question, correctAnswer);
 
     const headers = {
       'Content-Type': 'application/json',
@@ -115,11 +112,10 @@ async function sendQuestionToLLM(question, apiKey, model = 'gemini') {
 
 app.post('/ask', async (req, res) => {
   try {
-    // Check if required fields are present in the request body
     validateRequiredFields(req, ['question', 'model', 'apiKey']);
 
-    const { question, model, apiKey } = req.body;
-    const answer = await sendQuestionToLLM(question, apiKey, model);
+    const { question, model, apiKey, correctAnswer } = req.body;
+    const answer = await sendQuestionToLLM(question, apiKey, model, correctAnswer);
     res.json({ answer });
 
   } catch (error) {

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { Box, TextField, Button, Typography, CircularProgress } from "@mui/material";
 
-const LLMChat = () => {
+const LLMChat = ({ correctAnswer }) => {
   const [question, setQuestion] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,6 +33,7 @@ const LLMChat = () => {
         question,
         model: "gemini", // Cambia según el modelo deseado
         apiKey: process.env.REACT_APP_LLM_API_KEY,
+        correctAnswer: correctAnswer,
       });
 
       setChatHistory((prevHistory) => [
