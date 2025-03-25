@@ -32,6 +32,7 @@ const Game = () => {
   const [feedback, setFeedback] = useState({});
   const [timerEndTime, setTimerEndTime] = useState(Date.now() + 10000);
   const [answered, setAnswered] = useState(false);
+
   const [startTime, setStartTime] = useState(null);
 
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
