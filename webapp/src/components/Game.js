@@ -222,8 +222,8 @@ const Game = () => {
               />
             </Paper>
             
-            <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}> {/* Se redujo el margen superior */}
-              <LLMChat />
+            <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}>
+              {questionData && questionData.answer && <LLMChat correctAnswer={questionData.answer} />}
             </Paper>
           </Grid>
         </Grid>
