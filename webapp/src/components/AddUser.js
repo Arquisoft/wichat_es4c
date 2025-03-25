@@ -39,6 +39,7 @@ const AddUser = () => {
           <TextField
             margin="normal"
             fullWidth
+            id="username"
             label="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -46,6 +47,7 @@ const AddUser = () => {
           <TextField
             margin="normal"
             fullWidth
+            id="password"
             label="Password"
             type="password"
             value={password}
@@ -55,6 +57,7 @@ const AddUser = () => {
             variant="contained"
             color="secondary"
             fullWidth
+            data-testid="submit-button"
             sx={{ mt: 2 }}
             onClick={addUser}
           >
