@@ -4,54 +4,8 @@ import {
   Container, Typography, Box, Button, Grid, CssBaseline,
   Radio, RadioGroup, FormControlLabel, Paper, CircularProgress
 } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
 import LLMChat from "./LLMChat";
-
-const customTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    background: {
-      default: '#1e3c72', // Fondo principal ajustado a un color oscuro similar al ejemplo
-      paper: '#2a5298', // Fondo de las tarjetas ajustado a un tono más claro
-    },
-    primary: {
-      main: '#6a11cb', // Color primario como antes
-    },
-    secondary: {
-      main: '#2575fc', // Color secundario como antes
-    },
-    text: {
-      primary: '#FFFFFF', // Texto blanco
-      secondary: '#B0B0B0', // Texto secundario más claro
-    },
-  },
-  typography: {
-    h4: {
-      fontWeight: 'bold',
-    },
-    h6: {
-      fontSize: '1.2rem',
-    },
-    button: {
-      textTransform: 'none',
-      fontWeight: 'bold',
-    },
-  },
-  components: {
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          padding: '20px',
-          borderRadius: '12px',
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',
-          backgroundColor: 'rgba(255, 255, 255, 0.15)', // Fondo translúcido en Paper
-          backdropFilter: 'blur(10px)', // Filtro de desenfoque para un look moderno
-        }
-      }
-    }
-  }
-});
 
 const Game = () => {
   const [questionData, setQuestionData] = useState(null);
@@ -67,7 +21,6 @@ const Game = () => {
 
   const fetchQuestion = async () => {
     try {
-      // Limpia el estado antes de hacer la solicitud
       setQuestionData(null);
       setSelectedAnswer("");
       setFeedback({});
@@ -94,7 +47,7 @@ const Game = () => {
     if (isCorrect) {
       setTimeout(() => {
         fetchQuestion();
-      }, 1000); // Espera 1 segundo antes de cargar la siguiente pregunta
+      }, 1000);
     }
   };
 
@@ -111,12 +64,29 @@ const Game = () => {
   };
 
   return (
-    <ThemeProvider theme={customTheme}>
+    <>
       <CssBaseline />
+      {/* Estilos globales para el fondo */}
+      <style>
+        {`
+          body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%) !important;
+            margin: 0;
+            padding: 0;
+          }
+        `}
+      </style>
+
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={4} alignItems="stretch">
           <Grid item xs={12} md={6}>
-            <Paper>
+            <Paper sx={{
+              padding: '20px',
+              borderRadius: '12px',
+              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)', // Fondo translúcido
+              backdropFilter: 'blur(10px)' // Desenfoque para un look moderno
+            }}>
               {questionData ? (
                 <>
                   {questionData.image && (
@@ -136,8 +106,10 @@ const Game = () => {
                       <Box key={index} display='flex' alignItems='center'>
                         <FormControlLabel 
                           value={option} 
-                          control={<Radio disabled={answered} />} 
-                          label={option} 
+                          control={<Radio disabled={answered} sx={{ color: "#BB86FC" }} />} 
+                          label={
+                            <Typography sx={{ color: "#FFFFFF" }}>{option}</Typography>
+                          }
                         />
                         {feedback[option] && (
                           <Typography variant="h6" sx={{ ml: 2, color: feedback[option] === "✅" ? "green" : "red" }}>
@@ -149,9 +121,15 @@ const Game = () => {
                   </RadioGroup>
                   <Button 
                     variant="contained" 
-                    color="primary" 
                     fullWidth
-                    sx={{ mt: 2 }}
+                    sx={{
+                      mt: 2,
+                      backgroundColor: '#6a11cb',
+                      color: '#fff',
+                      '&:hover': {
+                        backgroundColor: '#5a0fb2',
+                      }
+                    }}
                     onClick={handleAnswerSubmit} 
                     disabled={!selectedAnswer || answered}
                   >
@@ -160,25 +138,40 @@ const Game = () => {
                 </>
               ) : (
                 <Box display="flex" justifyContent="center" alignItems="center" height="200px">
-                  <CircularProgress />
+                  <CircularProgress sx={{ color: "#03DAC6" }} />
                 </Box>
               )}
             </Paper>
           </Grid>
 
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
+            <Paper sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              p: 3,
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)'
+            }}>
               <Typography variant="h5" gutterBottom sx={{ color: "#BB86FC" }}>Tiempo restante:</Typography>
               <Countdown date={timerEndTime} renderer={renderer} />
             </Paper>
             
-            <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}> {/* Se redujo el margen superior */}
+            <Paper sx={{
+              mt: 4,
+              p: 3,
+              textAlign: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)'
+            }}>
               <LLMChat />
             </Paper>
           </Grid>
         </Grid>
       </Container>
-    </ThemeProvider>
+    </>
   );
 };
 

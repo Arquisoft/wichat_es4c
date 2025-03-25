@@ -34,7 +34,7 @@ const StartMenu = () => {
         justifyContent: "center",
         position: "relative",
         background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
-        color: "#fff",
+        color: "#ffffff",
         textAlign: "center",
       }}
     >
@@ -96,7 +96,7 @@ const StartMenu = () => {
             <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#ff4081" }}>
               ¿Cómo jugar?
             </Typography>
-            <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light" }}>
+            <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light" , color: "#ffffff" }}>
               Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 5 posibles
               respuestas. Cada pregunta debe ser respondida en un tiempo determinado. Se ofrece la posibilidad de obtener
               pistas mediante un chatbot.
