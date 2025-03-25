@@ -33,7 +33,7 @@ const StartMenu = () => {
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
-        background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+        background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
         color: "#fff",
         textAlign: "center",
       }}
@@ -42,14 +42,26 @@ const StartMenu = () => {
         <Button
           variant="contained"
           onClick={handleOpenRanking}
-          sx={{ backgroundColor: "#FFD700", color: "#333", fontWeight: "bold", boxShadow: 3 }}
+          sx={{
+            backgroundColor: "#ff4081",
+            color: "#fff",
+            fontWeight: "bold",
+            boxShadow: 3,
+            '&:hover': { bgcolor: '#f50057' },
+          }}
         >
           Ranking
         </Button>
         <Button
           variant="contained"
           onClick={handleOpenProfile}
-          sx={{ backgroundColor: "#FFD700", color: "#333", fontWeight: "bold", boxShadow: 3 }}
+          sx={{
+            backgroundColor: "#ff4081",
+            color: "#fff",
+            fontWeight: "bold",
+            boxShadow: 3,
+            '&:hover': { bgcolor: '#f50057' },
+          }}
         >
           Cuenta
         </Button>
@@ -81,7 +93,7 @@ const StartMenu = () => {
           }}
         >
           <CardContent>
-            <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#FFD700" }}>
+            <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#ff4081" }}>
               ¿Cómo jugar?
             </Typography>
             <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light" }}>
@@ -94,13 +106,14 @@ const StartMenu = () => {
             variant="contained"
             sx={{
               mt: 2,
-              backgroundColor: "#FFD700",
-              color: "#333",
+              backgroundColor: "#ff4081",
+              color: "#fff",
               fontSize: "1.2rem",
               padding: "12px 24px",
               width: "100%",
               boxShadow: 3,
               fontWeight: "bold",
+              '&:hover': { bgcolor: '#f50057' },
             }}
             onClick={handleStartGame}
           >

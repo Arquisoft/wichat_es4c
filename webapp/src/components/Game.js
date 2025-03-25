@@ -8,22 +8,22 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
 import LLMChat from "./LLMChat";
 
-const darkTheme = createTheme({
+const customTheme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: '#121212',
-      paper: '#1E1E1E',
+      default: '#1e3c72', // Fondo principal ajustado a un color oscuro similar al ejemplo
+      paper: '#2a5298', // Fondo de las tarjetas ajustado a un tono más claro
     },
     primary: {
-      main: '#BB86FC',
+      main: '#6a11cb', // Color primario como antes
     },
     secondary: {
-      main: '#03DAC6',
+      main: '#2575fc', // Color secundario como antes
     },
     text: {
-      primary: '#FFFFFF',
-      secondary: '#B0B0B0',
+      primary: '#FFFFFF', // Texto blanco
+      secondary: '#B0B0B0', // Texto secundario más claro
     },
   },
   typography: {
@@ -44,7 +44,9 @@ const darkTheme = createTheme({
         root: {
           padding: '20px',
           borderRadius: '12px',
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)'
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',
+          backgroundColor: 'rgba(255, 255, 255, 0.15)', // Fondo translúcido en Paper
+          backdropFilter: 'blur(10px)', // Filtro de desenfoque para un look moderno
         }
       }
     }
@@ -109,7 +111,7 @@ const Game = () => {
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={customTheme}>
       <CssBaseline />
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={4} alignItems="stretch">
@@ -126,7 +128,9 @@ const Game = () => {
                       />
                     </Box>
                   )}
-                  <Typography variant="h6" gutterBottom>{questionData.question}</Typography>
+                  <Typography variant="h6" gutterBottom sx={{ color: "#BB86FC" }}>
+                    {questionData.question}
+                  </Typography>
                   <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
                     {questionData.choices.map((option, index) => (
                       <Box key={index} display='flex' alignItems='center'>
@@ -164,7 +168,7 @@ const Game = () => {
 
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
             <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
-              <Typography variant="h5" gutterBottom>Tiempo restante:</Typography>
+              <Typography variant="h5" gutterBottom sx={{ color: "#BB86FC" }}>Tiempo restante:</Typography>
               <Countdown date={timerEndTime} renderer={renderer} />
             </Paper>
             
