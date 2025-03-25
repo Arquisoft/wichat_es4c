@@ -231,11 +231,12 @@ const Game = () => {
               <Countdown
                 date={timerEndTime}
                 renderer={renderer}
+                autoStart={!paused} // Pausa o reanuda el temporizador
               />
             </Paper>
-
+            
             <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}>
-              <LLMChat />
+              {questionData && questionData.answer && <LLMChat correctAnswer={questionData.answer} />}
             </Paper>
           </Grid>
         </Grid>
