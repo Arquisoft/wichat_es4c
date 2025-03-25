@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   Container, Typography, Box, Button, Grid, CssBaseline,
@@ -22,7 +22,15 @@ const darkTheme = createTheme({
     button: { textTransform: 'none', fontWeight: 'bold' },
   },
   components: {
-    MuiPaper: { styleOverrides: { root: { padding: '20px', borderRadius: '12px', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)' } } }
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          padding: '20px',
+          borderRadius: '12px',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)'
+        }
+      }
+    }
   }
 });
 
@@ -32,9 +40,10 @@ const Game = () => {
   const [feedback, setFeedback] = useState({});
   const [timerEndTime, setTimerEndTime] = useState(Date.now() + 10000);
   const [answered, setAnswered] = useState(false);
+  const [loadingQuestion, setLoadingQuestion] = useState(false);
+  const [paused, setPaused] = useState(false);
 
-  const [startTime, setStartTime] = useState(null);
-
+  const startTime = useRef(Date.now());
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
   const username = localStorage.getItem("username");
 
@@ -43,26 +52,12 @@ const Game = () => {
     fetchQuestion();
   }, []);
 
-  const fetchQuestion = async () => {
-    try {
-      setQuestionData(null);
-      setSelectedAnswer("");
-      setFeedback({});
-      setAnswered(false);
-      setStartTime(Date.now());
+  useEffect(() => {
+    setPaused(loadingQuestion);
+  }, [loadingQuestion]);
 
-      const response = await axios.get(`${apiEndpoint}/question`);
-      setQuestionData(response.data);
-      setTimerEndTime(Date.now() + 10000);
-
-      
-    } catch (error) {
-      console.error("Error fetching question:", error);
-    }
-  };
   const newGame = async () => {
     try {
-
       if (username) {
         await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
       }
@@ -71,15 +66,39 @@ const Game = () => {
     }
   };
 
+  const fetchQuestion = async () => {
+    if (loadingQuestion) return;
+
+    setLoadingQuestion(true);
+
+    try {
+      setQuestionData(null);
+      setSelectedAnswer("");
+      setFeedback({});
+      setAnswered(false);
+      startTime.current = Date.now();
+
+      const response = await axios.get(`${apiEndpoint}/question`);
+      setQuestionData(response.data);
+      setTimerEndTime(Date.now() + 10000);
+    } catch (error) {
+      console.error("Error fetching question:", error);
+    } finally {
+      setLoadingQuestion(false);
+    }
+  };
+
   const handleAnswerSubmit = async () => {
-    if (!selectedAnswer) return;
+    if (!selectedAnswer || loadingQuestion) return;
+
     const isCorrect = selectedAnswer === questionData.answer;
-    const timeTaken = Math.floor((Date.now() - startTime) / 1000); // Tiempo en segundos
+    const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
 
     setFeedback({
       ...feedback,
       [selectedAnswer]: isCorrect ? "✅" : "❌"
     });
+
     setAnswered(true);
 
     if (username) {
@@ -99,15 +118,50 @@ const Game = () => {
     }, 1000);
   };
 
-  const renderer = ({ minutes, seconds, completed }) => {
-    if (completed) {
-      setAnswered(true);
-      return <Typography variant="h4" color="error">⏳ Tiempo agotado</Typography>;
+  const renderer = ({ seconds, completed }) => {
+    if (paused) {
+      return (
+        <Typography variant="h4" color="textSecondary">
+          Pausado...
+        </Typography>
+      );
     }
+
+    if (completed) {
+      if (!answered) {
+        setAnswered(true);
+      }
+      return (
+        <Typography variant="h4" color="error">
+          ⏳ Tiempo agotado
+        </Typography>
+      );
+    }
+
     return (
-      <Typography variant="h4" color="secondary">
-        {minutes}:{seconds < 10 ? '0' : ''}{seconds}
-      </Typography>
+      <Box position="relative" display="inline-flex">
+        <CircularProgress
+          variant="determinate"
+          value={(seconds / 10) * 100}
+          size={80}
+          thickness={4}
+          sx={{ color: seconds < 3 ? "red" : "secondary.main" }}
+        />
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="h6" color="textSecondary">
+            {seconds}s
+          </Typography>
+        </Box>
+      </Box>
     );
   };
 
@@ -122,9 +176,15 @@ const Game = () => {
                 <>
                   {questionData.image && (
                     <Box display="flex" justifyContent="center" my={2}>
-                      <img 
-                        src={questionData.image} 
-                        alt={`Imagen`} 
+                      <img
+                        src={questionData.image}
+                        alt={
+                          questionData.type === 'monument' ? 'Monumento' :
+                            questionData.type === 'food' ? 'Comida típica' :
+                              questionData.type === 'flag' ? 'Bandera' :
+                                questionData.type === 'capital' ? 'Capital' :
+                                  `Imagen de ${questionData.question}`
+                        }
                         style={{ width: "100%", maxWidth: "450px", borderRadius: "8px" }}
                       />
                     </Box>
@@ -133,10 +193,10 @@ const Game = () => {
                   <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
                     {questionData.choices.map((option, index) => (
                       <Box key={index} display='flex' alignItems='center'>
-                        <FormControlLabel 
-                          value={option} 
-                          control={<Radio disabled={answered} />} 
-                          label={option} 
+                        <FormControlLabel
+                          value={option}
+                          control={<Radio disabled={answered} />}
+                          label={option}
                         />
                         {feedback[option] && (
                           <Typography variant="h6" sx={{ ml: 2, color: feedback[option] === "✅" ? "green" : "red" }}>
@@ -146,12 +206,12 @@ const Game = () => {
                       </Box>
                     ))}
                   </RadioGroup>
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
+                  <Button
+                    variant="contained"
+                    color="primary"
                     fullWidth
                     sx={{ mt: 2 }}
-                    onClick={handleAnswerSubmit} 
+                    onClick={handleAnswerSubmit}
                     disabled={!selectedAnswer || answered}
                   >
                     Enviar Respuesta
@@ -168,10 +228,13 @@ const Game = () => {
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
             <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
               <Typography variant="h5" gutterBottom>Tiempo restante:</Typography>
-              <Countdown date={timerEndTime} renderer={renderer} />
+              <Countdown
+                date={timerEndTime}
+                renderer={renderer}
+              />
             </Paper>
-            
-            <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}> {/* Se redujo el margen superior */}
+
+            <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}>
               <LLMChat />
             </Paper>
           </Grid>
