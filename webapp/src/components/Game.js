@@ -57,13 +57,26 @@ const Game = () => {
   const [feedback, setFeedback] = useState({});
   const [timerEndTime, setTimerEndTime] = useState(Date.now() + 10000);
   const [answered, setAnswered] = useState(false);
+  const [loadingQuestion, setLoadingQuestion] = useState(false);
+  const [paused, setPaused] = useState(false);
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 
   useEffect(() => {
     fetchQuestion();
   }, []);
 
+  useEffect(() => {
+    if (loadingQuestion) {
+        setPaused(true); // Pausa el temporizador
+    } else {
+        setPaused(false); // Reanuda el temporizador
+    }
+  }, [loadingQuestion]);
+
   const fetchQuestion = async () => {
+    if (loadingQuestion) return; // Evita llamadas duplicadas
+    setLoadingQuestion(true);
+
     try {
       // Limpia el estado antes de hacer la solicitud
       setQuestionData(null);
@@ -76,37 +89,68 @@ const Game = () => {
       setTimerEndTime(Date.now() + 10000);
     } catch (error) {
       console.error("Error fetching question:", error);
+    } finally {
+      setLoadingQuestion(false);
     }
   };
 
   const handleAnswerSubmit = async () => {
-    if (!selectedAnswer) return;
+    if (!selectedAnswer || loadingQuestion) return; // Evita conflictos
     const isCorrect = selectedAnswer === questionData.answer;
 
     setFeedback({
-      ...feedback,
-      [selectedAnswer]: isCorrect ? "✅" : "❌"
+        ...feedback,
+        [selectedAnswer]: isCorrect ? "✅" : "❌"
     });
     setAnswered(true);
 
     if (isCorrect) {
-      setTimeout(() => {
-        fetchQuestion();
-      }, 1000); // Espera 1 segundo antes de cargar la siguiente pregunta
+        setTimeout(() => {
+            if (!loadingQuestion) fetchQuestion();
+        }, 1000);
     }
-  };
+};
 
-  const renderer = ({ minutes, seconds, completed }) => {
-    if (completed) {
-      setAnswered(true);
-      return <Typography variant="h4" color="error">⏳ Tiempo agotado</Typography>;
+  const renderer = ({ seconds, completed }) => {
+    if (paused) {
+        return (
+            <Typography variant="h4" color="textSecondary">
+                Pausado...
+            </Typography>
+        );
     }
+
+    if (completed) {
+        setAnswered(true); // Marca la pregunta como respondida
+        return <Typography variant="h4" color="error">⏳ Tiempo agotado</Typography>;
+    }
+
     return (
-      <Typography variant="h4" color="secondary">
-        {minutes}:{seconds < 10 ? '0' : ''}{seconds}
-      </Typography>
+        <Box position="relative" display="inline-flex">
+            <CircularProgress
+                variant="determinate"
+                value={(seconds / 10) * 100}
+                size={80}
+                thickness={4}
+                sx={{ color: seconds < 3 ? "red" : "secondary.main" }}
+            />
+            <Box
+                top={0}
+                left={0}
+                bottom={0}
+                right={0}
+                position="absolute"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
+                <Typography variant="h6" color="textSecondary">
+                    {seconds}s
+                </Typography>
+            </Box>
+        </Box>
     );
-  };
+};
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -121,7 +165,13 @@ const Game = () => {
                     <Box display="flex" justifyContent="center" my={2}>
                       <img 
                         src={questionData.image} 
-                        alt={`Bandera de ${questionData.question}`} 
+                        alt={
+                          questionData.type === 'monument' ? 'Monumento' :
+                          questionData.type === 'food' ? 'Comida típica' :
+                          questionData.type === 'flag' ? 'Bandera' :
+                          questionData.type === 'capital' ? 'Capital' :
+                          `Imagen de ${questionData.question}`
+                        } 
                         style={{ width: "100%", maxWidth: "450px", borderRadius: "8px" }}
                       />
                     </Box>
@@ -165,7 +215,11 @@ const Game = () => {
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
             <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
               <Typography variant="h5" gutterBottom>Tiempo restante:</Typography>
-              <Countdown date={timerEndTime} renderer={renderer} />
+              <Countdown
+                date={timerEndTime}
+                renderer={renderer}
+                autoStart={!paused} // Pausa o reanuda el temporizador
+              />
             </Paper>
             
             <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}>
