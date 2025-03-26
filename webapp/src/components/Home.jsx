@@ -47,6 +47,7 @@ const Home = () => {
             sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: '#ff4081', color: '#ff4081' } }}
             component={Link}
             to="/register"
+            data-testid="register-button"
           >
             Register
           </Button>
