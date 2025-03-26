@@ -3,165 +3,166 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+
 const app = express();
-
-
-
-const User = require('./user-model')
-
+const User = require('./user-model'); // Importar el modelo de usuario
 
 const port = 8001;
 
-// Middleware to parse JSON in request body
+// Middleware para parsear JSON en el cuerpo de las peticiones
 app.use(express.json());
 app.use(cors());
 
-// Connect to MongoDB
+// Conectar a MongoDB
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/userdb';
-mongoose.connect(mongoUri);
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Conectado a MongoDB'))
+    .catch(err => console.error('Error al conectar a MongoDB:', err));
 
-app.use
-
-// Function to validate required fields in the request body
+// Función para validar campos requeridos en el cuerpo de la petición
 function validateRequiredFields(req, requiredFields) {
     for (const field of requiredFields) {
-      if (!(field in req.body)) {
-        throw new Error(`Missing required field: ${field}`);
-      }
+        if (!(field in req.body)) {
+            throw new Error(`Falta el campo requerido: ${field}`);
+        }
     }
 }
 
+// **Crear un usuario**
 app.post('/adduser', async (req, res) => {
     try {
-        // Check if required fields are present in the request body
         validateRequiredFields(req, ['username', 'password']);
 
-        // Encrypt the password before saving it
+        // Encriptar la contraseña antes de guardarla
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
         const newUser = new User({
             username: req.body.username,
             password: hashedPassword,
+            gamesPlayed: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            totalTimePlayed: 0,
+            gameHistory: []
         });
 
         await newUser.save();
         res.json(newUser);
     } catch (error) {
-        res.status(400).json({ error: error.message }); 
-    }});
-
-const server = app.listen(port, () => {
-  console.log(`User Service listening at http://localhost:${port}`);
+        res.status(400).json({ error: error.message });
+    }
 });
 
-// 🔹 NUEVO: Endpoint para obtener los datos del perfil de un usuario
+// **Obtener el perfil de un usuario**
 app.get('/profile/:username', async (req, res) => {
-  try {
-      // 🔹 Buscar usuario en la base de datos por el nombre de usuario
-      const user = await User.findOne({ username: req.params.username });
+    try {
+        const user = await User.findOne({ username: req.params.username });
 
-      if (!user) {
-          return res.status(404).json({ error: "Usuario no encontrado" }); // 🔹 Devolver error si el usuario no existe
-      }
+        if (!user) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
 
-      // 🔹 Devolver solo los datos necesarios del usuario (sin la contraseña)
-      res.json({
-          username: user.username,
-          gamesPlayed: user.gamesPlayed,
-          correctAnswers: user.correctAnswers,
-          wrongAnswers: user.wrongAnswers,
-          totalTimePlayed: user.totalTimePlayed,
-          gameHistory: user.gameHistory
-      });
-  } catch (error) {
-    console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error); // 🔹 NUEVO: Log de error con username
-    res.status(500).json({ error: `Error al obtener el perfil del usuario ${req.params.username}ww` });
-  }
+        res.json({
+            username: user.username,
+            gamesPlayed: user.gamesPlayed,
+            correctAnswers: user.correctAnswers,
+            wrongAnswers: user.wrongAnswers,
+            totalTimePlayed: user.totalTimePlayed,
+            gameHistory: user.gameHistory
+        });
+    } catch (error) {
+        console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error);
+        res.status(500).json({ error: `Error al obtener el perfil del usuario ${req.params.username}` });
+    }
 });
 
+// **Actualizar estadísticas del usuario**
 app.post('/updateStats', async (req, res) => {
-  try {
-    const { username, isCorrect, timeTaken } = req.body;
+    try {
+        const { username, isCorrect, timeTaken } = req.body;
 
-    if (!username) {
-      return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+        if (!username) {
+            return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+        }
+
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        if (isCorrect) {
+            user.correctAnswers += 1;
+        } else {
+            user.wrongAnswers += 1;
+        }
+
+        user.totalTimePlayed += timeTaken;
+
+        user.gameHistory.push({
+            date: new Date(),
+            correct: isCorrect ? 1 : 0,
+            wrong: isCorrect ? 0 : 1,
+            timePlayed: timeTaken
+        });
+
+        await user.save();
+        res.json({ message: "Estadísticas actualizadas", user });
+    } catch (error) {
+        console.error("Error al actualizar estadísticas:", error);
+        res.status(500).json({ error: "Error al actualizar estadísticas" });
     }
-
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    if (isCorrect) {
-      user.correctAnswers += 1;
-    } else {
-      user.wrongAnswers += 1;
-    }
-
-    user.totalTimePlayed += timeTaken;
-
-    user.gameHistory.push({
-      date: new Date(),
-      correct: isCorrect ? 1 : 0,
-      wrong: isCorrect ? 0 : 1,
-      timePlayed: timeTaken
-    });
-
-    await user.save();
-    res.json({ message: "Estadísticas actualizadas", user });
-  } catch (error) {
-    console.error("Error al actualizar estadísticas:", error);
-    res.status(500).json({ error: "Error al actualizar estadísticas" });
-  }
 });
 
-
-app.get('/ranking', async (req, res) => {
-  try {
-    const sortBy = req.query.sortBy || "correctAnswers"; 
-    const validSortFields = ["correctAnswers", "wrongAnswers", "gamesPlayed"];
-    
-    if (!validSortFields.includes(sortBy)) {
-      return res.status(400).json({ error: "Criterio de ordenación inválido" });
-    }
-
-    const players = await User.find().sort({ [sortBy]: -1 }).limit(10); 
-    res.json(players);
-  } catch (error) {
-    console.error("Error al obtener el ranking:", error);
-    res.status(500).json({ error: "Error al obtener el ranking" });
-  }
-});
-
+// **Registrar partidas jugadas**
 app.post('/incrementGamesPlayed', async (req, res) => {
-  try {
-    const { username } = req.body;
+    try {
+        const { username } = req.body;
 
-    if (!username) {
-      return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+        if (!username) {
+            return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+        }
+
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        user.gamesPlayed += 1;
+
+        await user.save();
+        res.json({ message: "Partida registrada", gamesPlayed: user.gamesPlayed });
+    } catch (error) {
+        console.error("Error al registrar la partida:", error);
+        res.status(500).json({ error: "Error al registrar la partida" });
     }
-
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    // 🔹 Incrementar las partidas jugadas
-    user.gamesPlayed += 1;
-
-    await user.save();
-    res.json({ message: "Partida registrada", gamesPlayed: user.gamesPlayed });
-  } catch (error) {
-    console.error("Error al registrar la partida:", error);
-    res.status(500).json({ error: "Error al registrar la partida" });
-  }
 });
 
+// **Obtener el ranking de usuarios**
+app.get('/ranking', async (req, res) => {
+    try {
+        const sortBy = req.query.sortBy || "correctAnswers";
+        const validSortFields = ["correctAnswers", "wrongAnswers", "gamesPlayed"];
 
-// Listen for the 'close' event on the Express.js server
+        if (!validSortFields.includes(sortBy)) {
+            return res.status(400).json({ error: "Criterio de ordenación inválido" });
+        }
+
+        const players = await User.find().sort({ [sortBy]: -1 }).limit(20);
+        res.json(players);
+    } catch (error) {
+        console.error("Error al obtener el ranking:", error);
+        res.status(500).json({ error: "Error al obtener el ranking" });
+    }
+});
+
+// Iniciar el servidor
+const server = app.listen(port, () => {
+    console.log(`User Service escuchando en http://localhost:${port}`);
+});
+
+// Cerrar la conexión de MongoDB al detener el servidor
 server.on('close', () => {
-    // Close the Mongoose connection
     mongoose.connection.close();
-  });
+});
 
-module.exports = server
+module.exports = server;
