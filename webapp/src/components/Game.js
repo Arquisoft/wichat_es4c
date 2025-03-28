@@ -48,8 +48,11 @@ const Game = () => {
   const username = localStorage.getItem("username");
 
   useEffect(() => {
-    newGame();
-    fetchQuestion();
+    const initGame = async () => {
+      await newGame();
+      await fetchQuestion();
+    };
+    initGame();
   }, []);
 
   useEffect(() => {
