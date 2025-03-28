@@ -22,7 +22,15 @@ async function generateGeneralQuestion(type, dataKey, questionTemplate, imageKey
     const fetchData = questionTypes[type].fetchData;
     let data = await fetchData();
 
-    data = data.filter(item => item[dataKey] && item[dataKey].value);
+    // Filtrar datos válidos
+    data = data.filter(item => 
+        item[dataKey] && 
+        item[dataKey].value && 
+        !/^[Q]\d+$/.test(item[dataKey].value) && // Eliminar códigos de Wikidata como Q123456
+        (!imageKey || (item[imageKey] && item[imageKey].value)) // Verificar que tenga imagen si es necesario
+    );
+
+    // Eliminar duplicados
     const uniqueData = Array.from(new Map(data.map(item => [item[dataKey].value, item])).values());
 
     if (uniqueData.length < 4) {

@@ -46,13 +46,14 @@ const Game = () => {
   const startTime = useRef(Date.now());
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
   const username = localStorage.getItem("username");
+  const hasFetched = useRef(false); // Flag para evitar doble llamada
 
   useEffect(() => {
-    const initGame = async () => {
-      await newGame();
-      await fetchQuestion();
-    };
-    initGame();
+    if (!hasFetched.current) {
+      newGame();
+      fetchQuestion();
+      hasFetched.current = true; // Marcar como ejecutado
+    }
   }, []);
 
   useEffect(() => {
