@@ -46,11 +46,11 @@ describe("Game Component", () => {
       expect(screen.getByText("¿Cuál es la capital de España?")).toBeInTheDocument();
     });
 
-    expect(screen.getByLabelText("Madrid")).toBeInTheDocument();
-    expect(screen.getByLabelText("París")).toBeInTheDocument();
+    expect(screen.getByText("Madrid")).toBeInTheDocument();
+    expect(screen.getByText("París")).toBeInTheDocument();
   });
 
-  test("Permite seleccionar una respuesta", async () => {
+  test("Permite seleccionar una respuesta y muestra feedback correcto", async () => {
     mock.onGet("http://localhost:8000/question").reply(200, {
       question: "¿Cuál es la capital de Italia?",
       choices: ["Madrid", "París", "Londres", "Roma"],
@@ -63,16 +63,18 @@ describe("Game Component", () => {
       render(<Game />);
     });
 
-    const option = await screen.findByLabelText("Roma");
+    const option = await screen.findByText("Roma");
 
     await act(async () => {
       fireEvent.click(option);
     });
 
-    expect(option.checked).toBe(true);
+    await waitFor(() => {
+      expect(screen.getByText("✅")).toBeInTheDocument();
+    });
   });
 
-  test("Envía la respuesta y muestra el feedback correcto", async () => {
+  test("Muestra la respuesta correcta si el usuario falla", async () => {
     mock.onGet("http://localhost:8000/question").reply(200, {
       question: "¿Cuál es la capital de Alemania?",
       choices: ["Madrid", "Berlín", "Londres", "Roma"],
@@ -85,20 +87,15 @@ describe("Game Component", () => {
       render(<Game />);
     });
 
-    const correctOption = await screen.findByLabelText("Berlín");
+    const incorrectOption = await screen.findByText("Madrid");
 
     await act(async () => {
-      fireEvent.click(correctOption);
-    });
-
-    const submitButton = screen.getByText("Enviar Respuesta");
-
-    await act(async () => {
-      fireEvent.click(submitButton);
+      fireEvent.click(incorrectOption);
     });
 
     await waitFor(() => {
-      expect(screen.getByText("✅")).toBeInTheDocument();
+      expect(screen.getByText("❌")).toBeInTheDocument();
+      expect(screen.getByText("La respuesta correcta era: Berlín ✅")).toBeInTheDocument();
     });
   });
 

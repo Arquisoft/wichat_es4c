@@ -82,6 +82,7 @@ const Game = () => {
     }
   }, [loadingQuestion, apiEndpoint]);
 
+  // useEffect para inicializar el juego
   useEffect(() => {
     if (!hasFetched.current) {
       newGame();
@@ -135,9 +136,6 @@ const Game = () => {
     }
 
     if (completed) {
-      if (!answered) {
-        setAnswered(true);
-      }
       return (
         <Typography variant="h4" color="error">
           ⏳ Tiempo agotado
@@ -198,50 +196,59 @@ const Game = () => {
                   )}
                   <Typography variant="h6" gutterBottom>{questionData.question}</Typography>
                   <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
-                    {questionData.choices.map((option, index) => (
-                      <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
-                        <Button
-                          variant="contained"
-                          color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
-                          fullWidth
-                          onClick={() => handleAnswer(option)}
-                          disabled={answered} // Deshabilitar los botones después de responder
-                          sx={{
-                            textTransform: "none",
-                            fontWeight: "bold",
+                  {questionData.choices.map((option, index) => (
+                    <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
+                      <Button
+                        variant="contained"
+                        color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
+                        fullWidth
+                        onClick={() => handleAnswer(option)}
+                        disabled={answered} // Deshabilitar los botones después de responder
+                        sx={{
+                          textTransform: "none",
+                          fontWeight: "bold",
+                          backgroundColor: answered
+                            ? option === questionData.answer
+                              ? "green"
+                              : option === selectedAnswer
+                                ? "red"
+                                : "primary.main"
+                            : "primary.main",
+                          "&:hover": {
                             backgroundColor: answered
                               ? option === questionData.answer
                                 ? "green"
                                 : option === selectedAnswer
                                   ? "red"
-                                  : "primary.main"
-                              : "primary.main",
-                            "&:hover": {
-                              backgroundColor: answered
-                                ? option === questionData.answer
-                                  ? "green"
-                                  : option === selectedAnswer
-                                    ? "red"
-                                    : "primary.dark"
-                                : "primary.dark",
-                            },
+                                  : "primary.dark"
+                              : "primary.dark",
+                          },
+                        }}
+                      >
+                        {option}
+                      </Button>
+                      {feedback[option] && (
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            ml: 2,
+                            color: feedback[option] === "✅" ? "green" : "red",
                           }}
                         >
-                          {option}
-                        </Button>
-                        {feedback[option] && (
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              ml: 2,
-                              color: feedback[option] === "✅" ? "green" : "red",
-                            }}
-                          >
-                            {feedback[option]}
-                          </Typography>
-                        )}
-                      </Box>
-                    ))}
+                          {feedback[option]}
+                        </Typography>
+                      )}
+                    </Box>
+                  ))}
+
+                  {answered && selectedAnswer !== questionData.answer && (
+                    <Typography
+                      variant="h6"
+                      sx={{ mt: 2, color: "green", textAlign: "center" }}
+                    >
+                      La respuesta correcta era: {questionData.answer} ✅
+                    </Typography>
+                  )}
                   </RadioGroup>
                 </>
               ) : (
@@ -258,7 +265,12 @@ const Game = () => {
               <Countdown
                 date={timerEndTime}
                 renderer={renderer}
-                autoStart={!paused} // Pausa o reanuda el temporizador
+                autoStart={!paused}
+                onComplete={() => {
+                    if (!answered) {
+                        setAnswered(true); 
+                    }
+                }}
               />
             </Paper>
             

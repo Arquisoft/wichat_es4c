@@ -18,7 +18,7 @@ const withTimeout = (promise, ms) => {
 
 app.get('/question', async (req, res) => {
     try {
-        const question = await withTimeout(generateQuestion(), 3000);
+        const question = await withTimeout(generateQuestion(), 5000);
         res.json(question);
     } catch (error) {
         console.error("Error generating question:", error.message);
