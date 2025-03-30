@@ -11,7 +11,7 @@ async function fetchCapitalQuestion() {
 
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es". }
     }
-    LIMIT 20
+    LIMIT 35
     `;
     return await fetchFromWikidata(query);
 }
@@ -25,7 +25,7 @@ async function fetchFlagQuestion() {
 
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es". }
     }
-    LIMIT 20
+    LIMIT 35
     `;
     return await fetchFromWikidata(query);
 }
@@ -40,7 +40,7 @@ async function fetchMonumentQuestion() {
 
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es". }
     }
-    LIMIT 20
+    LIMIT 35
     `;
     return await fetchFromWikidata(query);
 }
@@ -55,7 +55,7 @@ async function fetchFoodQuestion() {
 
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es". }
     }
-    LIMIT 20
+    LIMIT 35
     `;
     return await fetchFromWikidata(query);
 }
