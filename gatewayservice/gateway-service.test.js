@@ -19,10 +19,10 @@ describe('Gateway Service API', () => {
     const mockResponse = { data: { token: 'fake-token' } };
     axios.post.mockResolvedValue(mockResponse);
 
-    const res = await request(server).post('/login').send({ username: 'test', password: '1234' });
-    
+    const res = await request(server).post('/login').send({ username: 'test' }); 
     expect(res.status).toBe(200);
     expect(res.body).toEqual(mockResponse.data);
+    expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/login'), { username: 'test' });
   });
 
   test('POST /incrementGamesPlayed should forward request to user service', async () => {
@@ -80,8 +80,7 @@ describe('Gateway Service API', () => {
   test('POST /login should handle service errors', async () => {
     axios.post.mockRejectedValue({ response: { status: 401, data: { error: 'Unauthorized' } } });
 
-    const res = await request(server).post('/login').send({ username: 'invalid', password: 'wrong' });
-    
+    const res = await request(server).post('/login').send({ username: 'invalid' });
     expect(res.status).toBe(401);
     expect(res.body).toEqual({ error: 'Unauthorized' });
   });

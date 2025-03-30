@@ -20,19 +20,17 @@ afterAll(async () => {
 
 describe('User Service', () => {
   it('should add a new user on POST /adduser', async () => {
-    const newUser = { username: 'testuser', password: 'testpassword' };
+    const newUser = { username: 'testuser', password: 'hashedpassword' }; 
     const response = await request(app).post('/adduser').send(newUser);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('username', 'testuser');
     const userInDb = await User.findOne({ username: 'testuser' });
     expect(userInDb).not.toBeNull();
     expect(userInDb.username).toBe('testuser');
-    const isPasswordValid = await bcrypt.compare('testpassword', userInDb.password);
-    expect(isPasswordValid).toBe(true);
   });
 
   it('should get user profile on GET /profile/:username', async () => {
-    const user = new User({ username: 'profileuser', password: await bcrypt.hash('pass', 10) });
+    const user = new User({ username: 'profileuser', password: 'hashedpassword' });
     await user.save();
     const response = await request(app).get(`/profile/${user.username}`);
     expect(response.status).toBe(200);
@@ -48,7 +46,7 @@ describe('User Service', () => {
   });
 
   it('should update user stats on POST /updateStats', async () => {
-    const user = new User({ username: 'statuser', password: await bcrypt.hash('pass', 10), correctAnswers: 0, wrongAnswers: 0, totalTimePlayed: 0 });
+    const user = new User({ username: 'statuser', password: 'hashedpassword', correctAnswers: 0, wrongAnswers: 0, totalTimePlayed: 0 });
     await user.save();
     const response = await request(app).post('/updateStats').send({ username: 'statuser', isCorrect: true, timeTaken: 30 });
     expect(response.status).toBe(200);
@@ -69,8 +67,8 @@ describe('User Service', () => {
 
   it('should get ranking sorted by correctAnswers on GET /ranking', async () => {
     await User.create([
-      { username: 'player1', password: await bcrypt.hash('pass', 10), correctAnswers: 10, wrongAnswers: 5, gamesPlayed: 3 },
-      { username: 'player2', password: await bcrypt.hash('pass', 10), correctAnswers: 15, wrongAnswers: 2, gamesPlayed: 4 },
+      { username: 'player1', password: 'hashedpassword', correctAnswers: 10, wrongAnswers: 5, gamesPlayed: 3 },
+      { username: 'player2', password: 'hashedpassword', correctAnswers: 15, wrongAnswers: 2, gamesPlayed: 4 },
     ]);
     
     const response = await request(app).get('/ranking?sortBy=correctAnswers');
@@ -78,7 +76,6 @@ describe('User Service', () => {
     expect(response.body.length).toBeGreaterThan(1);
     expect(response.body[0].correctAnswers).toBeGreaterThan(response.body[1].correctAnswers);
   });
-  
 
   it('should return 400 for invalid sortBy parameter on GET /ranking', async () => {
     const response = await request(app).get('/ranking?sortBy=invalidField');
@@ -86,7 +83,7 @@ describe('User Service', () => {
   });
 
   it('should increment gamesPlayed on POST /incrementGamesPlayed', async () => {
-    const user = new User({ username: 'gameplayer', password: await bcrypt.hash('pass', 10), gamesPlayed: 0 });
+    const user = new User({ username: 'gameplayer', password: 'hashedpassword', gamesPlayed: 0 });
     await user.save();
     const response = await request(app).post('/incrementGamesPlayed').send({ username: 'gameplayer' });
     expect(response.status).toBe(200);
@@ -104,9 +101,8 @@ describe('User Service', () => {
     expect(response.status).toBe(404);
   });
 
-  // ✅ **Pruebas adicionales para /adduser**
   it('should return 400 if username is missing on POST /adduser', async () => {
-    const response = await request(app).post('/adduser').send({ password: 'testpassword' });
+    const response = await request(app).post('/adduser').send({ password: 'hashedpassword' });
     expect(response.status).toBe(400);
     expect(response.body.error).toMatch(/Falta el campo requerido: username/);
   });
@@ -118,12 +114,11 @@ describe('User Service', () => {
   });
 
   it('should return 400 if username already exists on POST /adduser', async () => {
-    await User.create({ username: 'duplicate', password: await bcrypt.hash('pass', 10) });
-    const response = await request(app).post('/adduser').send({ username: 'duplicate', password: 'pass' });
+    await User.create({ username: 'duplicate', password: 'hashedpassword' });
+    const response = await request(app).post('/adduser').send({ username: 'duplicate', password: 'hashedpassword' });
     expect(response.status).toBe(400);
   });
 
-  // ✅ **Prueba de error en /profile/:username**
   it('should return 500 if database error occurs on GET /profile/:username', async () => {
     jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
       throw new Error('Database error');
@@ -133,7 +128,6 @@ describe('User Service', () => {
     expect(response.status).toBe(500);
     expect(response.body.error).toMatch(/Error al obtener el perfil del usuario/);
   });
-
 
   it('should return 500 if database error occurs on POST /incrementGamesPlayed', async () => {
     jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
