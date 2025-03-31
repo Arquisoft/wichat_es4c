@@ -90,10 +90,8 @@ Contained Building Blocks::
 | Handles authentication and security mechanisms.
 
 | *_UserService_*
-| Manages user profiles, sessions, and data.
+| Manages user profiles, sessions, and stores and updates leaderboard data.
 
-| *_RankingService_*
-| Stores and updates leaderboard data.
 
 | *_QuestionService_*
 | Retrieves and formats questions from WikiData.
