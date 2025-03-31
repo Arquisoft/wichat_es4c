@@ -1,69 +1,87 @@
 const request = require('supertest');
 const axios = require('axios');
-const app = require('./gateway-service'); 
-
-afterAll(async () => {
-    app.close();
-  });
+const server = require('./gateway-service');
 
 jest.mock('axios');
 
-describe('Gateway Service', () => {
-  // Mock responses from external services
-  axios.post.mockImplementation((url, data) => {
-    if (url.endsWith('/login')) {
-      return Promise.resolve({ data: { token: 'mockedToken' } });
-    } else if (url.endsWith('/adduser')) {
-      return Promise.resolve({ data: { userId: 'mockedUserId' } });
-    } else if (url.endsWith('/ask')) {
-      return Promise.resolve({ data: { answer: 'llmanswer' } });
-    }
+afterAll(() => {
+  server.close();
+});
+
+describe('Gateway Service API', () => {
+  test('GET /health should return status OK', async () => {
+    const res = await request(server).get('/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ status: 'OK' });
   });
 
-  axios.get.mockImplementation((url) => {
-    if (url.endsWith('/question')) {
-      return Promise.resolve({ data: { question: 'What is the capital of France?', options: ['Paris', 'Madrid', 'Berlin', 'Rome'], answer: 'Paris' } });
-    }
+  test('POST /login should forward request and return response', async () => {
+    const mockResponse = { data: { token: 'fake-token' } };
+    axios.post.mockResolvedValue(mockResponse);
+
+    const res = await request(server).post('/login').send({ username: 'test' }); 
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(mockResponse.data);
+    expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/login'), { username: 'test' });
   });
 
-  // Test /login endpoint
-  it('should forward login request to auth service', async () => {
-    const response = await request(app)
-      .post('/login')
-      .send({ username: 'testuser', password: 'testpassword' });
+  test('POST /incrementGamesPlayed should forward request to user service', async () => {
+    const mockResponse = { data: { success: true } };
+    axios.post.mockResolvedValue(mockResponse);
 
-    expect(response.statusCode).toBe(200);
-    expect(response.body.token).toBe('mockedToken');
+    const response = await request(server).post('/incrementGamesPlayed').send({ username: 'testUser' });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockResponse.data);
+    expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/incrementGamesPlayed'), { username: 'testUser' });
   });
 
-  // Test /adduser endpoint
-  it('should forward add user request to user service', async () => {
-    const response = await request(app)
-      .post('/adduser')
-      .send({ username: 'newuser', password: 'newpassword' });
+  test('POST /updateStats should forward request to user service', async () => {
+    const mockResponse = { data: { success: true } };
+    axios.post.mockResolvedValue(mockResponse);
 
-    expect(response.statusCode).toBe(200);
-    expect(response.body.userId).toBe('mockedUserId');
+    const response = await request(server).post('/updateStats').send({ username: 'testUser', isCorrect: true, timeTaken: 5 });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockResponse.data);
+    expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/updateStats'), { username: 'testUser', isCorrect: true, timeTaken: 5 });
   });
 
-  // Test /askllm endpoint
-  it('should forward askllm request to the llm service', async () => {
-    const response = await request(app)
-      .post('/askllm')
-      .send({ question: 'question', apiKey: 'apiKey', model: 'gemini' });
+  test('GET /profile/:username should return user profile', async () => {
+    const mockResponse = { data: { username: 'test', score: 100 } };
+    axios.get.mockResolvedValue(mockResponse);
 
-    expect(response.statusCode).toBe(200);
-    expect(response.body.answer).toBe('llmanswer');
+    const res = await request(server).get('/profile/test');
+    
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(mockResponse.data);
   });
 
-   // Test /question endpoint
-   it('should forward question request to the question service', async () => {
-    const response = await request(app).get('/question');
+  test('GET /ranking should return ranking data', async () => {
+    const mockResponse = { data: [{ username: 'user1', score: 200 }] };
+    axios.get.mockResolvedValue(mockResponse);
 
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty('question', 'What is the capital of France?');
-    expect(response.body).toHaveProperty('options');
-    expect(response.body.options).toEqual(['Paris', 'Madrid', 'Berlin', 'Rome']);
-    expect(response.body).toHaveProperty('answer', 'Paris');
+    const res = await request(server).get('/ranking');
+    
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(mockResponse.data);
+  });
+
+  test('POST /askllm should forward request to LLM service', async () => {
+    const mockResponse = { data: { answer: 'Response from LLM' } };
+    axios.post.mockResolvedValue(mockResponse);
+
+    const res = await request(server).post('/askllm').send({ question: 'What is AI?' });
+    
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(mockResponse.data);
+  });
+
+  test('POST /login should handle service errors', async () => {
+    axios.post.mockRejectedValue({ response: { status: 401, data: { error: 'Unauthorized' } } });
+
+    const res = await request(server).post('/login').send({ username: 'invalid' });
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ error: 'Unauthorized' });
   });
 });
