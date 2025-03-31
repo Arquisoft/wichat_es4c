@@ -14,7 +14,7 @@ describe('Profile component', () => {
   });
 
   it('should add a user and then fetch the profile', async () => {
-    const testUser = { username: "testUser", password: "testPassword" };
+    const testUser = { username: "testUser" };
 
     const profileData = {
       username: testUser.username,
@@ -30,10 +30,10 @@ describe('Profile component', () => {
     // Simula la respuesta de la API para obtener el perfil
     mockAxios.onGet(`${apiEndpoint}/profile/${testUser.username}`).reply(200, profileData);
 
-    // 1️⃣ Llamamos a adduser y esperamos a que se complete
-    await axios.post(`${apiEndpoint}/adduser`, { username: testUser.username, password: testUser.password });
 
-    // 2️⃣ Renderizamos Profile con MemoryRouter simulando la URL correcta
+    await axios.post(`${apiEndpoint}/adduser`, { username: testUser.username });
+
+
     render(
       <MemoryRouter initialEntries={[`/profile/${testUser.username}`]}>
         <Routes>
@@ -42,10 +42,10 @@ describe('Profile component', () => {
       </MemoryRouter>
     );
 
-    // 3️⃣ Esperamos a que Profile termine de cargar antes de verificar los datos
+
     await waitFor(() => expect(mockAxios.history.get.length).toBe(1));
 
-    // 4️⃣ Verificamos que la información del perfil aparece en pantalla
+
     await waitFor(() => {
       expect(screen.getByText(/testUser/i)).toBeInTheDocument();
       expect(screen.getByText(/Juegos Jugados/i)).toBeInTheDocument();

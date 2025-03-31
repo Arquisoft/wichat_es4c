@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import {
   Container, Typography, Box, Button, Grid, CssBaseline,
-  Radio, RadioGroup, FormControlLabel, Paper, CircularProgress
+ RadioGroup, Paper, CircularProgress
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Countdown from 'react-countdown';
@@ -46,17 +46,10 @@ const Game = () => {
   const startTime = useRef(Date.now());
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
   const username = localStorage.getItem("username");
+  const hasFetched = useRef(false);
 
-  useEffect(() => {
-    newGame();
-    fetchQuestion();
-  }, []);
 
-  useEffect(() => {
-    setPaused(loadingQuestion);
-  }, [loadingQuestion]);
-
-  const newGame = async () => {
+  const newGame = useCallback(async () => {
     try {
       if (username) {
         await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
@@ -64,9 +57,10 @@ const Game = () => {
     } catch (error) {
       console.error("Error incrementing game:", error);
     }
-  };
+  }, [username, apiEndpoint]);
 
-  const fetchQuestion = async () => {
+
+  const fetchQuestion = useCallback(async () => {
     if (loadingQuestion) return;
 
     setLoadingQuestion(true);
@@ -86,17 +80,31 @@ const Game = () => {
     } finally {
       setLoadingQuestion(false);
     }
-  };
+  }, [loadingQuestion, apiEndpoint]);
 
-  const handleAnswerSubmit = async () => {
-    if (!selectedAnswer || loadingQuestion) return;
+  // useEffect para inicializar el juego
+  useEffect(() => {
+    if (!hasFetched.current) {
+      newGame();
+      fetchQuestion();
+      hasFetched.current = true;
+    }
+  }, [newGame, fetchQuestion]);
 
-    const isCorrect = selectedAnswer === questionData.answer;
+
+  useEffect(() => {
+    setPaused(loadingQuestion);
+  }, [loadingQuestion]);
+
+  const handleAnswer = async (answer) => {
+    if (!answer || loadingQuestion) return;
+
+    const isCorrect = answer === questionData.answer;
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
 
     setFeedback({
       ...feedback,
-      [selectedAnswer]: isCorrect ? "✅" : "❌"
+      [answer]: isCorrect ? "✅" : "❌"
     });
 
     setAnswered(true);
@@ -128,9 +136,6 @@ const Game = () => {
     }
 
     if (completed) {
-      if (!answered) {
-        setAnswered(true);
-      }
       return (
         <Typography variant="h4" color="error">
           ⏳ Tiempo agotado
@@ -191,31 +196,60 @@ const Game = () => {
                   )}
                   <Typography variant="h6" gutterBottom>{questionData.question}</Typography>
                   <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
-                    {questionData.choices.map((option, index) => (
-                      <Box key={index} display='flex' alignItems='center'>
-                        <FormControlLabel
-                          value={option}
-                          control={<Radio disabled={answered} />}
-                          label={option}
-                        />
-                        {feedback[option] && (
-                          <Typography variant="h6" sx={{ ml: 2, color: feedback[option] === "✅" ? "green" : "red" }}>
-                            {feedback[option]}
-                          </Typography>
-                        )}
-                      </Box>
-                    ))}
+                  {questionData.choices.map((option, index) => (
+                    <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
+                      <Button
+                        variant="contained"
+                        color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
+                        fullWidth
+                        onClick={() => handleAnswer(option)}
+                        disabled={answered} // Deshabilitar los botones después de responder
+                        sx={{
+                          textTransform: "none",
+                          fontWeight: "bold",
+                          backgroundColor: answered
+                            ? option === questionData.answer
+                              ? "green"
+                              : option === selectedAnswer
+                                ? "red"
+                                : "primary.main"
+                            : "primary.main",
+                          "&:hover": {
+                            backgroundColor: answered
+                              ? option === questionData.answer
+                                ? "green"
+                                : option === selectedAnswer
+                                  ? "red"
+                                  : "primary.dark"
+                              : "primary.dark",
+                          },
+                        }}
+                      >
+                        {option}
+                      </Button>
+                      {feedback[option] && (
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            ml: 2,
+                            color: feedback[option] === "✅" ? "green" : "red",
+                          }}
+                        >
+                          {feedback[option]}
+                        </Typography>
+                      )}
+                    </Box>
+                  ))}
+
+                  {answered && selectedAnswer !== questionData.answer && (
+                    <Typography
+                      variant="h6"
+                      sx={{ mt: 2, color: "green", textAlign: "center" }}
+                    >
+                      La respuesta correcta era: {questionData.answer} ✅
+                    </Typography>
+                  )}
                   </RadioGroup>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                    onClick={handleAnswerSubmit}
-                    disabled={!selectedAnswer || answered}
-                  >
-                    Enviar Respuesta
-                  </Button>
                 </>
               ) : (
                 <Box display="flex" justifyContent="center" alignItems="center" height="200px">
@@ -231,7 +265,12 @@ const Game = () => {
               <Countdown
                 date={timerEndTime}
                 renderer={renderer}
-                autoStart={!paused} // Pausa o reanuda el temporizador
+                autoStart={!paused}
+                onComplete={() => {
+                    if (!answered) {
+                        setAnswered(true); 
+                    }
+                }}
               />
             </Paper>
             

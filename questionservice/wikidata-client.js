@@ -11,7 +11,7 @@ async function fetchCapitalQuestion() {
 
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es". }
     }
-    LIMIT 20
+    LIMIT 35
     `;
     return await fetchFromWikidata(query);
 }
@@ -25,7 +25,7 @@ async function fetchFlagQuestion() {
 
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es". }
     }
-    LIMIT 20
+    LIMIT 35
     `;
     return await fetchFromWikidata(query);
 }
@@ -40,7 +40,7 @@ async function fetchMonumentQuestion() {
 
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es". }
     }
-    LIMIT 20
+    LIMIT 35
     `;
     return await fetchFromWikidata(query);
 }
@@ -55,7 +55,7 @@ async function fetchFoodQuestion() {
 
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es". }
     }
-    LIMIT 20
+    LIMIT 35
     `;
     return await fetchFromWikidata(query);
 }
@@ -65,26 +65,43 @@ async function fetchFromWikidata(query) {
 
     try {
         const response = await axios.get(url, {
-            headers: { 'User-Agent': 'MyQuizApp/1.0' }, 
-            timeout: 5000
+            headers: { 'User-Agent': 'WIChat/1.0' }
         });
 
         const results = response.data.results.bindings;
 
         const seen = new Set();
-        return results.filter(entry => {
-            const key = JSON.stringify(entry);
-            if (seen.has(key) || Object.values(entry).some(v => v === "")) {
-                return false;
-            }
-            seen.add(key);
-            return true;
-        });
+        return results
+            .filter(entry => {
+                const key = JSON.stringify(entry);
+                if (seen.has(key) || Object.values(entry).some(v => v === "")) {
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            })
+            .map(entry => {
+                // Redimensionar la imagen si existe
+                if (entry.image && entry.image.value) {
+                    entry.image.value = getResizedImageUrl(entry.image.value, 500, 300); // Ancho: 500px, Altura: 300px
+                }
+                if (entry.flag && entry.flag.value) {
+                    entry.flag.value = getResizedImageUrl(entry.flag.value, 500, 300); // Ancho: 500px, Altura: 300px
+                }
+                return entry;
+            });
 
     } catch (error) {
         console.error("Error fetching data from Wikidata:", error.message);
         return [];
     }
+}
+
+function getResizedImageUrl(imageUrl, width = 500, height = 300) {
+    if (!imageUrl.includes("commons.wikimedia.org")) {
+        return imageUrl; // Si no es una imagen de Wikimedia, devuelve la URL original
+    }
+    return `${imageUrl}?width=${width}&height=${height}`;
 }
 
 module.exports = { 
