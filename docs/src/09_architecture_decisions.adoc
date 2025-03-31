@@ -3,7 +3,6 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-design-decisions]]
 == Architecture Decisions
 
-
 ifdef::arc42help[]
 [role="arc42help"]
 ****
@@ -35,3 +34,38 @@ There you will find links and examples about ADR.
 
 ****
 endif::arc42help[]
+
+=== 1. Use of React.js for the Frontend
+
+*Decision:* We have chosen React.js as the primary framework for building the user interface.
+
+*Rationale:*  
+React.js provides a component-based architecture that enables rapid development and reusability of UI components. Its extensive ecosystem and active community support allow for easier maintenance and scalability of the application. Additionally, React's virtual DOM improves performance, which is critical for a responsive quiz experience.
+
+=== 2. MongoDB as the Database
+
+*Decision:* MongoDB was selected as the database solution for the application.
+
+*Rationale:*  
+MongoDB's document-oriented data model offers flexibility in managing diverse data types such as user profiles, quiz questions, and game statistics. Its scalability and ease of integration make it an ideal choice for handling evolving data requirements in our application.
+
+=== 3. Creation of a 'QuestionService' Module for Fetching Questions from Wikidata
+
+*Decision:* A dedicated module, referred to as the "QuestionService", has been implemented to fetch quiz questions directly from Wikidata.
+
+*Rationale:*  
+Integrating external data sources like Wikidata enhances the richness and accuracy of the quiz content. By encapsulating all the logic for querying and processing Wikidata responses within a dedicated module, we achieve a clear separation of concerns. This modular design also simplifies future maintenance and potential integration with additional data sources.
+
+=== 4. Use of Gemini as the LLM for Quiz Help Chat
+
+*Decision:* The application leverages Gemini as its large language model (LLM) to power the chat-based help feature.
+
+*Rationale:*  
+The integration of Gemini provides users with real-time, contextual assistance during the quiz. Its advanced natural language processing capabilities ensure that the help chat can understand and respond accurately to user queries, enhancing the overall user experience and engagement.
+
+=== 5. Adoption of OpenAPI for API Specification
+
+*Decision:* OpenAPI is used to design our API.
+
+*Rationale:*  
+Utilizing OpenAPI allows us to create a clear contract between frontend and backend services. This standardization facilitates easier client integration, automated testing, and comprehensive documentation. It also enhances collaboration across development teams by providing a shared reference for API behavior and endpoints.

@@ -79,39 +79,37 @@ app.get('/profile/:username', async (req, res) => {
 // **Actualizar estadísticas del usuario**
 app.post('/updateStats', async (req, res) => {
     try {
-        const { username, isCorrect, timeTaken } = req.body;
-
-        if (!username) {
-            return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
-        }
-
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(404).json({ error: "Usuario no encontrado" });
-        }
-
-        if (isCorrect) {
-            user.correctAnswers += 1;
-        } else {
-            user.wrongAnswers += 1;
-        }
-
-        user.totalTimePlayed += timeTaken;
-
-        user.gameHistory.push({
-            date: new Date(),
-            correct: isCorrect ? 1 : 0,
-            wrong: isCorrect ? 0 : 1,
-            timePlayed: timeTaken
-        });
-
-        await user.save();
-        res.json({ message: "Estadísticas actualizadas", user });
+      const { username, correct, wrong, timeTaken } = req.body;
+  
+      if (!username) {
+        return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+      }
+  
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+  
+      user.correctAnswers += correct || 0;
+      user.wrongAnswers += wrong || 0;
+      user.totalTimePlayed += timeTaken || 0;
+  
+      // Agrega una única entrada al historial
+      user.gameHistory.push({
+        date: new Date(),
+        correct: correct || 0,
+        wrong: wrong || 0,
+        timePlayed: timeTaken || 0
+      });
+  
+      await user.save();
+      res.json({ message: "Estadísticas actualizadas", user });
     } catch (error) {
-        console.error("Error al actualizar estadísticas:", error);
-        res.status(500).json({ error: "Error al actualizar estadísticas" });
+      console.error("Error al actualizar estadísticas:", error);
+      res.status(500).json({ error: "Error al actualizar estadísticas" });
     }
-});
+  });
+  
 
 // **Registrar partidas jugadas**
 app.post('/incrementGamesPlayed', async (req, res) => {
