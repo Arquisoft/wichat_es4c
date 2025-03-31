@@ -18,7 +18,7 @@ async function generateQuestion() {
     const keys = Object.keys(questionTypes);
     let attempts = 0;
 
-    while (attempts < 3) {
+    while (attempts < 10) {
         const randomKey = keys[Math.floor(Math.random() * keys.length)];
         const question = await questionTypes[randomKey].generate();
 
