@@ -15,7 +15,7 @@ Questions & Answers: Content dynamically generated from WikiData.
 
 Hints: AI-generated assistance to guide users.
 
-Ranking System: Scores and leaderboards to enhance engagement.
+Ranking: Scores and leaderboards to enhance engagement.
 
 === User Experience (UX) Concepts
 
@@ -53,7 +53,7 @@ Frontend: Built with React for a dynamic user experience.
 
 Database: MongoDB as the primary data store.
 
-LLM Integration: Empathy AI used for hint generation.
+LLM Integration: Gemini AI used for hint generation.
 
 External Data Source: WikiData for retrieving question-related information.
 
