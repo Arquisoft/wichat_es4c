@@ -12,17 +12,45 @@ const questionTypes = {
     food: { fetchData: fetchFoodQuestion, generate: generateFoodQuestion }
 };
 
+const usedImages = new Set();
+
 async function generateQuestion() {
     const keys = Object.keys(questionTypes);
-    const randomKey = keys[Math.floor(Math.random() * keys.length)];
-    return await questionTypes[randomKey].generate();
+    let attempts = 0;
+
+    while (attempts < 3) {
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        const question = await questionTypes[randomKey].generate();
+
+        // Verificar si la imagen ya fue utilizada
+        if (question.image && usedImages.has(question.image)) {
+            attempts++;
+            continue; // Intentar generar otra pregunta
+        }
+
+        if (question.image) {
+            usedImages.add(question.image);
+        }
+
+        return question;
+    }
+
+    throw new Error("No se pudo generar una pregunta única después de varios intentos");
 }
 
 async function generateGeneralQuestion(type, dataKey, questionTemplate, imageKey = null) {
     const fetchData = questionTypes[type].fetchData;
     let data = await fetchData();
 
-    data = data.filter(item => item[dataKey] && item[dataKey].value);
+    // Filtrar datos válidos
+    data = data.filter(item => 
+        item[dataKey] && 
+        item[dataKey].value && 
+        !/^[Q]\d+$/.test(item[dataKey].value) && // Eliminar códigos de Wikidata como Q123456
+        (!imageKey || (item[imageKey] && item[imageKey].value)) // Verificar que tenga imagen si es necesario
+    );
+
+    // Eliminar duplicados
     const uniqueData = Array.from(new Map(data.map(item => [item[dataKey].value, item])).values());
 
     if (uniqueData.length < 4) {
@@ -61,7 +89,7 @@ async function generateCapitalQuestion() {
         'capital', 
         'capitalLabel', 
         (choice) => `¿Cuál es la capital de ${choice.countryLabel.value}?`,
-        'image' // Ahora usa la imagen representativa del país en lugar de la bandera
+        'image'
     );
 }
 
