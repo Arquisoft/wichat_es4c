@@ -32,13 +32,13 @@ Contained Building Blocks::
 | *_Wikidata_*
 | Aplication to generate the questions and answers.
 
-| *_Empathy AI_*
+| *_Gemini AI_*
 | API used for the hints.
 
 |===
 
 Important Interfaces::
-_- API communication between WIChat and external services (WikiData, Empathy AI)._
+_- API communication between WIChat and external services (WikiData, Gemini AI)._
 
 
 
@@ -60,7 +60,13 @@ Contained Building Blocks::
 | Handles authentication, user management, and ranking system.
 
 | *_LLMService_*
-| Connects to Empathy AI to generate hints for users.
+| Connects to Gemini AI to generate hints for users.
+
+| *_QuestionService_*
+| Communicates with WikiData to retrieve questions and answers.
+
+| *_Wikidata_*
+| External service for retrieving data to compose questions and answers.
 
 | *_WebApp_*
 | User-facing interface for gameplay and interactions.
