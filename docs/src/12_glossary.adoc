@@ -51,20 +51,18 @@ endif::arc42help[]
 |Hint
 |AI-generated clues to help users guess the correct answer.
 
-|Empathy AI
+|Gemini AI
 |The LLM service used to generate contextual hints.
 
 |WikiData
 |The external knowledge base used to generate questions.
 
-|Ranking System
-|A system tracking user scores and leaderboards.
 
 |Gateway Service
 |The main entry point handling API requests and routing.
 
 |User Manager
-|A component handling authentication and user data management.
+|A component handling authentication, user data management and also tracks user scores and leaderboard.
 
 |AuthService	
 |A service responsible for user authentication and security.
@@ -72,11 +70,9 @@ endif::arc42help[]
 |UserService
 |A service managing user-related operations.
 
-|RankingService
-|A service that tracks and updates user scores.
 
 |LLMService
-|A service that connects to Empathy AI for hint generation.
+|A service that connects to Gemini AI for hint generation.
 
 |WebApp
 |The frontend interface used by players to interact with WIChat.

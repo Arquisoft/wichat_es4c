@@ -73,18 +73,18 @@ WebApp --> User: Displays response and redirects the user
 actor User
 participant WebApp
 participant GatewayService
-participant QuestionGeneratorService
+participant QuestionService
 database Wikidata
 database MongoDB
 
 User -> WebApp: Starts game
 WebApp -> GatewayService: Requests question
-GatewayService -> QuestionGeneratorService: Requests question
-QuestionGeneratorService -> Wikidata: Fetches relevant info
-Wikidata --> QuestionGeneratorService: Returns relevan info
-QuestionGeneratorService --> QuestionGeneratorService: Generates question
-QuestionGeneratorService -> MongoDB: Stores question
-QuestionGeneratorService --> GatewayService: Returns question
+GatewayService -> QuestionService: Requests question
+QuestionService -> Wikidata: Fetches relevant info
+Wikidata --> QuestionService: Returns relevan info
+QuestionService --> QuestionService: Generates question
+QuestionService -> MongoDB: Stores question
+QuestionService --> GatewayService: Returns question
 GatewayService --> WebApp: Returns Question
 WebApp --> User: Displays question to the user
 
@@ -102,14 +102,14 @@ actor User
 participant WebApp
 participant GatewayService
 participant LLMService
-entity EmpathyAI
+entity GeminiAI
 
 User -> WebApp: Asks for a hint
 WebApp -> GatewayService: Requests hint
 GatewayService -> LLMService: Foorwards Request
-LLMService -> EmpathyAI: Queries hint
-EmpathyAI --> EmpathyAI: Generates hint
-EmpathyAI --> LLMService: Returns hint
+LLMService -> GeminiAI: Queries hint
+GeminiAI --> GeminiAI: Generates hint
+GeminiAI --> LLMService: Returns hint
 LLMService --> GatewayService: Returns hint
 GatewayService --> WebApp: Returns hint
 WebApp --> User: Displays hint to the user
@@ -138,9 +138,9 @@ User -> WebApp: Repeats n times until finish
 WebApp -> GatewayService: Requests sending user data
 GatewayService -> UserService: Sends user data
 UserService -> MongoDB: Stores user data
+UserService -> MongoDB: Stores score data
 WebApp -> GatewayService: Requests sending score data
-GatewayService -> RankingService: Sends score data
-RankingService -> MongoDB: Stores score data
+GatewayService -> UserService: Sends score data
 WebApp --> User: Displays stats
 
 @enduml
