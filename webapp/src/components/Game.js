@@ -103,28 +103,33 @@ const Game = () => {
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
 
     setFeedback({
-      ...feedback,
-      [answer]: isCorrect ? "✅" : "❌"
+        ...feedback,
+        [answer]: isCorrect ? "✅" : "❌"
     });
 
     setAnswered(true);
+    setPaused(true); // Pausar el temporizador al responder
+
+    // Reiniciar el temporizador inmediatamente
+    setTimerEndTime(Date.now() + 10000);
 
     if (username) {
-      try {
-        await axios.post(`${apiEndpoint}/updateStats`, {
-          username,
-          isCorrect,
-          timeTaken
-        });
-      } catch (error) {
-        console.error("Error al actualizar estadísticas:", error);
-      }
+        try {
+            await axios.post(`${apiEndpoint}/updateStats`, {
+                username,
+                isCorrect,
+                timeTaken
+            });
+        } catch (error) {
+            console.error("Error al actualizar estadísticas:", error);
+        }
     }
 
-    setTimeout(() => {
-      fetchQuestion();
+    setTimeout(() => { 
+        setPaused(false);
+        fetchQuestion();
     }, 1000);
-  };
+  }; 
 
   const renderer = ({ seconds, completed }) => {
     if (paused) {
