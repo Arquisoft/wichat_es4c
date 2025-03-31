@@ -5,19 +5,20 @@ import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 const StartMenu = () => {
   const [username, setUsername] = useState(null);
   const navigate = useNavigate();
-  const storedUsername = localStorage.getItem("username");
 
   useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
       setUsername(storedUsername);
     }
   }, []);
+  
 
   const handleStartGame = () => navigate("/game");
   const handleOpenRanking = () => navigate("/ranking");
   const handleOpenProfile = () => {
     if (username) {
-      navigate(`/profile/${storedUsername}`);
+      navigate(`/profile/${username}`);
     } else {
       alert("No se ha iniciado sesión.");
     }
