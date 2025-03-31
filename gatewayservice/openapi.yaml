@@ -142,3 +142,288 @@ paths:
                     type: string
                     description: Error information.
                     example: Internal Server Error
+  /profile/{username}:
+    get:
+      summary: Get user profile by username.
+      operationId: getUserProfile
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStats'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /updateStats:
+    post:
+      summary: Update user game stats.
+      operationId: updateUserStats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                isCorrect:
+                  type: boolean
+                timeTaken:
+                  type: number
+      responses:
+        '200':
+          description: Stats updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/UserStats'
+        '400':
+          description: Missing username.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error updating stats.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /incrementGamesPlayed:
+    post:
+      summary: Increment user's games played.
+      operationId: incrementGamesPlayed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        '200':
+          description: Game count incremented.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  gamesPlayed:
+                    type: integer
+        '400':
+          description: Missing username.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error updating game count.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /ranking:
+    get:
+      summary: Get player ranking.
+      operationId: getRanking
+      parameters:
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [correctAnswers, wrongAnswers, gamesPlayed]
+      responses:
+        '200':
+          description: Ranking list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserStats'
+        '400':
+          description: Invalid sort field.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error retrieving ranking.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /question:
+    get:
+      summary: Get a randomly generated question.
+      operationId: getQuestion
+      responses:
+        '200':
+          description: Successfully generated question.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+        '500':
+          description: Failed to generate question.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /askllm:
+    post:
+      summary: Ask the LLM service a question and receive an answer.
+      operationId: askLLM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - question
+                - model
+                - apiKey
+              properties:
+                question:
+                  type: string
+                  example: ¿Cuál es la capital de Alemania?
+                model:
+                  type: string
+                  example: gpt-4
+                apiKey:
+                  type: string
+                  example: sk-123abc...
+                correctAnswer:
+                  type: string
+                  example: Berlín
+      responses:
+        '200':
+          description: Answer from the LLM.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer:
+                    type: string
+                    example: La capital de Alemania es Berlín.
+        '400':
+          description: Missing required fields or validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: LLM service error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        _id:
+          type: string
+        createdAt:
+          type: string
+        __v:
+          type: integer
+    UserStats:
+      type: object
+      properties:
+        username:
+          type: string
+        gamesPlayed:
+          type: integer
+        correctAnswers:
+          type: integer
+        wrongAnswers:
+          type: integer
+        totalTimePlayed:
+          type: number
+        gameHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              correct:
+                type: integer
+              wrong:
+                type: integer
+              timePlayed:
+                type: number
+    Question:
+      type: object
+      properties:
+        type:
+          type: string
+          example: capital
+        question:
+          type: string
+          example: ¿Cuál es la capital de Francia?
+        choices:
+          type: array
+          items:
+            type: string
+          example: ["París", "Londres", "Roma", "Berlín"]
+        answer:
+          type: string
+          example: París
+        image:
+          type: string
+          format: uri
+          example: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_France.svg/320px-Flag_of_France.svg.png
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
