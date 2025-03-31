@@ -3,11 +3,9 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-quality-scenarios]]
 == Quality Requirements
 
-
 ifdef::arc42help[]
 [role="arc42help"]
 ****
-
 .Content
 This section contains all quality requirements as quality tree with scenarios. The most important ones have already been described in section 1.2. (quality goals)
 
@@ -19,36 +17,16 @@ Since quality requirements will have a lot of influence on architectural
 decisions you should know for every stakeholder what is really important to them,
 concrete and measurable.
 
-
 .Further Information
 
 See https://docs.arc42.org/section-10/[Quality Requirements] in the arc42 documentation.
-
 ****
 endif::arc42help[]
 
 === Quality Tree
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content
-The quality tree (as defined in ATAM – Architecture Tradeoff Analysis Method) with quality/evaluation scenarios as leafs.
 
-.Motivation
-The tree structure with priorities provides an overview for a sometimes large number of quality requirements.
-
-.Form
-The quality tree is a high-level overview of the quality goals and requirements:
-
-* tree-like refinement of the term "quality". Use "quality" or "usefulness" as a root
-* a mind map with quality categories as main branches
-
-In any case the tree should include links to the scenarios of the following section.
-
-
-****
-endif::arc42help[]
+image::quality_tree.png[Quality Tree"]
 
 === Quality Scenarios
 
@@ -77,3 +55,70 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 Tabular or free form text.
 ****
 endif::arc42help[]
+
+==== Usage Scenarios
+
+[options="header",cols="1,3,3,1"]
+|===
+| Quality Goal | Motivation | Usage Scenario | Priority
+
+| _Usability_
+| The application must be intuitive and easy to navigate, especially for new users.
+| A new user can register, understand the rules, and start a quiz without external guidance.
+| High
+
+| _Interactivity_
+| To engage users with real-time feedback during the quiz.
+| Upon selecting an answer, the system immediately displays whether the answer is correct and then seamlessly transitions to the next question.
+| High
+
+| _Availability_
+| The app must be accessible at any time to ensure users can play the quiz whenever desired.
+| The system maintains enabled most of the time.
+| High
+
+| _Scalability_
+| The system should accommodate a growing number of concurrent users without performance degradation.
+| The application supports multiple concurrent users .
+| Medium
+
+| _Performance_
+| To ensure a smooth and responsive quiz experience.
+| When a user submits an answer, the system processes the response and updates the UI as quickly as possible.
+| Medium
+
+| _Reliability_
+| To deliver consistent and accurate quiz results.
+| The system accurately records user answers, scores, and game statistics in every quiz session.
+| High
+
+| _Testability_
+| The design should allow for efficient automated testing.
+| Developers can run unit and integration tests to verify quiz logic and API endpoints with minimal configuration.
+| Medium
+
+
+|===
+
+==== Change Scenarios
+
+[options="header",cols="1,3,3,1"]
+|===
+| Change Scenario | Motivation | Expected Response | Priority
+
+| _Adding New Quiz Categories_
+| To expand content and keep the quiz engaging.
+| New categories can be integrated into the system without impacting existing functionality.
+| Medium
+
+| _Enhancing Chat Assistance_
+| To improve user support by leveraging upgrades in the Gemini LLM.
+| The chat module can be updated or replaced with enhanced capabilities without affecting core quiz functionality.
+| Medium
+
+| _Updating External Data Sources_
+| To incorporate more diverse or current geographical data.
+| The dedicated QuestionService can be extended to fetch data from additional external APIs or sources with minimal refactoring.
+| Medium
+
+|===
