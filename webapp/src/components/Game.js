@@ -261,7 +261,7 @@ const Game = () => {
 
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
             <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
-              <Typography variant="h5" gutterBottom>Tiempo restante:</Typography>
+              <Typography id="counter" variant="h5" gutterBottom>Tiempo restante:</Typography>
               <Countdown
                 date={timerEndTime}
                 renderer={renderer}
