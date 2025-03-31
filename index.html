@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.22">
+<meta name="generator" content="Asciidoctor 2.0.23">
 <title>wichat_es4c</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -453,10 +453,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#section-architecture-constraints">2. Architecture Constraints</a></li>
-<li><a href="#section-context-and-scope">3. Contexto y Alcance</a>
+<li><a href="#section-context-and-scope">3. Context and Scope</a>
 <ul class="sectlevel2">
-<li><a href="#_contexto_de_negocio">3.1. Contexto de Negocio</a></li>
-<li><a href="#_contexto_técnico">3.2. Contexto Técnico</a></li>
+<li><a href="#_business_context">3.1. Business Context</a></li>
+<li><a href="#_technical_context">3.2. Technical Context</a></li>
 </ul>
 </li>
 <li><a href="#section-solution-strategy">4. Solution Strategy</a>
@@ -500,7 +500,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_operational_concepts">8.7. Operational Concepts</a></li>
 </ul>
 </li>
-<li><a href="#section-design-decisions">9. Architecture Decisions</a></li>
+<li><a href="#section-design-decisions">9. Architecture Decisions</a>
+<ul class="sectlevel2">
+<li><a href="#_1_use_of_react_js_for_the_frontend">9.1. 1. Use of React.js for the Frontend</a></li>
+<li><a href="#_2_mongodb_as_the_database">9.2. 2. MongoDB as the Database</a></li>
+<li><a href="#_3_creation_of_a_questionservice_module_for_fetching_questions_from_wikidata">9.3. 3. Creation of a 'QuestionService' Module for Fetching Questions from Wikidata</a></li>
+<li><a href="#_4_use_of_gemini_as_the_llm_for_quiz_help_chat">9.4. 4. Use of Gemini as the LLM for Quiz Help Chat</a></li>
+<li><a href="#_5_adoption_of_openapi_for_api_specification">9.5. 5. Adoption of OpenAPI for API Specification</a></li>
+</ul>
+</li>
 <li><a href="#section-quality-scenarios">10. Quality Requirements</a>
 <ul class="sectlevel2">
 <li><a href="#_quality_tree">10.1. Quality Tree</a></li>
@@ -898,47 +906,46 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-context-and-scope">3. Contexto y Alcance</h2>
+<h2 id="section-context-and-scope">3. Context and Scope</h2>
 <div class="sectionbody">
 <div class="sidebarblock arc42help">
 <div class="content">
 <div class="paragraph">
-<div class="title">Contenido</div>
-<p>El ámbito y contexto del sistema, como su nombre lo indica, delimita el sistema (es decir, su ámbito) de todos
-sus interlocutores (sistemas y usuarios vecinos, es decir, el contexto del sistema). De este modo, especifica las interfaces externas.</p>
+<div class="title">Content</div>
+<p>The system&#8217;s scope and context, as the name suggests, define the system&#8217;s boundaries (i.e., its scope) from all its stakeholders (neighboring systems and users, i.e., the system&#8217;s context). This specifies the external interfaces.</p>
 </div>
 <div class="paragraph">
-<p>Si es necesario, diferencie el contexto empresarial (entradas y salidas específicas del dominio) del contexto técnico (canales, protocolos, hardware)..</p>
+<p>If necessary, differentiate between the business context (domain-specific inputs and outputs) and the technical context (channels, protocols, hardware).</p>
 </div>
 <div class="paragraph">
-<div class="title">Motivación</div>
-<p>Las interfaces de dominio y las interfaces técnicas con los socios de comunicación se encuentran entre los aspectos más críticos de su sistema. Asegúrese de comprenderlas por completo.</p>
+<div class="title">Motivation</div>
+<p>Domain interfaces and technical interfaces with communication partners are among the most critical aspects of your system. Ensure you fully understand them.</p>
 </div>
 <div class="paragraph">
-<div class="title">Formato</div>
-<p>Varias opciones:</p>
+<div class="title">Format</div>
+<p>Various options:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Varios diagramas de contexto</p>
+<p>Multiple context diagrams</p>
 </li>
 <li>
-<p>Listas de socios de comunicación y sus interfaces.</p>
+<p>Lists of communication partners and their interfaces</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<div class="title">Más información</div>
-<p>Vea <a href="https://docs.arc42.org/section-3/">Context and Scope</a> en la documentación arc42.</p>
+<div class="title">More Information</div>
+<p>See <a href="https://docs.arc42.org/section-3/">Context and Scope</a> in the arc42 documentation.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_contexto_de_negocio">3.1. Contexto de Negocio</h3>
+<h3 id="_business_context">3.1. Business Context</h3>
 <div class="imageblock">
 <div class="content">
-<img src="./images/modelo.svg" alt="Contexto de negocio">
+<img src="./images/model.png" alt="Business Context">
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -948,130 +955,142 @@ sus interlocutores (sistemas y usuarios vecinos, es decir, el contexto del siste
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Elemento</th>
-<th class="tableblock halign-left valign-top">Descripción</th>
+<th class="tableblock halign-left valign-top">Element</th>
+<th class="tableblock halign-left valign-top">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Usuario</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>El concursante que interactúa con la aplicación y le puede preguntar al chatbot integrado, y responder a las preguntas mostradas.</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>User</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>The contestant who interacts with the application, can ask the integrated chatbot, and answer the displayed questions.</em></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>WIChat</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Aplicación web principal donde se desarrolla la lógica del juego.</em></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>WIChat</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Aplicación web principal donde se desarrolla la lógica del juego.</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Main web application where the game logic takes place.</em></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>Wikidata</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Fuente de donde se extraeran las preguntas y las respuestas, las cuales no estarán visibles hasta que el usuario interactue con la aplicación tras responder.</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Source from which the questions and answers will be extracted.</em></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>LLM_API</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>API que integra un LLM que se utilizará para generar pistas de forma dinámica y que seguira un diálogo conversacional que ayudará al concursante a responder las preguntas, pero que nunca le dirán implícitamente la respuesta.</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>API integrating an LLM that will be used to dynamically generate hints and follow a conversational dialogue to help the contestant answer the questions without explicitly giving away the answer.</em></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Base de Datos</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Sistema de almacenamiento que guarda información relevante sobre el usuario y anteriores partidas.</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Database</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Storage system that keeps relevant user information and past game sessions.</em></p></td>
 </tr>
 </tbody>
 </table>
 <div class="sidebarblock arc42help">
 <div class="content">
 <div class="paragraph">
-<div class="title">Contenido</div>
-<p>Especificación de todos los interlocutores (usuarios, sistemas informáticos, etc.) con explicaciones de las entradas y salidas o interfaces específicas del dominio.
-Opcionalmente, puede añadir formatos o protocolos de comunicación específicos del dominio.</p>
+<div class="title">Content</div>
+<p>Specification of all stakeholders (users, IT systems, etc.) with explanations of domain-specific inputs, outputs, or interfaces.
+Optionally, you may add specific domain communication formats or protocols.</p>
 </div>
 <div class="paragraph">
-<div class="title">Motivación</div>
-<p>Todas las partes interesadas deben comprender qué datos se intercambian con el entorno del sistema.</p>
+<div class="title">Motivation</div>
+<p>All stakeholders must understand what data is exchanged with the system&#8217;s environment.</p>
 </div>
 <div class="paragraph">
-<div class="title">Formato</div>
-<p>Todo tipo de diagramas que muestran el sistema como una caja negra y especifican las interfaces del dominio con los socios de comunicación.</p>
+<div class="title">Format</div>
+<p>Any type of diagram showing the system as a black box and specifying domain interfaces with communication partners.</p>
 </div>
 <div class="paragraph">
-<p>Como alternativa (o adicionalmente), puede utilizar una tabla.
-El título de la tabla es el nombre de su sistema, las tres columnas contienen el nombre del interlocutor, las entradas y las salidas.</p>
+<p>Alternatively (or additionally), you can use a table.
+The table title is your system&#8217;s name, and the three columns contain the stakeholder name, inputs, and outputs.</p>
 </div>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_contexto_técnico">3.2. Contexto Técnico</h3>
+<h3 id="_technical_context">3.2. Technical Context</h3>
 <div class="sidebarblock arc42help">
 <div class="content">
 <div class="paragraph">
-<div class="title">Contenido</div>
-<p>Interfaces técnicas (canales y medios de transmisión) que juntan el sistema con su entorno. Además un mapeo del dominio especifico de entrada/salida a los canales, es decir una explicación de qué entrada salida usa cada canal.</p>
+<div class="title">Content</div>
+<p>Technical interfaces (channels and transmission media) connecting the system with its environment. Additionally, a mapping of domain-specific input/output to the channels, explaining which input/output uses each channel.</p>
 </div>
 <div class="paragraph">
-<div class="title">Motivación</div>
-<p>Muchos stakeholders toman decisiones arquitectónicas basadas en las interfaces técnicas entre el sistema y su contexto. En especial, los diseñadores de hardware o infraestructura deciden estas interfaces técnicas.</p>
+<div class="title">Motivation</div>
+<p>Many stakeholders make architectural decisions based on technical interfaces between the system and its context. Hardware or infrastructure designers, in particular, decide on these technical interfaces.</p>
 </div>
 <div class="paragraph">
-<div class="title">Forma</div>
-<p>E.g. Diagrama UML de despliegue describiendo canales con los sistemas vecinos,
-junto a una tabla de mapeo mostrando las relaciones entre canales y la entrada/salida.</p>
+<div class="title">Format</div>
+<p>For example, a UML deployment diagram describing channels with neighboring systems,
+alongside a mapping table showing the relationships between channels and input/output.</p>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_diagrama_de_despliegue">3.2.1. Diagrama de Despliegue</h4>
+<h4 id="_deployment_diagram">3.2.1. Deployment Diagram</h4>
 <div class="imageblock">
 <div class="content">
-<img src="./images/Diagrama-despliegue.svg" alt="Diagrama de Despliegue">
+<img src="./images/deploy-diagram.png" alt="Deployment Diagram">
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_explicación_de_interfaces_técnicas">3.2.2. <strong>Explicación de Interfaces Técnicas</strong></h4>
+<h4 id="_technical_interface_explanation">3.2.2. <strong>Technical Interface Explanation</strong></h4>
 <div class="sect4">
 <h5 id="_gateway"><strong>Gateway</strong></h5>
 <div class="paragraph">
-<p>API que hace de enlace entre las distintas partes de la aplicación.</p>
+<p>API that links the different parts of the application.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_aplicación_react"><strong>Aplicación React</strong></h5>
+<h5 id="_react_application"><strong>React Application</strong></h5>
 <div class="paragraph">
-<p>React aportará al usuario una interfaz con la que interactuar y responder a las preguntas y por medio de la cual hacer las peticiones
-correspondientes a la parte de backEnd de la aplicación.</p>
+<p>React provides the user with an interface to interact with, answer questions, and make requests to the backend.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_base_de_datos_de_usuarios"><strong>Base de Datos de Usuarios</strong></h5>
+<h5 id="_user_database"><strong>User Database</strong></h5>
 <div class="paragraph">
-<p>Almacena toda la información referente a los usuarios,datos,historial de partidas.</p>
+<p>Stores all information related to users, data, and game session history.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_servicio_de_autenticación"><strong>Servicio de Autenticación</strong></h5>
+<h5 id="_authentication_service"><strong>Authentication Service</strong></h5>
 <div class="paragraph">
-<p>Interfaz que se comunica con la base de datos de usuarios para comprobar el si el inicio de sesión es válido o no.</p>
+<p>Interface that communicates with the user database to verify whether a login attempt is valid.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_servicio_de_usuario"><strong>Servicio de Usuario</strong></h5>
+<h5 id="_user_service"><strong>User Service</strong></h5>
 <div class="paragraph">
-<p>Interfaz que se comunica con la base de datos de usuarios para consultar y, o actualizar la información referente a las partidas de los mismos.</p>
+<p>Interface that communicates with the user database to query or update game-related information.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_llm_service"><strong>LLM_Service</strong></h5>
+<h5 id="_llm_service"><strong>LLM Service</strong></h5>
 <div class="paragraph">
-<p>Servicio que procesará las pistas de WikiData y devolverá la respuesta a la pregunta del usuario.
-===== <strong>API WikiData</strong>
-Wikidata nos aportará todo lo referente a las preguntas, tanto la imágen, como las respuestas y la respuesta correcta, además de que nos permitirá recopilar pistas que servirán al LLM para responder.</p>
+<p>Service that processes hints using Gemini AI and returns responses to the user&#8217;s questions via prompt engineering
+on the code, so it only answers game-related questions.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_question_service"><strong>Question Service</strong></h5>
+<div class="paragraph">
+<p>Service that processes information from Wikidata to generate questions and possible answers.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_wikidata_api"><strong>WikiData API</strong></h5>
+<div class="paragraph">
+<p>WikiData provides all question-related content, including images, answers, and the correct response.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_gemini_ai"><strong>Gemini AI</strong></h5>
+<div class="paragraph">
+<p>The LLM we are using for hints.</p>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_mapeo_de_canales_de_entradasalida">3.2.3. Mapeo de Canales de Entrada/salida</h4>
+<h4 id="_inputoutput_channel_mapping">3.2.3. Input/Output Channel Mapping</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 20%;">
@@ -1080,56 +1099,61 @@ Wikidata nos aportará todo lo referente a las preguntas, tanto la imágen, como
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Canal</th>
-<th class="tableblock halign-left valign-top">Entrada</th>
-<th class="tableblock halign-left valign-top">Salida</th>
+<th class="tableblock halign-left valign-top">Channel</th>
+<th class="tableblock halign-left valign-top">Input</th>
+<th class="tableblock halign-left valign-top">Output</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Aplicación React</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Peticiones HTTP del usuario con las acciones</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Respuesta a través de la interfaz.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">React Application</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP requests from the user with actions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Response through the interface.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Gateway</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Peticiones REST de webapp para obtener datos de las preguntas (imágenes,respuestas), o solicitar operaciones como iniciar sesión</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Respuesta con la información solicitada en cada caso.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">REST requests from the web app to obtain question data (images, answers) or perform operations like login</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Response with the requested information in each case.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Servicio Usuario</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Datos que se quieren consultar a la base de datos</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Respuesta a dicha consulta.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Service</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data queries to the database</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Response to the query.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Servicio Autenticación</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Datos de inicio de sesión del usuario</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Consulta de comprobación de los datos, para ver si son erróneos o no.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Service</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User login data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data verification query to check if the credentials are correct.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LLM_Service</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Prompt con la solicitud de pistas que quiere el usuario en ese momento</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Pista generada por el modelo.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prompt with the hints requested by the user</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hint generated by the model.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">API Wikidata</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Solicitud de las imagenes o pistas en ese momento</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Respuesta sobre la imagen solicitada, ya sea en forma de pista, o bien una nueva imagen en caso de que se solicite una nueva pregunta.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">WikiData API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Request for question information</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Response with the requested information.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Base de Datos de Usuarios</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Instrucciones SQL para consultas o insercioes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Resultado de las consultas o confirmación de las inserciones.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question Service</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A request from the game when it needs a question</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question and answers generated using the information retrieved from Wikidata API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Database</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SQL instructions for queries or insertions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query results or confirmation of insertions.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Prometheus</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Métricas de Gateway</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">métricas en su base de datos.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gateway metrics</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metrics stored in its database.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Grafana</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Métricas organizadas en Prometheus</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Visualización de las métricas.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metrics organized in Prometheus</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Visualization of metrics.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1379,7 +1403,7 @@ To ensure availability, the following actions are being planned:
 <td class="tableblock halign-left valign-top"><p class="tableblock">Aplication to generate the questions and answers.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>Empathy AI</em></strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>Gemini AI</em></strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">API used for the hints.</p></td>
 </tr>
 </tbody>
@@ -1388,7 +1412,7 @@ To ensure availability, the following actions are being planned:
 <dl>
 <dt class="hdlist1">Important Interfaces</dt>
 <dd>
-<p><em>- API communication between WIChat and external services (WikiData, Empathy AI).</em></p>
+<p><em>- API communication between WIChat and external services (WikiData, Gemini AI).</em></p>
 </dd>
 </dl>
 </div>
@@ -1430,7 +1454,15 @@ To ensure availability, the following actions are being planned:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>LLMService</em></strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Connects to Empathy AI to generate hints for users.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Connects to Gemini AI to generate hints for users.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>QuestionService</em></strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Communicates with WikiData to retrieve questions and answers.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>Wikidata</em></strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">External service for retrieving data to compose questions and answers.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>WebApp</em></strong></p></td>
@@ -1493,11 +1525,7 @@ To ensure availability, the following actions are being planned:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>UserService</em></strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Manages user profiles, sessions, and data.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>RankingService</em></strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Stores and updates leaderboard data.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages user profiles, sessions, and stores and updates leaderboard data.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>QuestionService</em></strong></p></td>
@@ -1602,7 +1630,7 @@ You will mainly capture scenarios in your documentation to communicate your arch
 <h3 id="_login">6.1. Login</h3>
 <div class="imageblock">
 <div class="content">
-<img src="./images/Question%20Generation%20Diagram.png" alt="Question Generation Diagram" width="719" height="464">
+<img src="./images/Question%20Generation%20Diagram.png" alt="Question Generation Diagram" width="710" height="452">
 </div>
 </div>
 </div>
@@ -1610,7 +1638,7 @@ You will mainly capture scenarios in your documentation to communicate your arch
 <h3 id="_question_generation">6.2. Question Generation</h3>
 <div class="imageblock">
 <div class="content">
-<img src="./images/Question%20Generation%20Diagram.png" alt="Question Generation Diagram" width="770" height="511">
+<img src="./images/Question%20Generation%20Diagram.png" alt="Question Generation Diagram" width="729" height="500">
 </div>
 </div>
 </div>
@@ -1618,7 +1646,7 @@ You will mainly capture scenarios in your documentation to communicate your arch
 <h3 id="_clue_generation">6.3. Clue Generation</h3>
 <div class="imageblock">
 <div class="content">
-<img src="./images/Clue%20Generation%20Diagram.png" alt="Clue Generation Diagram" width="629" height="481">
+<img src="./images/Clue%20Generation%20Diagram.png" alt="Clue Generation Diagram" width="618" height="469">
 </div>
 </div>
 </div>
@@ -1626,7 +1654,7 @@ You will mainly capture scenarios in your documentation to communicate your arch
 <h3 id="_game">6.4. Game</h3>
 <div class="imageblock">
 <div class="content">
-<img src="./images/Clue%20Generation%20Diagram.png" alt="Clue Generation Diagram" width="830" height="542">
+<img src="./images/Clue%20Generation%20Diagram.png" alt="Clue Generation Diagram" width="679" height="530">
 </div>
 </div>
 </div>
@@ -1634,7 +1662,7 @@ You will mainly capture scenarios in your documentation to communicate your arch
 <h3 id="_show_user_info">6.5. Show User Info</h3>
 <div class="imageblock">
 <div class="content">
-<img src="./images/Clue%20Generation%20Diagram.png" alt="Clue Generation Diagram" width="569" height="438">
+<img src="./images/Clue%20Generation%20Diagram.png" alt="Clue Generation Diagram" width="564" height="426">
 </div>
 </div>
 <div style="page-break-after: always;"></div>
@@ -1788,7 +1816,7 @@ The QuestionService accesses Wikidata to fetch additional data for quiz question
 <p>Hints: AI-generated assistance to guide users.</p>
 </div>
 <div class="paragraph">
-<p>Ranking System: Scores and leaderboards to enhance engagement.</p>
+<p>Ranking: Scores and leaderboards to enhance engagement.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1842,7 +1870,7 @@ The QuestionService accesses Wikidata to fetch additional data for quiz question
 <p>Database: MongoDB as the primary data store.</p>
 </div>
 <div class="paragraph">
-<p>LLM Integration: Empathy AI used for hint generation.</p>
+<p>LLM Integration: Gemini AI used for hint generation.</p>
 </div>
 <div class="paragraph">
 <p>External Data Source: WikiData for retrieving question-related information.</p>
@@ -1919,7 +1947,57 @@ There you will find links and examples about ADR.</p>
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_1_use_of_react_js_for_the_frontend">9.1. 1. Use of React.js for the Frontend</h3>
+<div class="paragraph">
+<p><strong>Decision:</strong> We have chosen React.js as the primary framework for building the user interface.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rationale:</strong>
+React.js provides a component-based architecture that enables rapid development and reusability of UI components. Its extensive ecosystem and active community support allow for easier maintenance and scalability of the application. Additionally, React&#8217;s virtual DOM improves performance, which is critical for a responsive quiz experience.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_mongodb_as_the_database">9.2. 2. MongoDB as the Database</h3>
+<div class="paragraph">
+<p><strong>Decision:</strong> MongoDB was selected as the database solution for the application.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rationale:</strong>
+MongoDB&#8217;s document-oriented data model offers flexibility in managing diverse data types such as user profiles, quiz questions, and game statistics. Its scalability and ease of integration make it an ideal choice for handling evolving data requirements in our application.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_creation_of_a_questionservice_module_for_fetching_questions_from_wikidata">9.3. 3. Creation of a 'QuestionService' Module for Fetching Questions from Wikidata</h3>
+<div class="paragraph">
+<p><strong>Decision:</strong> A dedicated module, referred to as the "QuestionService", has been implemented to fetch quiz questions directly from Wikidata.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rationale:</strong>
+Integrating external data sources like Wikidata enhances the richness and accuracy of the quiz content. By encapsulating all the logic for querying and processing Wikidata responses within a dedicated module, we achieve a clear separation of concerns. This modular design also simplifies future maintenance and potential integration with additional data sources.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_use_of_gemini_as_the_llm_for_quiz_help_chat">9.4. 4. Use of Gemini as the LLM for Quiz Help Chat</h3>
+<div class="paragraph">
+<p><strong>Decision:</strong> The application leverages Gemini as its large language model (LLM) to power the chat-based help feature.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rationale:</strong>
+The integration of Gemini provides users with real-time, contextual assistance during the quiz. Its advanced natural language processing capabilities ensure that the help chat can understand and respond accurately to user queries, enhancing the overall user experience and engagement.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_adoption_of_openapi_for_api_specification">9.5. 5. Adoption of OpenAPI for API Specification</h3>
+<div class="paragraph">
+<p><strong>Decision:</strong> OpenAPI is used to design our API.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rationale:</strong>
+Utilizing OpenAPI allows us to create a clear contract between frontend and backend services. This standardization facilitates easier client integration, automated testing, and comprehensive documentation. It also enhances collaboration across development teams by providing a shared reference for API behavior and endpoints.</p>
+</div>
 <div style="page-break-after: always;"></div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1949,33 +2027,9 @@ concrete and measurable.</p>
 </div>
 <div class="sect2">
 <h3 id="_quality_tree">10.1. Quality Tree</h3>
-<div class="sidebarblock arc42help">
+<div class="imageblock">
 <div class="content">
-<div class="paragraph">
-<div class="title">Content</div>
-<p>The quality tree (as defined in ATAM – Architecture Tradeoff Analysis Method) with quality/evaluation scenarios as leafs.</p>
-</div>
-<div class="paragraph">
-<div class="title">Motivation</div>
-<p>The tree structure with priorities provides an overview for a sometimes large number of quality requirements.</p>
-</div>
-<div class="paragraph">
-<div class="title">Form</div>
-<p>The quality tree is a high-level overview of the quality goals and requirements:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>tree-like refinement of the term "quality". Use "quality" or "usefulness" as a root</p>
-</li>
-<li>
-<p>a mind map with quality categories as main branches</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>In any case the tree should include links to the scenarios of the following section.</p>
-</div>
+<img src="./images/quality_tree.png" alt="Quality Tree&quot;">
 </div>
 </div>
 </div>
@@ -2019,7 +2073,109 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_usage_scenarios">10.2.1. Usage Scenarios</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Quality Goal</th>
+<th class="tableblock halign-left valign-top">Motivation</th>
+<th class="tableblock halign-left valign-top">Usage Scenario</th>
+<th class="tableblock halign-left valign-top">Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Usability</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The application must be intuitive and easy to navigate, especially for new users.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A new user can register, understand the rules, and start a quiz without external guidance.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Interactivity</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To engage users with real-time feedback during the quiz.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Upon selecting an answer, the system immediately displays whether the answer is correct and then seamlessly transitions to the next question.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Availability</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The app must be accessible at any time to ensure users can play the quiz whenever desired.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system maintains enabled most of the time.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Scalability</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system should accommodate a growing number of concurrent users without performance degradation.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The application supports multiple concurrent users .</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Performance</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To ensure a smooth and responsive quiz experience.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When a user submits an answer, the system processes the response and updates the UI as quickly as possible.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Reliability</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To deliver consistent and accurate quiz results.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system accurately records user answers, scores, and game statistics in every quiz session.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Testability</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The design should allow for efficient automated testing.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developers can run unit and integration tests to verify quiz logic and API endpoints with minimal configuration.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_change_scenarios">10.2.2. Change Scenarios</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Change Scenario</th>
+<th class="tableblock halign-left valign-top">Motivation</th>
+<th class="tableblock halign-left valign-top">Expected Response</th>
+<th class="tableblock halign-left valign-top">Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Adding New Quiz Categories</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To expand content and keep the quiz engaging.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">New categories can be integrated into the system without impacting existing functionality.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Enhancing Chat Assistance</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To improve user support by leveraging upgrades in the Gemini LLM.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The chat module can be updated or replaced with enhanced capabilities without affecting core quiz functionality.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Updating External Data Sources</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To incorporate more diverse or current geographical data.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The dedicated QuestionService can be extended to fetch data from additional external APIs or sources with minimal refactoring.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+</tr>
+</tbody>
+</table>
 <div style="page-break-after: always;"></div>
+</div>
 </div>
 </div>
 </div>
@@ -2198,7 +2354,7 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>AI-generated clues to help users guess the correct answer.</em></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Empathy AI</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Gemini AI</em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>The LLM service used to generate contextual hints.</em></p></td>
 </tr>
 <tr>
@@ -2206,16 +2362,12 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>The external knowledge base used to generate questions.</em></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Ranking System</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>A system tracking user scores and leaderboards.</em></p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>Gateway Service</em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>The main entry point handling API requests and routing.</em></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>User Manager</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>A component handling authentication and user data management.</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>A component handling authentication, user data management and also tracks user scores and leaderboard.</em></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>AuthService</em></p></td>
@@ -2226,12 +2378,8 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>A service managing user-related operations.</em></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>RankingService</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>A service that tracks and updates user scores.</em></p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>LLMService</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>A service that connects to Empathy AI for hint generation.</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>A service that connects to Gemini AI for hint generation.</em></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>WebApp</em></p></td>
@@ -2273,7 +2421,7 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <div id="footer">
 <div id="footer-text">
 Version 8.2 EN<br>
-Last updated 2025-02-25 13:11:47 +0100
+Last updated 2025-03-07 19:59:22 +0100
 </div>
 </div>
 </body>
