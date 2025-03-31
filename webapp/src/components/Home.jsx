@@ -5,6 +5,7 @@ import { Typography, Button, Box, Paper } from '@mui/material';
 const Home = () => {
   return (
     <Box
+      data-testid="home-container"
       sx={{
         minHeight: '100vh',
         display: 'flex',
