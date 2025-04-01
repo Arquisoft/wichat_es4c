@@ -19,7 +19,7 @@ export default function SettingsCard() {
     questionAmount: "Cantidad de preguntas",
   };
 
-  const { username } = useParams();
+  const username  = useParams();
 
   useEffect(() => {
       if (!username) {

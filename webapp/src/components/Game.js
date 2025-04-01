@@ -138,7 +138,7 @@ useEffect(() => {
     setAnswered(true);
     setPaused(true);
 
-    setTimerEndTime(Date.now() + 10000);
+    setTimerEndTime(Date.now() + settings.answerTime * 1000); // Reiniciar el temporizador
 
     if (username) {
       try {
