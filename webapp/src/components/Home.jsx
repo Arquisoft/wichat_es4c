@@ -45,17 +45,15 @@ const Home = () => {
           <Button
             fullWidth
             variant="outlined"
+            data-testid="register-button" // Agregado para pruebas
             sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: '#ff4081', color: '#ff4081' } }}
             component={Link}
             to="/register"
-            text="Register"
-          >
-            Register
+          > Register
           </Button>
         </Box>
       </Paper>
     </Box>
   );
 };
-
 export default Home;

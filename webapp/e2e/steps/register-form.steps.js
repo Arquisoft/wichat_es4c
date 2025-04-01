@@ -21,6 +21,7 @@ defineFeature(feature, test => {
         waitUntil: "networkidle0",
       })
       .catch(() => {});
+    await page.waitForSelector('[data-testid="register-button"]'); // Espera explícita
   });
 
   test('The user is not registered in the site', ({given,when,then}) => {
@@ -28,9 +29,9 @@ defineFeature(feature, test => {
     let username;
     let password;
 
-    given('An unregistered user', async () => {
-      username = "pablo"
-      password = "pabloasw"
+    given('An unregistered user', async () => {;
+      username = "pablo";
+      password = "pabloasw";
       await expect(page).toClick("button", { text: "Register" });
     });
 
