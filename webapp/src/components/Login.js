@@ -82,7 +82,8 @@ const Login = ({ onLoginSuccess }) => {
               </Typography>
               <TextField 
                 margin="normal" 
-                fullWidth 
+                fullWidth
+                id="username"
                 label="Username" 
                 variant="outlined"
                 value={username} 
@@ -92,6 +93,7 @@ const Login = ({ onLoginSuccess }) => {
               <TextField 
                 margin="normal" 
                 fullWidth 
+                id="password"
                 label="Password" 
                 type="password"
                 variant="outlined"
