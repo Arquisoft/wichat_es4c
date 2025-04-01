@@ -140,10 +140,14 @@ app.post('/incrementGamesPlayed', async (req, res) => {
 app.post('/saveSettings/:username', async (req, res) => {
   try {
     const username = req.params.username; // Corrige cómo se obtiene el username
-    const settings = req.body.settings; // Obtén los ajustes desde req.body
+    const settings = req.body; // Obtén los ajustes desde req.body
 
-    if (!username || !settings) {
-      return res.status(400).json({ error: "El nombre de usuario y los ajustes son obligatorios" });
+    if (!username) {
+      return res.status(400).json({ error: "El nombre de usuario es obligatorios" });
+    }
+
+    if (!settings) {
+      return res.status(400).json({ error: "Los ajustes son obligatorios" });
     }
 
     const user = await User.findOne({ username });
