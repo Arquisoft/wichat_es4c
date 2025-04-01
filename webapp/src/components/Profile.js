@@ -84,7 +84,7 @@ const Profile = () => {
             </Button>
             <Button variant="contained" onClick={() => navigate("/ranking")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
               Ver ranking
-            </Button>
+            </Button>*/
           </Box>
         </CardContent>
       </Card>

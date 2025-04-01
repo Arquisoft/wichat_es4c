@@ -29,7 +29,7 @@ const StartMenu = () => {
       alert("No se ha iniciado sesión.");
     }
   };
-  const handleOpenSettings = () => navigate(`/settings/${storedUsername}`);	
+  const handleOpenSettings = () => navigate(`/settings/${username}`);	
   const handleLogout = () => {
     localStorage.removeItem("username"); // Clear username from local storage
     setUsername(null); // Reset username state
