@@ -500,15 +500,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_operational_concepts">8.7. Operational Concepts</a></li>
 </ul>
 </li>
-<li><a href="#section-design-decisions">9. Architecture Decisions</a>
-<ul class="sectlevel2">
-<li><a href="#_1_use_of_react_js_for_the_frontend">9.1. 1. Use of React.js for the Frontend</a></li>
-<li><a href="#_2_mongodb_as_the_database">9.2. 2. MongoDB as the Database</a></li>
-<li><a href="#_3_creation_of_a_questionservice_module_for_fetching_questions_from_wikidata">9.3. 3. Creation of a 'QuestionService' Module for Fetching Questions from Wikidata</a></li>
-<li><a href="#_4_use_of_gemini_as_the_llm_for_quiz_help_chat">9.4. 4. Use of Gemini as the LLM for Quiz Help Chat</a></li>
-<li><a href="#_5_adoption_of_openapi_for_api_specification">9.5. 5. Adoption of OpenAPI for API Specification</a></li>
-</ul>
-</li>
+<li><a href="#section-design-decisions">9. Architecture Decisions</a></li>
 <li><a href="#section-quality-scenarios">10. Quality Requirements</a>
 <ul class="sectlevel2">
 <li><a href="#_quality_tree">10.1. Quality Tree</a></li>
@@ -1903,6 +1895,28 @@ The QuestionService accesses Wikidata to fetch additional data for quiz question
 <div class="sect1">
 <h2 id="section-design-decisions">9. Architecture Decisions</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>The Architectural Decision Records (ADRs) have been incorporated into the Wiki section of our GitHub page. The corresponding links are provided below:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-01-(JavaScript" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-01-(JavaScript</a>) &#8594; JavaScript</p>
+</li>
+<li>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-02-(React" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-02-(React</a>) &#8594; React</p>
+</li>
+<li>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-03-(Docker" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-03-(Docker</a>) &#8594; Docker</p>
+</li>
+<li>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-04-(React%E2%80%90router%E2%80%90dom" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-04-(React%E2%80%90router%E2%80%90dom</a>) &#8594; React Router Dom</p>
+</li>
+<li>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-05-(MongoDB" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-05-(MongoDB</a>) &#8594; MongoDB</p>
+</li>
+</ul>
+</div>
 <div class="sidebarblock arc42help">
 <div class="content">
 <div class="paragraph">
@@ -1947,57 +1961,7 @@ There you will find links and examples about ADR.</p>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_1_use_of_react_js_for_the_frontend">9.1. 1. Use of React.js for the Frontend</h3>
-<div class="paragraph">
-<p><strong>Decision:</strong> We have chosen React.js as the primary framework for building the user interface.</p>
-</div>
-<div class="paragraph">
-<p><strong>Rationale:</strong>
-React.js provides a component-based architecture that enables rapid development and reusability of UI components. Its extensive ecosystem and active community support allow for easier maintenance and scalability of the application. Additionally, React&#8217;s virtual DOM improves performance, which is critical for a responsive quiz experience.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_2_mongodb_as_the_database">9.2. 2. MongoDB as the Database</h3>
-<div class="paragraph">
-<p><strong>Decision:</strong> MongoDB was selected as the database solution for the application.</p>
-</div>
-<div class="paragraph">
-<p><strong>Rationale:</strong>
-MongoDB&#8217;s document-oriented data model offers flexibility in managing diverse data types such as user profiles, quiz questions, and game statistics. Its scalability and ease of integration make it an ideal choice for handling evolving data requirements in our application.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_3_creation_of_a_questionservice_module_for_fetching_questions_from_wikidata">9.3. 3. Creation of a 'QuestionService' Module for Fetching Questions from Wikidata</h3>
-<div class="paragraph">
-<p><strong>Decision:</strong> A dedicated module, referred to as the "QuestionService", has been implemented to fetch quiz questions directly from Wikidata.</p>
-</div>
-<div class="paragraph">
-<p><strong>Rationale:</strong>
-Integrating external data sources like Wikidata enhances the richness and accuracy of the quiz content. By encapsulating all the logic for querying and processing Wikidata responses within a dedicated module, we achieve a clear separation of concerns. This modular design also simplifies future maintenance and potential integration with additional data sources.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_4_use_of_gemini_as_the_llm_for_quiz_help_chat">9.4. 4. Use of Gemini as the LLM for Quiz Help Chat</h3>
-<div class="paragraph">
-<p><strong>Decision:</strong> The application leverages Gemini as its large language model (LLM) to power the chat-based help feature.</p>
-</div>
-<div class="paragraph">
-<p><strong>Rationale:</strong>
-The integration of Gemini provides users with real-time, contextual assistance during the quiz. Its advanced natural language processing capabilities ensure that the help chat can understand and respond accurately to user queries, enhancing the overall user experience and engagement.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_5_adoption_of_openapi_for_api_specification">9.5. 5. Adoption of OpenAPI for API Specification</h3>
-<div class="paragraph">
-<p><strong>Decision:</strong> OpenAPI is used to design our API.</p>
-</div>
-<div class="paragraph">
-<p><strong>Rationale:</strong>
-Utilizing OpenAPI allows us to create a clear contract between frontend and backend services. This standardization facilitates easier client integration, automated testing, and comprehensive documentation. It also enhances collaboration across development teams by providing a shared reference for API behavior and endpoints.</p>
-</div>
 <div style="page-break-after: always;"></div>
-</div>
 </div>
 </div>
 <div class="sect1">
