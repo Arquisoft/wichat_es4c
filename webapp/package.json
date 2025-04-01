@@ -19,7 +19,7 @@
     "web-vitals": "^3.5.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set HOST=0.0.0.0 && set PORT=3000 && react-scripts start",
     "build": "react-scripts build",
     "prod": "serve -s build",
     "test": "react-scripts test --transformIgnorePatterns 'node_modules/(?!axios)/'",
