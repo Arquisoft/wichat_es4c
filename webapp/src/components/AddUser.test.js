@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom'; // Importa MemoryRouter
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import AddUser from './AddUser';
@@ -12,46 +13,56 @@ describe('AddUser component', () => {
   });
 
   it('should add user successfully', async () => {
-    render(<AddUser />);
+    // Envuelve el componente en MemoryRouter
+    render(
+      <MemoryRouter>
+        <AddUser />
+      </MemoryRouter>
+    );
 
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
-    const addUserButton = screen.getByRole('button', { name: /Add User/i });
+    const addUserButton = screen.getByRole('button', { name: /Sign Up/i });
 
-    // Mock the axios.post request to simulate a successful response
+    // Mock de la solicitud axios.post para simular una respuesta exitosa
     mockAxios.onPost('http://localhost:8000/adduser').reply(200);
 
-    // Simulate user input
+    // Simula la entrada del usuario
     fireEvent.change(usernameInput, { target: { value: 'testUser' } });
     fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
 
-    // Trigger the add user button click
+    // Haz clic en el botón para agregar usuario
     fireEvent.click(addUserButton);
 
-    // Wait for the Snackbar to be open
+    // Espera a que el Snackbar se muestre
     await waitFor(() => {
       expect(screen.getByText(/User added successfully/i)).toBeInTheDocument();
     });
   });
 
   it('should handle error when adding user', async () => {
-    render(<AddUser />);
+    // Envuelve el componente en MemoryRouter
+    render(
+      <MemoryRouter>
+        <AddUser />
+      </MemoryRouter>
+    );
 
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
-    const addUserButton = screen.getByRole('button', { name: /Add User/i });
+    const addUserButton = screen.getByRole('button', { name: /Sign Up/i });
 
-    // Mock the axios.post request to simulate an error response
+    // Mock de la solicitud axios.post para simular un error
     mockAxios.onPost('http://localhost:8000/adduser').reply(500, { error: 'Internal Server Error' });
 
-    // Simulate user input
+    // Simula la entrada del usuario
     fireEvent.change(usernameInput, { target: { value: 'testUser' } });
     fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
 
-    // Trigger the add user button click
+    // Haz clic en el botón para agregar usuario
     fireEvent.click(addUserButton);
 
-    // Wait for the error Snackbar to be open
+    // Espera a que el Snackbar de error se muestre
     await waitFor(() => {
       expect(screen.getByText(/Error: Internal Server Error/i)).toBeInTheDocument();
     });
