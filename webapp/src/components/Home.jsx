@@ -49,7 +49,7 @@ const Home = () => {
             component={Link}
             to="/register"
           >
-            Register
+            Don't have an account? Register here.
           </Button>
         </Box>
       </Paper>
