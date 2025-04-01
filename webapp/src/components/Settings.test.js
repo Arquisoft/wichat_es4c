@@ -54,14 +54,14 @@ describe('SettingsCard Component', () => {
     });
 
     // Check text fields
-    expect(screen.getByLabelText('Tiempo de respuesta (s)')).toBeInTheDocument();
-    expect(screen.getByLabelText('Cantidad de preguntas')).toBeInTheDocument();
+    expect(screen.getByText('Tiempo de respuesta (s)')).toBeInTheDocument();
+    expect(screen.getByText('Cantidad de preguntas')).toBeInTheDocument();
 
     // Check checkboxes
-    expect(screen.getByLabelText('Mostrar preguntas sobre capitales')).toBeInTheDocument();
-    expect(screen.getByLabelText('Mostrar preguntas sobre banderas')).toBeInTheDocument();
-    expect(screen.getByLabelText('Mostrar preguntas sobre monumentos')).toBeInTheDocument();
-    expect(screen.getByLabelText('Mostrar preguntas sobre comida')).toBeInTheDocument();
+    expect(screen.getByText('Mostrar preguntas sobre capitales')).toBeInTheDocument();
+    expect(screen.getByText('Mostrar preguntas sobre banderas')).toBeInTheDocument();
+    expect(screen.getByText('Mostrar preguntas sobre monumentos')).toBeInTheDocument();
+    expect(screen.getByText('Mostrar preguntas sobre comida')).toBeInTheDocument();
 
     // Check buttons
     expect(screen.getByText('Guardar')).toBeInTheDocument();
@@ -91,12 +91,12 @@ describe('SettingsCard Component', () => {
 
     // Check that form values are set correctly
     await waitFor(() => {
-      expect(screen.getByLabelText('Tiempo de respuesta (s)')).toHaveValue('15');
-      expect(screen.getByLabelText('Cantidad de preguntas')).toHaveValue('20');
-      expect(screen.getByLabelText('Mostrar preguntas sobre capitales')).toBeChecked();
-      expect(screen.getByLabelText('Mostrar preguntas sobre banderas')).toBeChecked();
-      expect(screen.getByLabelText('Mostrar preguntas sobre monumentos')).not.toBeChecked();
-      expect(screen.getByLabelText('Mostrar preguntas sobre comida')).toBeChecked();
+      expect(screen.getByText('Tiempo de respuesta (s)')).toHaveValue(15);
+      expect(screen.getByText('Cantidad de preguntas')).toHaveValue(20);
+      expect(screen.getByText('Mostrar preguntas sobre capitales')).toBeChecked();
+      expect(screen.getByText('Mostrar preguntas sobre banderas')).toBeChecked();
+      expect(screen.getByText('Mostrar preguntas sobre monumentos')).not.toBeChecked();
+      expect(screen.getByText('Mostrar preguntas sobre comida')).toBeChecked();
     });
   });
 
@@ -118,18 +118,18 @@ describe('SettingsCard Component', () => {
 
     // Wait for the data to load
     await waitFor(() => {
-      expect(screen.getByLabelText('Tiempo de respuesta (s)')).toHaveValue('15');
+      expect(screen.getByText('Tiempo de respuesta (s)')).toHaveValue(15);
     });
 
     // Change input values
-    fireEvent.change(screen.getByLabelText('Tiempo de respuesta (s)'), { target: { value: '25' } });
-    fireEvent.change(screen.getByLabelText('Cantidad de preguntas'), { target: { value: '30' } });
-    fireEvent.click(screen.getByLabelText('Mostrar preguntas sobre monumentos'));
+    fireEvent.change(screen.getByText('Tiempo de respuesta (s)'), { target: { value: 25 } });
+    fireEvent.change(screen.getByText('Cantidad de preguntas'), { target: { value: 30 } });
+    fireEvent.click(screen.getByText('Mostrar preguntas sobre monumentos'));
 
     // Check that form values have changed
-    expect(screen.getByLabelText('Tiempo de respuesta (s)')).toHaveValue('25');
-    expect(screen.getByLabelText('Cantidad de preguntas')).toHaveValue('30');
-    expect(screen.getByLabelText('Mostrar preguntas sobre monumentos')).toBeChecked();
+    expect(screen.getByText('Tiempo de respuesta (s)')).toHaveValue('25');
+    expect(screen.getByText('Cantidad de preguntas')).toHaveValue('30');
+    expect(screen.getByText('Mostrar preguntas sobre monumentos')).toBeChecked();
   });
 
   test('prevents setting questionAmount > 40', async () => {
@@ -150,11 +150,11 @@ describe('SettingsCard Component', () => {
 
     // Wait for the data to load
     await waitFor(() => {
-      expect(screen.getByLabelText('Cantidad de preguntas')).toHaveValue('20');
+      expect(screen.getByText('Cantidad de preguntas')).toHaveValue(20);
     });
 
     // Attempt to set value > 40
-    fireEvent.change(screen.getByLabelText('Cantidad de preguntas'), { target: { value: '50' } });
+    fireEvent.change(screen.getByText('Cantidad de preguntas'), { target: { value: 50 } });
 
     // Should show warning snackbar
     await waitFor(() => {
@@ -162,7 +162,7 @@ describe('SettingsCard Component', () => {
     });
 
     // Value should remain unchanged
-    expect(screen.getByLabelText('Cantidad de preguntas')).toHaveValue('20');
+    expect(screen.getByText('Cantidad de preguntas')).toHaveValue('20');
   });
 
   test('saves settings when Save button is clicked', async () => {
@@ -194,7 +194,7 @@ describe('SettingsCard Component', () => {
     });
 
     // Change some settings
-    fireEvent.change(screen.getByLabelText('Tiempo de respuesta (s)'), { target: { value: '25' } });
+    fireEvent.change(screen.getByText('Tiempo de respuesta (s)'), { target: { value: 25 } });
     
     // Click save button
     fireEvent.click(screen.getByText('Guardar'));
