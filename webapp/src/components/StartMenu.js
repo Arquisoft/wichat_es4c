@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, Typography, Menu, MenuItem } from "@mui/material";
 
 const StartMenu = () => {
   const [username, setUsername] = useState(null);
   const navigate = useNavigate();
   const storedUsername = localStorage.getItem("username");
+
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     if (storedUsername) {
@@ -13,6 +15,10 @@ const StartMenu = () => {
     }
   }, []);
 
+  const handleOpenAccount = (event) => {
+    setAnchorEl(event.currentTarget); // Guarda la referencia del botón
+  };
+  const handleClose = () => setAnchorEl(null);
   const handleStartGame = () => navigate("/game");
   const handleOpenRanking = () => navigate("/ranking");
   const handleOpenProfile = () => {
@@ -21,6 +27,12 @@ const StartMenu = () => {
     } else {
       alert("No se ha iniciado sesión.");
     }
+  };
+  const handleOpenSettings = () => navigate(`/settings/${storedUsername}`);	
+  const handleLogout = () => {
+    localStorage.removeItem("username"); // Clear username from local storage
+    setUsername(null); // Reset username state
+    navigate("/"); // Redirect to the start menu or login page
   };
 
   return (
@@ -33,8 +45,21 @@ const StartMenu = () => {
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
-        background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
-        color: "#ffffff",
+        background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientWave 10s infinite normal forwards',
+        '@keyframes gradientWave': {
+          '0%': {
+            backgroundPosition: '0% 50%',
+          },
+          '50%': {
+            backgroundPosition: '100% 50%',
+          },
+          '100%': {
+            backgroundPosition: '0% 50%',
+          }
+      },
+        color: " #ffffff",
         textAlign: "center",
       }}
     >
@@ -54,17 +79,59 @@ const StartMenu = () => {
         </Button>
         <Button
           variant="contained"
-          onClick={handleOpenProfile}
+          onClick={handleOpenAccount}
           sx={{
-            backgroundColor: "#ff4081",
+            backgroundColor: " #ff4081",
             color: "#fff",
             fontWeight: "bold",
             boxShadow: 3,
-            '&:hover': { bgcolor: '#f50057' },
+            '&:hover': { bgcolor: ' #f50057' },
           }}
         >
           Cuenta
         </Button>
+        <Menu 
+          anchorEl={anchorEl} 
+          open={Boolean(anchorEl)} 
+          onClose={handleClose}
+          sx={{
+            "& .MuiMenu-paper": {
+              backgroundColor: "#6a11cb",
+              backdropFilter: "blur(10px)",
+              boxShadow: 5,
+            },
+          }}>
+          <MenuItem 
+            onClick={handleOpenProfile}
+            sx={{
+              backgroundColor: ' #6a11cb',
+              color: '#fff',
+              "&:hover": { backgroundColor: "#fff", color: " #6a11cb" }
+            }}
+            >Perfil
+          </MenuItem>
+          <MenuItem 
+            onClick={handleOpenSettings}
+            sx={{
+              backgroundColor: ' #6a11cb',
+              color: '#fff',
+              "&:hover": { backgroundColor: "#fff", color: " #6a11cb" }
+            }}
+            >Ajustes
+          </MenuItem>
+          <MenuItem 
+            onClick={() => {
+              handleLogout();
+              handleClose();
+            }}
+            sx={{
+              backgroundColor: ' #6a11cb',
+              color: '#fff',
+              "&:hover": { backgroundColor: "#fff", color: " #6a11cb" }
+            }}
+            >Cerrar Sesion
+          </MenuItem>
+      </Menu>
       </Box>
 
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
@@ -85,7 +152,7 @@ const StartMenu = () => {
             maxWidth: 500,
             height: "auto",
             p: 3,
-            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            background: " #6a11cb",
             backdropFilter: "blur(10px)",
             borderRadius: 3,
             boxShadow: 5,

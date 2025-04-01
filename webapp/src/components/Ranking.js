@@ -46,8 +46,23 @@ const Ranking = () => {
   }
 
   return (
-    <Box sx={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)", color: "#ffffff", padding: "20px" }}>
-      <Card sx={{ backgroundColor: "rgba(255, 255, 255, 0.15)", backdropFilter: "blur(10px)", color: "#ffffff", borderRadius: 3, p: 4, minWidth: 600, maxWidth: 800, boxShadow: 5 }}>
+    <Box sx={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", 
+        background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientWave 10s infinite normal forwards',
+        '@keyframes gradientWave': {
+          '0%': {
+            backgroundPosition: '0% 50%',
+          },
+          '50%': {
+            backgroundPosition: '100% 50%',
+          },
+          '100%': {
+            backgroundPosition: '0% 50%',
+          }
+        }, 
+        color: "#ffffff", padding: "20px" }}>
+      <Card sx={{ backgroundColor: " #6a11cb", backdropFilter: "blur(10px)", color: "#ffffff", borderRadius: 3, p: 4, minWidth: 600, maxWidth: 800, boxShadow: 5 }}>
         <CardContent>
           <Box sx={{ textAlign: "center", mb: 3 }}>
             <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2, color: "#ff4081" }}>Ranking de Jugadores</Typography>
@@ -56,18 +71,18 @@ const Ranking = () => {
               <Select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                sx={{ backgroundColor: "#ffffff", color: "#2575fc", borderRadius: 1, padding: "5px 10px" }}
+                sx={{ backgroundColor: " #ff4081", color: "#fff", borderRadius: 1, padding: "5px 10px", maxHeight:"40px"}}
               >
-                <MenuItem value="correctAnswers">Aciertos</MenuItem>
-                <MenuItem value="wrongAnswers">Fallos</MenuItem>
-                <MenuItem value="gamesPlayed">Partidas Jugadas</MenuItem>
+                <MenuItem value="correctAnswers" sx={{background: sortBy === "correctAnswers" ? "#3b0f6b" : "#6a11cb", color: "#fff", "&:hover": { background: " #3b0f6b" }}}>Aciertos</MenuItem>
+                <MenuItem value="wrongAnswers"sx={{background: sortBy === "correctAnswers" ? "#3b0f6b" : "#6a11cb", color: "#fff", "&:hover": { background: " #3b0f6b" }}}>Fallos</MenuItem>
+                <MenuItem value="gamesPlayed"sx={{background: sortBy === "correctAnswers" ? "#3b0f6b" : "#6a11cb", color: "#fff", "&:hover": { background: " #3b0f6b" }}}>Partidas Jugadas</MenuItem>
               </Select>
             </Box>
           </Box>
 
           <TableContainer component={Paper} sx={{ backgroundColor: "rgba(255, 255, 255, 0.15)", color: "#ffffff", maxHeight: "400px", overflowY: "auto", borderRadius: 2 }}>
             <Table stickyHeader>
-              <TableHead>
+              <TableHead sx={{ backgroundColor: " #66ccff" }}>
                 <TableRow>
                   <TableCell sx={{ color: "#ffffff", fontWeight: "bold", backgroundColor: "#2575fc" }}>#</TableCell>
                   <TableCell sx={{ color: "#ffffff", fontWeight: "bold", backgroundColor: "#2575fc" }}>Jugador</TableCell>
@@ -103,8 +118,8 @@ const Ranking = () => {
             </Table>
           </TableContainer>
 
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", '&:hover': { bgcolor: '#f50057' } }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
+            <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", '&:hover': { bgcolor: ' #f50057' } }}>
               Volver al menú
             </Button>
           </Box>
