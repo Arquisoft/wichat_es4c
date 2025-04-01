@@ -50,6 +50,7 @@ const StartMenu = () => {
         <Button
           variant="contained"
           onClick={handleOpenProfile}
+          data-testid="profile-button"
           sx={{ backgroundColor: "#FFD700", color: "#333", fontWeight: "bold", boxShadow: 3 }}
         >
           Cuenta
@@ -104,6 +105,7 @@ const StartMenu = () => {
               fontWeight: "bold",
             }}
             onClick={handleStartGame}
+            data-testid="play-button"
           >
             Comenzar
           </Button>
