@@ -92,7 +92,7 @@ const Login = ({ onLoginSuccess }) => {
               />
               <TextField 
                 margin="normal" 
-                fullWidth 
+                fullWidth
                 id="password"
                 label="Password" 
                 type="password"
@@ -104,7 +104,8 @@ const Login = ({ onLoginSuccess }) => {
               <Button 
                 fullWidth 
                 variant="contained" 
-                color="secondary" 
+                color="secondary"
+                data-testid="submit-button"
                 sx={{ mt: 2, borderRadius: 2 }} 
                 onClick={loginUser}
               >
