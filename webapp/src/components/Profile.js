@@ -47,35 +47,35 @@ const Profile = () => {
       <Card sx={{ backgroundColor: "#333", color: "#00FFFF", borderRadius: 3, p: 4, minWidth: 450, maxWidth: 600 }}>
         <CardContent>
           <Box sx={{ textAlign: "center", mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold" }}>{user?.username}</Typography>
+            <Typography variant="h4" sx={{ fontWeight: "bold" }} data-testid="profile-username">{user?.username}</Typography>
             <Typography variant="body1" sx={{ color: "#aaa" }}>Jugador activo</Typography>
           </Box>
 
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="h6">🎮 Juegos Jugados</Typography>
-              <Typography variant="body1">{user?.gamesPlayed}</Typography>
+              <Typography variant="body1" data-testid="games-played">{user?.gamesPlayed}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6">✅ Respuestas Correctas</Typography>
-              <Typography variant="body1">{user?.correctAnswers}</Typography>
+              <Typography variant="body1" data-testid="correct-answers">{user?.correctAnswers}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6">❌ Respuestas Incorrectas</Typography>
-              <Typography variant="body1">{user?.wrongAnswers}</Typography>
+              <Typography variant="body1" data-testid="wrong-answers">{user?.wrongAnswers}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6">⏳ Tiempo Jugado</Typography>
-              <Typography variant="body1">{user?.totalTimePlayed} seg</Typography>
+              <Typography variant="body1" data-testid="total-time-played">{user?.totalTimePlayed} seg</Typography>
             </Grid>
           </Grid>
 
           {/* Contenedor para los botones alineados horizontalmente */}
           <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 4 }}>
-            <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
+            <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }} data-testid="back-to-menu-button">
               Volver al menú
             </Button>
-            <Button variant="contained" onClick={() => navigate("/ranking")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
+            <Button variant="contained" onClick={() => navigate("/ranking")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }} data-testid="view-ranking-button">
               Ver ranking
             </Button>
           </Box>
