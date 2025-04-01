@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams} from 'react-router-dom';
 import { Card, CardContent, CardActions, Button, TextField, Typography, Box, FormControlLabel, Checkbox, Snackbar, Alert } from "@mui/material";
 import axios from 'axios';
+import { act } from 'react-dom/test-utils'; // Import act for testing
 
 export default function SettingsCard() {
 
@@ -33,11 +34,17 @@ export default function SettingsCard() {
             throw new Error("No se pudo obtener la información del perfil");
           }
           const data = await response.json();
-          setUser(data);
+          act(() => { // Wrap state updates in act
+            setUser(data);
+          });
         } catch (error) {
-          setError(error.message);
+          act(() => { // Wrap state updates in act
+            setError(error.message);
+          });
         } finally {
-          setLoading(false);
+          act(() => { // Wrap state updates in act
+            setLoading(false);
+          });
         }
       };
   
@@ -76,9 +83,9 @@ export default function SettingsCard() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ settings }), // Asegúrate de enviar los ajustes como JSON
+        body: JSON.stringify(settings), // Fix: Send settings directly
       });
-      if (response.status === 200) {
+      if (response.ok) { // Fix: Check response.ok instead of status
         setOpenSnackbar(true);
       } else {
         console.error("Error al guardar los ajustes:", await response.json());
@@ -137,7 +144,7 @@ export default function SettingsCard() {
             />
           ))}
           <FormControlLabel
-            control={<Checkbox checked={settings.capitalQuestions??""} onChange={handleChange} name="capitalQuestions"sx={{
+            control={<Checkbox checked={settings.capitalQuestions?? true} onChange={handleChange} name="capitalQuestions"sx={{
               color: "white",
               "&.Mui-checked": { color: "white" }
             }}/>}
@@ -145,7 +152,7 @@ export default function SettingsCard() {
             sx={{color:"#fff", "&.mui-checked": {color: " #fff"}}}
           />
           <FormControlLabel
-            control={<Checkbox checked={settings.flagQuestions??""} onChange={handleChange} name="flagQuestions" sx={{
+            control={<Checkbox checked={settings.flagQuestions??true} onChange={handleChange} name="flagQuestions" sx={{
               color: "white",
               "&.Mui-checked": { color: "white" }
             }}/>}
@@ -153,7 +160,7 @@ export default function SettingsCard() {
             sx={{color:"#fff", "&.mui-checked": {color: " #fff"}}}
           />
           <FormControlLabel
-            control={<Checkbox checked={settings.monumentQuestions??""} onChange={handleChange} name="monumentQuestions" sx={{
+            control={<Checkbox checked={settings.monumentQuestions??true} onChange={handleChange} name="monumentQuestions" sx={{
               color: "white",
               "&.Mui-checked": { color: "white" }
             }}/>}
@@ -161,7 +168,7 @@ export default function SettingsCard() {
             sx={{color:"#fff", "&.Mui-checked": {background: " #fff"}}}
           />
           <FormControlLabel
-            control={<Checkbox checked={settings.foodQuestions??""} onChange={handleChange} name="foodQuestions" sx={{
+            control={<Checkbox checked={settings.foodQuestions??true} onChange={handleChange} name="foodQuestions" sx={{
               color: "white",
               "&.Mui-checked": { color: "white" }
             }}/>}

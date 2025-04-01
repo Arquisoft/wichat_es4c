@@ -9,6 +9,7 @@ import Countdown from 'react-countdown';
 import LLMChat from "./LLMChat";
 
 const Game = () => {
+  const navigate = useNavigate();
   const [questionData, setQuestionData] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [feedback, setFeedback] = useState({});
@@ -26,7 +27,7 @@ const Game = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const navigate = useNavigate();
+  
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -166,49 +167,51 @@ useEffect(() => {
 
   const renderer = ({ seconds, completed }) => {
     if (paused) {
-      return (
-        <Typography variant="h4" color="textSecondary">
-          Pausado...
-        </Typography>
-      );
+        return (
+            <Typography variant="h4" color="textSecondary">
+                Pausado...
+            </Typography>
+        );
     }
 
     if (completed) {
-      if (!snackbarOpen) {
-        setSnackbarOpen(true); // Show "Game Over" snackbar
-        setTimeout(() => navigate("/startmenu"), 3000); // Redirect to menu after 3 seconds
-      }
-      return (
-        <Typography variant="h4" color="#fff">
-          ⏳ Tiempo agotado
-        </Typography>
-      );
+        // Avoid calling setState during rendering
+        setTimeout(() => {
+            setSnackbarOpen(true);
+            navigate("/startmenu");
+        }, 0);
+
+        return (
+            <Typography variant="h4" color="#fff">
+                ⏳ Tiempo agotado
+            </Typography>
+        );
     }
 
     return (
-      <Box position="relative" display="inline-flex">
-        <CircularProgress
-          variant="determinate"
-          value={(seconds / settings.answerTime) * 100}
-          size={80}
-          thickness={4}
-          sx={{ color: seconds < 3 ? "red" : "#ff4081" }}
-        />
-        <Box
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
-          position="absolute"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Typography variant="h6" color="#fff">
-            {seconds}s
-          </Typography>
+        <Box position="relative" display="inline-flex">
+            <CircularProgress
+                variant="determinate"
+                value={(seconds / settings.answerTime) * 100}
+                size={80}
+                thickness={4}
+                sx={{ color: seconds < 3 ? "red" : "#ff4081" }}
+            />
+            <Box
+                top={0}
+                left={0}
+                bottom={0}
+                right={0}
+                position="absolute"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
+                <Typography variant="h6" color="#fff">
+                    {seconds}s
+                </Typography>
+            </Box>
         </Box>
-      </Box>
     );
   };
 
