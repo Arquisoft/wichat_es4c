@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { Box, Card, CardContent, Typography, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Select, MenuItem } from "@mui/material";
+
+const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 
 const Ranking = () => {
   const navigate = useNavigate();
@@ -8,19 +11,15 @@ const Ranking = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("correctAnswers");
-  const loggedInUser = localStorage.getItem("username"); 
+  const loggedInUser = localStorage.getItem("username");
 
   useEffect(() => {
     const fetchRanking = async () => {
       try {
-        const response = await fetch(`http://localhost:8001/ranking?sortBy=${sortBy}`);
-        if (!response.ok) {
-          throw new Error("No se pudo obtener el ranking");
-        }
-        const data = await response.json();
-        setPlayers(data);
+        const response = await axios.get(`${apiEndpoint}/ranking?sortBy=${sortBy}`);
+        setPlayers(response.data);
       } catch (error) {
-        setError(error.message);
+        setError(error.response?.data?.error || "No se pudo obtener el ranking");
       } finally {
         setLoading(false);
       }

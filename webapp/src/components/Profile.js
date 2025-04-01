@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Card, CardContent, Typography, CircularProgress, Grid, Button } from "@mui/material";
+import axios from "axios";
+import { Box, Card, CardContent, Typography, CircularProgress, Grid, Button, Snackbar } from "@mui/material";
+
+const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 
 const Profile = () => {
   const { username } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     if (!username) {
@@ -17,14 +21,11 @@ const Profile = () => {
 
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:8001/profile/${username}`);
-        if (!response.ok) {
-          throw new Error("No se pudo obtener la información del perfil");
-        }
-        const data = await response.json();
-        setUser(data);
+        const response = await axios.get(`${apiEndpoint}/profile/${username}`);
+        setUser(response.data);
       } catch (error) {
-        setError(error.message);
+        setError(error.response?.data?.error || "No se pudo obtener la información del perfil");
+        setOpenSnackbar(true);
       } finally {
         setLoading(false);
       }
@@ -81,9 +82,14 @@ const Profile = () => {
             <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", '&:hover': { bgcolor: '#f50057' } }}>
               Volver al menú
             </Button>
+            <Button variant="contained" onClick={() => navigate("/ranking")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
+              Ver ranking
+            </Button>
           </Box>
         </CardContent>
       </Card>
+
+      <Snackbar open={openSnackbar} autoHideDuration={6000} message={`Error: ${error}`} onClose={() => setOpenSnackbar(false)} />
     </Box>
   );
 };

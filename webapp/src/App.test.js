@@ -1,10 +1,18 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders welcome message', () => {
-  render(<App />);
-  const welcomeMessage = screen.getByText(/Welcome to the 2025 edition of the Software Architecture course/i);
-  expect(welcomeMessage).toBeInTheDocument();
+
+jest.mock("./Router", () => () => <div data-testid="app-router">AppRouter</div>);
+
+describe("App Component", () => {
+  test("Renderiza correctamente CssBaseline", () => {
+    render(<App />);
+    expect(document.querySelector("style")).toBeInTheDocument();
+  });
+
+  test("Renderiza correctamente el Router", () => {
+    render(<App />);
+    expect(screen.getByTestId("app-router")).toBeInTheDocument();
+  });
 });
-
-

@@ -1,130 +1,133 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-context-and-scope]]
-== Contexto y Alcance
-
+== Context and Scope
 
 ifdef::arc42help[]
 [role="arc42help"]
 ****
-.Contenido  
-El ámbito y contexto del sistema, como su nombre lo indica, delimita el sistema (es decir, su ámbito) de todos 
-sus interlocutores (sistemas y usuarios vecinos, es decir, el contexto del sistema). De este modo, especifica las interfaces externas.
+.Content  
+The system's scope and context, as the name suggests, define the system's boundaries (i.e., its scope) from all its stakeholders (neighboring systems and users, i.e., the system's context). This specifies the external interfaces.
 
-Si es necesario, diferencie el contexto empresarial (entradas y salidas específicas del dominio) del contexto técnico (canales, protocolos, hardware)..
+If necessary, differentiate between the business context (domain-specific inputs and outputs) and the technical context (channels, protocols, hardware).
 
-.Motivación
-Las interfaces de dominio y las interfaces técnicas con los socios de comunicación se encuentran entre los aspectos más críticos de su sistema. Asegúrese de comprenderlas por completo.
+.Motivation  
+Domain interfaces and technical interfaces with communication partners are among the most critical aspects of your system. Ensure you fully understand them.
 
-.Formato
-Varias opciones:
+.Format  
+Various options:
 
-* Varios diagramas de contexto
-* Listas de socios de comunicación y sus interfaces.
+* Multiple context diagrams  
+* Lists of communication partners and their interfaces  
 
-
-.Más información
-
-Vea https://docs.arc42.org/section-3/[Context and Scope] en la documentación arc42.
+.More Information  
+See https://docs.arc42.org/section-3/[Context and Scope] in the arc42 documentation.
 
 ****
 endif::arc42help[]
 
-=== Contexto de Negocio
+=== Business Context
 
-image::modelo.svg[Contexto de negocio] 
-
+image::model.png[Business Context]  
 
 [options="header",cols="1,2"]
 |===
-|Elemento|Descripción
-| _Usuario_ | _El concursante que interactúa con la aplicación y le puede preguntar al chatbot integrado, y responder a las preguntas mostradas._
+| Element | Description  
+| _User_ | _The contestant who interacts with the application, can ask the integrated chatbot, and answer the displayed questions._  
 
-| _WIChat_ | _Aplicación web principal donde se desarrolla la lógica del juego._
+| _WIChat_ | _Main web application where the game logic takes place._  
 
-| _WIChat_ | _Aplicación web principal donde se desarrolla la lógica del juego._
+| _Wikidata_ | _Source from which the questions and answers will be extracted._  
 
-| _Wikidata_ | _Fuente de donde se extraeran las preguntas y las respuestas, las cuales no estarán visibles hasta que el usuario interactue con la aplicación tras responder._
-| _LLM_API_ | _API que integra un LLM que se utilizará para generar pistas de forma dinámica y que seguira un diálogo conversacional que ayudará al concursante a responder las preguntas, pero que nunca le dirán implícitamente la respuesta._
-| _Base de Datos_ | _Sistema de almacenamiento que guarda información relevante sobre el usuario y anteriores partidas._
+| _LLM_API_ | _API integrating an LLM that will be used to dynamically generate hints and follow a conversational dialogue to help the contestant answer the questions without explicitly giving away the answer._  
+
+| _Database_ | _Storage system that keeps relevant user information and past game sessions._  
 |===
 
 ifdef::arc42help[]
 [role="arc42help"]
 ****
-.Contenido
-Especificación de todos los interlocutores (usuarios, sistemas informáticos, etc.) con explicaciones de las entradas y salidas o interfaces específicas del dominio. 
-Opcionalmente, puede añadir formatos o protocolos de comunicación específicos del dominio.
+.Content  
+Specification of all stakeholders (users, IT systems, etc.) with explanations of domain-specific inputs, outputs, or interfaces.  
+Optionally, you may add specific domain communication formats or protocols.
 
-.Motivación
-Todas las partes interesadas deben comprender qué datos se intercambian con el entorno del sistema.
+.Motivation  
+All stakeholders must understand what data is exchanged with the system's environment.
 
-.Formato
-Todo tipo de diagramas que muestran el sistema como una caja negra y especifican las interfaces del dominio con los socios de comunicación.
+.Format  
+Any type of diagram showing the system as a black box and specifying domain interfaces with communication partners.  
 
-Como alternativa (o adicionalmente), puede utilizar una tabla. 
-El título de la tabla es el nombre de su sistema, las tres columnas contienen el nombre del interlocutor, las entradas y las salidas.
+Alternatively (or additionally), you can use a table.  
+The table title is your system's name, and the three columns contain the stakeholder name, inputs, and outputs.
 
 ****
 endif::arc42help[]
 
-=== Contexto Técnico
+=== Technical Context  
 
 ifdef::arc42help[]
 [role="arc42help"]
 ****
-.Contenido
-Interfaces técnicas (canales y medios de transmisión) que juntan el sistema con su entorno. Además un mapeo del dominio especifico de entrada/salida a los canales, es decir una explicación de qué entrada salida usa cada canal.
+.Content  
+Technical interfaces (channels and transmission media) connecting the system with its environment. Additionally, a mapping of domain-specific input/output to the channels, explaining which input/output uses each channel.
 
-.Motivación
-Muchos stakeholders toman decisiones arquitectónicas basadas en las interfaces técnicas entre el sistema y su contexto. En especial, los diseñadores de hardware o infraestructura deciden estas interfaces técnicas.
+.Motivation  
+Many stakeholders make architectural decisions based on technical interfaces between the system and its context. Hardware or infrastructure designers, in particular, decide on these technical interfaces.
 
-.Forma
-E.g. Diagrama UML de despliegue describiendo canales con los sistemas vecinos,
-junto a una tabla de mapeo mostrando las relaciones entre canales y la entrada/salida.
+.Format  
+For example, a UML deployment diagram describing channels with neighboring systems,  
+alongside a mapping table showing the relationships between channels and input/output.
 
 ****
 endif::arc42help[]
 
-==== Diagrama de Despliegue
+==== Deployment Diagram
 
-image::Diagrama-despliegue.svg[Diagrama de Despliegue] 
+image::deploy-diagram.png[Deployment Diagram]  
 
-==== **Explicación de Interfaces Técnicas**
+==== **Technical Interface Explanation**
 
-===== **Gateway**
-API que hace de enlace entre las distintas partes de la aplicación.
+===== **Gateway**  
+API that links the different parts of the application.  
 
-===== **Aplicación React**
-React aportará al usuario una interfaz con la que interactuar y responder a las preguntas y por medio de la cual hacer las peticiones
-correspondientes a la parte de backEnd de la aplicación.
+===== **React Application**  
+React provides the user with an interface to interact with, answer questions, and make requests to the backend.  
 
-===== **Base de Datos de Usuarios**
-Almacena toda la información referente a los usuarios,datos,historial de partidas.
+===== **User Database**  
+Stores all information related to users, data, and game session history.  
 
-===== **Servicio de Autenticación**
-Interfaz que se comunica con la base de datos de usuarios para comprobar el si el inicio de sesión es válido o no.
+===== **Authentication Service**  
+Interface that communicates with the user database to verify whether a login attempt is valid.  
 
-===== **Servicio de Usuario**
-Interfaz que se comunica con la base de datos de usuarios para consultar y, o actualizar la información referente a las partidas de los mismos.
+===== **User Service**  
+Interface that communicates with the user database to query or update game-related information.  
 
-===== **LLM_Service**
-Servicio que procesará las pistas de WikiData y devolverá la respuesta a la pregunta del usuario.
-===== **API WikiData**
-Wikidata nos aportará todo lo referente a las preguntas, tanto la imágen, como las respuestas y la respuesta correcta, además de que nos permitirá recopilar pistas que servirán al LLM para responder.
+===== **LLM Service**  
+Service that processes hints using Gemini AI and returns responses to the user's questions via prompt engineering
+on the code, so it only answers game-related questions.  
 
-==== Mapeo de Canales de Entrada/salida
+===== **Question Service**  
+Service that processes information from Wikidata to generate questions and possible answers. 
+
+===== **WikiData API**  
+WikiData provides all question-related content, including images, answers, and the correct response.  
+
+===== **Gemini AI**  
+The LLM we are using for hints.  
+
+==== Input/Output Channel Mapping  
 
 [options="header",cols="1,2,2"]
 |===
-| Canal | Entrada | Salida
-| Aplicación React | Peticiones HTTP del usuario con las acciones | Respuesta a través de la interfaz.
-| Gateway | Peticiones REST de webapp para obtener datos de las preguntas (imágenes,respuestas), o solicitar operaciones como iniciar sesión | Respuesta con la información solicitada en cada caso.
-| Servicio Usuario | Datos que se quieren consultar a la base de datos | Respuesta a dicha consulta.
-| Servicio Autenticación | Datos de inicio de sesión del usuario | Consulta de comprobación de los datos, para ver si son erróneos o no.
-| LLM_Service | Prompt con la solicitud de pistas que quiere el usuario en ese momento | Pista generada por el modelo.
-| API Wikidata | Solicitud de las imagenes o pistas en ese momento | Respuesta sobre la imagen solicitada, ya sea en forma de pista, o bien una nueva imagen en caso de que se solicite una nueva pregunta.
-| Base de Datos de Usuarios | Instrucciones SQL para consultas o insercioes | Resultado de las consultas o confirmación de las inserciones.
-| Prometheus | Métricas de Gateway | métricas en su base de datos.
-| Grafana | Métricas organizadas en Prometheus | Visualización de las métricas.
+| Channel | Input | Output  
+| React Application | HTTP requests from the user with actions | Response through the interface.  
+| Gateway | REST requests from the web app to obtain question data (images, answers) or perform operations like login | Response with the requested information in each case.  
+| User Service | Data queries to the database | Response to the query.  
+| Authentication Service | User login data | Data verification query to check if the credentials are correct.  
+| LLM_Service | Prompt with the hints requested by the user | Hint generated by the model.  
+| WikiData API | Request for question information | Response with the requested information.
+| Question Service | A request from the game when it needs a question | Question and answers generated using the information retrieved from Wikidata API.  
+| User Database | SQL instructions for queries or insertions | Query results or confirmation of insertions.  
+| Prometheus | Gateway metrics | Metrics stored in its database.  
+| Grafana | Metrics organized in Prometheus | Visualization of metrics.  
 |===

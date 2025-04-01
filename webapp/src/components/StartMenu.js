@@ -5,15 +5,16 @@ import { Box, Button, Card, CardContent, Typography, Menu, MenuItem } from "@mui
 const StartMenu = () => {
   const [username, setUsername] = useState(null);
   const navigate = useNavigate();
-  const storedUsername = localStorage.getItem("username");
 
   const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
       setUsername(storedUsername);
     }
   }, []);
+  
 
   const handleOpenAccount = (event) => {
     setAnchorEl(event.currentTarget); // Guarda la referencia del botón
@@ -23,7 +24,7 @@ const StartMenu = () => {
   const handleOpenRanking = () => navigate("/ranking");
   const handleOpenProfile = () => {
     if (username) {
-      navigate(`/profile/${storedUsername}`);
+      navigate(`/profile/${username}`);
     } else {
       alert("No se ha iniciado sesión.");
     }
