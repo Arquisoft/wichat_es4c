@@ -7,6 +7,7 @@ import Home from './components/Home';
 import StartMenu from './components/StartMenu';
 import Profile from './components/Profile';
 import Ranking from './components/Ranking';
+import Settings from './components/Settings';
 
 const AppRouter = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,6 +26,7 @@ const AppRouter = () => {
         <Route path="/game" element={<Game />} />
         <Route path="/profile/:username" element={<Profile />} />
         <Route path="/ranking" element={<Ranking />} />
+        <Route path="/settings/:username" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
