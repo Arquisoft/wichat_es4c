@@ -37,7 +37,7 @@ describe("LLMChat Component", () => {
     expect(axios.post).toHaveBeenCalledWith("http://localhost:8003/ask", {
       question: "¿Cuál es la capital de Francia?",
       model: "gemini",
-      apiKey: "sk-sI5b_Gnr_EHJMyYv8tXpkw",
+      apiKey: undefined,
       correctAnswer: "España",
     });
 
