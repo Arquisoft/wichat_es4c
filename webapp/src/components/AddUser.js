@@ -19,52 +19,107 @@ const AddUser = () => {
       setOpenSnackbar(true);
       setTimeout(() => navigate('/login'), 2000); // Redirigir después de 2 segundos
     } catch (error) {
-      setError(error.response?.data?.error || "Failed to add user.");
+      setError(error.response?.data?.error || 'Error adding user');
     }
   };
 
   return (
-    <Box sx={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    }}>
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientWave 10s infinite normal forwards',
+        '@keyframes gradientWave': {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
+      }}
+    >
       <Container component="main" maxWidth="xs">
-        <Paper elevation={6} sx={{ p: 4, borderRadius: 3, textAlign: 'center' }}>
-          <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom>
-            Register
+        <Paper
+          elevation={10}
+          sx={{
+            p: 4,
+            borderRadius: 3,
+            backdropFilter: 'blur(10px)',
+            textAlign: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            color: '#fff',
+          }}
+        >
+          <Typography component="h1" variant="h5" fontWeight="bold" gutterBottom>
+            Add User
           </Typography>
           <TextField
+            name="username"
             margin="normal"
             fullWidth
-            id="username"
             label="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            variant="outlined"
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 1,
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': { borderColor: 'white' },
+                '&:hover fieldset': { borderColor: 'white' },
+                '&.Mui-focused fieldset': { borderColor: 'white' },
+              },
+            }}
           />
           <TextField
+            name="password"
             margin="normal"
             fullWidth
-            id="password"
             label="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            variant="outlined"
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 1,
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': { borderColor: 'white' },
+                '&:hover fieldset': { borderColor: 'white' },
+                '&.Mui-focused fieldset': { borderColor: 'white' },
+              },
+            }}
           />
           <Button
             variant="contained"
             color="secondary"
             fullWidth
-            data-testid="submit-button"
-            sx={{ mt: 2 }}
+            sx={{
+              mt: 2,
+              borderRadius: 2,
+              backgroundColor: '#ff4081',
+              '&:hover': { bgcolor: '#f50057' },
+            }}
             onClick={addUser}
           >
-            Sign Up
+            Add User
           </Button>
-          <Snackbar open={openSnackbar} autoHideDuration={6000} message="User added successfully" />
-          {error && <Snackbar open={!!error} autoHideDuration={6000} message={`Error: ${error}`} />}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            message="User added successfully"
+          />
+          {error && (
+            <Snackbar
+              open={!!error}
+              autoHideDuration={6000}
+              onClose={() => setError('')}
+              message={`Error: ${error}`}
+            />
+          )}
         </Paper>
       </Container>
     </Box>

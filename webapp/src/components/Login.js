@@ -20,12 +20,12 @@ const Login = ({ onLoginSuccess }) => {
   const loginUser = async () => {
     try {
       const response = await axios.post(`${apiEndpoint}/login`, { username, password });
-      
+
       const question = `Please, generate a greeting message for a student called ${username} that is a student of the Software Architecture course in the University of Oviedo. Be nice and polite.`;
       const model = "empathy";
-      
+
       let greetingMessage = "Welcome!";
-      
+
       if (apiKey !== 'None') {
         try {
           const messageResponse = await axios.post(`${apiEndpoint}/askllm`, { question, model, apiKey });
@@ -56,8 +56,20 @@ const Login = ({ onLoginSuccess }) => {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      background: 'linear-gradient(to right, #6a11cb, #2575fc)',
-    }}>
+      background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientWave 10s infinite normal forwards',
+        '@keyframes gradientWave': {
+          '0%': {
+            backgroundPosition: '0% 50%',
+          },
+          '50%': {
+            backgroundPosition: '100% 50%',
+          },
+          '100%': {
+            backgroundPosition: '0% 50%',
+          }
+      }}}>
       <Container component="main" maxWidth="xs">
         <Paper elevation={10} sx={{ p: 4, borderRadius: 3, backdropFilter: 'blur(10px)', textAlign: 'center' }}>
           {loginSuccess ? (
