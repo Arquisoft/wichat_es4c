@@ -36,55 +36,48 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)" }}>
-        <CircularProgress sx={{ color: "#ffffff" }} />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ textAlign: "center", color: "#ff4081", marginTop: "20px" }}>
-        <Typography variant="h6">{error}</Typography>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#212121" }}>
+        <CircularProgress sx={{ color: "#00FFFF" }} />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)", color: "#ffffff" }}>
-      <Card sx={{ backgroundColor: "rgba(255, 255, 255, 0.15)", backdropFilter: "blur(10px)", color: "#ffffff", borderRadius: 3, p: 4, minWidth: 450, maxWidth: 600, boxShadow: 5 }}>
+    <Box sx={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#212121", color: "#00FFFF" }}>
+      <Card sx={{ backgroundColor: "#333", color: "#00FFFF", borderRadius: 3, p: 4, minWidth: 450, maxWidth: 600 }}>
         <CardContent>
           <Box sx={{ textAlign: "center", mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#ff4081" }}>{user.username}</Typography>
-            <Typography variant="body1" sx={{ color: "#ffffff99" }}>Jugador activo</Typography>
+            <Typography variant="h4" sx={{ fontWeight: "bold" }}>{user?.username}</Typography>
+            <Typography variant="body1" sx={{ color: "#aaa" }}>Jugador activo</Typography>
           </Box>
 
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Typography variant="h6" sx={{ color: "#ffffff" }}>🎮 Juegos Jugados</Typography>
-              <Typography variant="body1">{user.gamesPlayed}</Typography>
+              <Typography variant="h6">🎮 Juegos Jugados</Typography>
+              <Typography variant="body1">{user?.gamesPlayed}</Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h6" sx={{ color: "#ffffff" }}>✅ Respuestas Correctas</Typography>
-              <Typography variant="body1" sx={{ color: "#0f0" }}>{user.correctAnswers}</Typography>
+              <Typography variant="h6">✅ Respuestas Correctas</Typography>
+              <Typography variant="body1">{user?.correctAnswers}</Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h6" sx={{ color: "#ffffff" }}>❌ Respuestas Incorrectas</Typography>
-              <Typography variant="body1" sx={{ color: "#f00" }}>{user.wrongAnswers}</Typography>
+              <Typography variant="h6">❌ Respuestas Incorrectas</Typography>
+              <Typography variant="body1">{user?.wrongAnswers}</Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h6" sx={{ color: "#ffffff" }}>⏳ Tiempo Jugado</Typography>
-              <Typography variant="body1">{user.totalTimePlayed} seg</Typography>
+              <Typography variant="h6">⏳ Tiempo Jugado</Typography>
+              <Typography variant="body1">{user?.totalTimePlayed} seg</Typography>
             </Grid>
           </Grid>
 
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", '&:hover': { bgcolor: '#f50057' } }}>
+          {/* Contenedor para los botones alineados horizontalmente */}
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 4 }}>
+            <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
               Volver al menú
             </Button>
             <Button variant="contained" onClick={() => navigate("/ranking")} sx={{ backgroundColor: "#00FFFF", color: "#212121" }}>
               Ver ranking
-            </Button>*/
+            </Button>
           </Box>
         </CardContent>
       </Card>

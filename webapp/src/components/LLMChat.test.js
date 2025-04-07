@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import axios from "axios";
 import LLMChat from "./LLMChat";
 import React from "react";
@@ -23,10 +23,7 @@ describe("LLMChat Component", () => {
   it("calls the LLM API and updates chat history on send", async () => {
     axios.post.mockResolvedValue({ data: { answer: "París" } });
 
-    await act(async () => {
-      render(<LLMChat correctAnswer="España" />);
-    });
-
+    render(<LLMChat correctAnswer="España" />);
     const input = screen.getByLabelText("Escribe tu pregunta");
     const button = screen.getByRole("button", { name: "Enviar" });
 

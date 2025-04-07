@@ -37,17 +37,7 @@ const userSchema = new mongoose.Schema({
         wrong: { type: Number, default: 0 },    // 🔹 Preguntas falladas en esa partida
         timePlayed: { type: Number, default: 0 } // 🔹 Tiempo jugado en esa partida (segundos)
       }
-    ],
-    settings: 
-    {
-      answerTime: { type: Number, default: 10 }, // 🔹 Tiempo de respuesta por pregunta (en segundos)
-      questionAmount: { type: Number, default: 10 }, // 🔹 Número de preguntas por partida
-      capitalQuestions: { type: Boolean, default: true }, // 🔹 Preguntas de capitales activadas
-      flagQuestions: { type: Boolean, default: true }, // 🔹 Preguntas de banderas activadas
-      monumentQuestions: { type: Boolean, default: true }, // 🔹 Preguntas de monumentos activadas
-      foodQuestions: { type: Boolean, default: true }, // 🔹 Preguntas de comida activadas
-    }
-    
+    ]
 });
 
 const User = mongoose.model('User', userSchema);

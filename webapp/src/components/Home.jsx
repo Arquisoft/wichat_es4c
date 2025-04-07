@@ -11,21 +11,8 @@ const Home = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)',
-        backgroundSize: '400% 400%',
-        animation: 'gradientWave 10s infinite normal forwards',
-        '@keyframes gradientWave': {
-          '0%': {
-            backgroundPosition: '0% 50%',
-          },
-          '50%': {
-            backgroundPosition: '100% 50%',
-          },
-          '100%': {
-            backgroundPosition: '0% 50%',
-          }
-      }
-    }}
+        background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+      }}
     >
       <Paper
         elevation={10}
