@@ -28,6 +28,20 @@ function validateRequiredFields(req, requiredFields) {
     }
 }
 
+// Pequeña función para sanear el username
+function sanitizeUsername(username) {
+    if (typeof username !== 'string') {
+        throw new Error('Invalid username');
+    }
+    return username.trim();
+}
+
+// Función para sanear valores numéricos
+function sanitizeNumber(value) {
+    const num = Number(value);
+    return isNaN(num) ? 0 : num;
+}
+
 // **Crear un usuario**
 app.post('/adduser', async (req, res) => {
     try {
@@ -76,7 +90,7 @@ app.get('/profile/:username', async (req, res) => {
     }
 });
 
-// **Actualizar estadísticas del usuario**
+// **Actualizar estadísticas del usuario** 
 app.post('/updateStats', async (req, res) => {
     try {
       const { username, correct, wrong, timeTaken } = req.body;
@@ -84,22 +98,29 @@ app.post('/updateStats', async (req, res) => {
       if (!username) {
         return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
       }
+
+      // Sanitize inputs
+      const sanitizedUsername = sanitizeUsername(username);
+      const sanitizedCorrect = sanitizeNumber(correct);
+      const sanitizedWrong = sanitizeNumber(wrong);
+      const sanitizedTimeTaken = sanitizeNumber(timeTaken);
   
-      const user = await User.findOne({ username });
+      // Use sanitizedUsername in the query
+      const user = await User.findOne({ username: sanitizedUsername });
       if (!user) {
         return res.status(404).json({ error: "Usuario no encontrado" });
       }
   
-      user.correctAnswers += correct || 0;
-      user.wrongAnswers += wrong || 0;
-      user.totalTimePlayed += timeTaken || 0;
+      user.correctAnswers += sanitizedCorrect;
+      user.wrongAnswers += sanitizedWrong;
+      user.totalTimePlayed += sanitizedTimeTaken;
   
       // Agrega una única entrada al historial
       user.gameHistory.push({
         date: new Date(),
-        correct: correct || 0,
-        wrong: wrong || 0,
-        timePlayed: timeTaken || 0
+        correct: sanitizedCorrect,
+        wrong: sanitizedWrong,
+        timePlayed: sanitizedTimeTaken
       });
   
       await user.save();
@@ -108,10 +129,9 @@ app.post('/updateStats', async (req, res) => {
       console.error("Error al actualizar estadísticas:", error);
       res.status(500).json({ error: "Error al actualizar estadísticas" });
     }
-  });
+});
   
-
-// **Registrar partidas jugadas**
+// **Registrar partidas jugadas** 
 app.post('/incrementGamesPlayed', async (req, res) => {
     try {
         const { username } = req.body;
@@ -120,7 +140,8 @@ app.post('/incrementGamesPlayed', async (req, res) => {
             return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
         }
 
-        const user = await User.findOne({ username });
+        const sanitizedUsername = sanitizeUsername(username);
+        const user = await User.findOne({ username: sanitizedUsername });
         if (!user) {
             return res.status(404).json({ error: "Usuario no encontrado" });
         }
