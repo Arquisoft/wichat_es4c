@@ -184,7 +184,6 @@ const StartMenu = () => {
               '&:hover': { bgcolor: '#f50057' },
             }}
             onClick={handleStartGame}
-            data-testid="play-button"
           >
             Comenzar
           </Button>

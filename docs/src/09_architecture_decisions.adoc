@@ -3,13 +3,6 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-design-decisions]]
 == Architecture Decisions
 
-The Architectural Decision Records (ADRs) have been incorporated into the Wiki section of our GitHub page. The corresponding links are provided below:
-
-* https://github.com/Arquisoft/wichat_es4c/wiki/ADR-01-(JavaScript)[ADR 01] -> JavaScript
-* https://github.com/Arquisoft/wichat_es4c/wiki/ADR-02-(React)[ADR 02] -> React
-* https://github.com/Arquisoft/wichat_es4c/wiki/ADR-03-(Docker)[ADR 03] -> Docker
-* https://github.com/Arquisoft/wichat_es4c/wiki/ADR-04-(React%E2%80%90router%E2%80%90dom)[ADR 04] -> React Router Dom
-* https://github.com/Arquisoft/wichat_es4c/wiki/ADR-05-(MongoDB)[ADR 05] -> MongoDB
 
 ifdef::arc42help[]
 [role="arc42help"]

@@ -94,8 +94,7 @@ const Login = ({ onLoginSuccess }) => {
               </Typography>
               <TextField 
                 margin="normal" 
-                fullWidth
-                id="username"
+                fullWidth 
                 label="Username" 
                 variant="outlined"
                 value={username} 
@@ -104,8 +103,7 @@ const Login = ({ onLoginSuccess }) => {
               />
               <TextField 
                 margin="normal" 
-                fullWidth
-                id="password"
+                fullWidth 
                 label="Password" 
                 type="password"
                 variant="outlined"
@@ -116,8 +114,7 @@ const Login = ({ onLoginSuccess }) => {
               <Button 
                 fullWidth 
                 variant="contained" 
-                color="secondary"
-                data-testid="submit-button"
+                color="secondary" 
                 sx={{ mt: 2, borderRadius: 2 }} 
                 onClick={loginUser}
               >

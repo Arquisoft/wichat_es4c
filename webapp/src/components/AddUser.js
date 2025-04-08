@@ -1,5 +1,5 @@
+// src/components/AddUser.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Typography, TextField, Button, Snackbar, Paper, Box } from '@mui/material';
 
@@ -11,16 +11,17 @@ const AddUser = () => {
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const navigate = useNavigate();
-
   const addUser = async () => {
     try {
       await axios.post(`${apiEndpoint}/adduser`, { username, password });
       setOpenSnackbar(true);
-      setTimeout(() => navigate('/login'), 2000); // Redirigir después de 2 segundos
     } catch (error) {
       setError(error.response?.data?.error || 'Error adding user');
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
   return (
