@@ -23,6 +23,13 @@ const AddUser = () => {
     }
   };
 
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   return (
     <Box
       sx={{
@@ -109,7 +116,7 @@ const AddUser = () => {
           <Snackbar
             open={openSnackbar}
             autoHideDuration={6000}
-            onClose={handleCloseSnackbar}
+            onClose={handleCloseSnackbar} // Ahora usamos la función definida
             message="User added successfully"
           />
           {error && (
