@@ -7,6 +7,10 @@ import {
 } from '@mui/material';
 import Countdown from 'react-countdown';
 import LLMChat from "./LLMChat";
+import { Howl } from 'howler';
+import correctSoundFile from '../assets/sounds/correct.mp3';
+import wrongSoundFile from '../assets/sounds/wrong.mp3';
+import tickingSoundFile from '../assets/sounds/ticking.mp3';
 
 const Game = () => {
   const navigate = useNavigate();
@@ -27,7 +31,26 @@ const Game = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  
+  const [soundEnabled, setSoundEnabled] = useState(true); 
+  const correctSound = new Howl({ src: [correctSoundFile] });
+  const wrongSound = new Howl({ src: [wrongSoundFile] });
+  const tickingSound = new Howl({ src: [tickingSoundFile], loop: true });
+
+  const toggleSound = () => {
+    setSoundEnabled((prev) => !prev);
+  };
+
+  const playSound = (sound) => {
+    if (soundEnabled) {
+      sound.play();
+    }
+  };
+
+  const stopSound = (sound) => {
+    if (soundEnabled) {
+      sound.stop();
+    }
+  };
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -124,22 +147,38 @@ useEffect(() => {
     setPaused(loadingQuestion);
   }, [loadingQuestion]);
 
+  // Reproducir sonido de tic-tac cuando queden pocos segundos
+  useEffect(() => {
+    if (timerEndTime - Date.now() <= 3000 && !paused && !answered) {
+      playSound(tickingSound);
+    } else {
+      stopSound(tickingSound);
+    }
+  }, [timerEndTime, paused, answered]);
+
   const handleAnswer = async (answer) => {
     if (!answer || loadingQuestion) return;
-
+  
     const isCorrect = answer === questionData.answer;
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
-
+  
     setFeedback({
       ...feedback,
       [answer]: isCorrect ? "✅" : "❌"
     });
-
+  
     setAnswered(true);
     setPaused(true);
-
+  
+    // Reproducir sonido según la respuesta
+    if (isCorrect) {
+      playSound(correctSound);
+    } else {
+      playSound(wrongSound);
+    }
+  
     setTimerEndTime(Date.now() + settings.answerTime * 1000); // Reiniciar el temporizador
-
+  
     if (username) {
       try {
         await axios.post(`${apiEndpoint}/updateStats`, {
@@ -151,11 +190,11 @@ useEffect(() => {
         console.error("Error al actualizar estadísticas:", error);
       }
     }
-
+  
     setTimeout(() => {
       setPaused(false);
       setQuestionCounter((prev) => prev + 1); // Incrementar el contador de preguntas
-
+  
       if (questionCounter + 1 >= settings.questionAmount) {
         setSnackbarOpen(true); // Mostrar Snackbar
         setTimeout(() => navigate("/startmenu"), 3000); // Redirigir al menú principal después de 3 segundos
@@ -164,6 +203,7 @@ useEffect(() => {
       }
     }, 1000);
   };
+  
 
   const renderer = ({ seconds, completed }) => {
     if (paused) {
@@ -360,6 +400,31 @@ useEffect(() => {
             </Grid>
           </Grid>
         </Container>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            left: 16,
+            zIndex: 10,
+          }}
+        >
+          <Button
+            variant="contained"
+            color={soundEnabled ? "success" : "error"}
+            onClick={toggleSound}
+            sx={{
+              textTransform: "none",
+              fontWeight: "bold",
+              backgroundColor: soundEnabled ? "#4caf50" : "#f44336",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: soundEnabled ? "#388e3c" : "#d32f2f",
+              },
+            }}
+          >
+            {soundEnabled ? "🔊 Sonido Activado" : "🔇 Sonido Desactivado"}
+          </Button>
+        </Box>
       </Box>
       <Snackbar
         open={snackbarOpen}
