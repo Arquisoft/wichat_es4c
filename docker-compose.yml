@@ -57,6 +57,8 @@ services:
       - "8004:8004"
     networks:
       - mynetwork
+    environment:
+      MONGODB_URI : mongodb://mongodb:27017/questiondb
     
 
   gatewayservice:
