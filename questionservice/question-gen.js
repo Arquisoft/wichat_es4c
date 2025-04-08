@@ -5,6 +5,11 @@ const {
     fetchFoodQuestion 
 } = require('./wikidata-client');
 
+const Question = require('./question-model');
+const connectToDatabase = require('./connection');
+
+connectToDatabase();
+
 const questionTypes = {
     capital: { fetchData: fetchCapitalQuestion, generate: generateCapitalQuestion },
     flag: { fetchData: fetchFlagQuestion, generate: generateFlagQuestion },
@@ -12,30 +17,26 @@ const questionTypes = {
     food: { fetchData: fetchFoodQuestion, generate: generateFoodQuestion }
 };
 
-const usedImages = new Set();
+
+async function getQuestionFromDatabase() {
+  const count = await Question.countDocuments();
+  if (count === 0) {
+    throw new Error('No hay preguntas disponibles en la base de datos');
+  }
+
+  const randomIndex = Math.floor(Math.random() * count);
+  const question = await Question.findOne().skip(randomIndex);
+  return question;
+}
 
 async function generateQuestion() {
-    const keys = Object.keys(questionTypes);
-    let attempts = 0;
-
-    while (attempts < 3) {
-        const randomKey = keys[Math.floor(Math.random() * keys.length)];
-        const question = await questionTypes[randomKey].generate();
-
-        // Verificar si la imagen ya fue utilizada
-        if (question.image && usedImages.has(question.image)) {
-            attempts++;
-            continue; // Intentar generar otra pregunta
-        }
-
-        if (question.image) {
-            usedImages.add(question.image);
-        }
-
-        return question;
-    }
-
-    throw new Error("No se pudo generar una pregunta única después de varios intentos");
+  try {
+    const question = await getQuestionFromDatabase();
+    return question;
+  } catch (error) {
+    console.error('Error al obtener la pregunta:', error);
+    throw new Error('No se pudo obtener una pregunta de la base de datos');
+  }
 }
 
 async function generateGeneralQuestion(type, dataKey, questionTemplate, imageKey = null) {
@@ -119,5 +120,53 @@ async function generateFoodQuestion() {
         'image'
     );
 }
+
+async function populateDatabase() {
+  try {
+    console.log('Conectando a la base de datos...');
+    await connectToDatabase();
+
+    console.log('Eliminando preguntas existentes...');
+    await Question.deleteMany();
+
+    const questionGenerators = [
+      generateCapitalQuestion,
+      generateFlagQuestion,
+      generateMonumentQuestion,
+      generateFoodQuestion,
+    ];
+
+    const uniqueQuestions = new Set();
+
+    for (const generateQuestion of questionGenerators) {
+      let uniqueCount = 0;
+
+      while (uniqueCount < 30) { 
+        try {
+          const question = await generateQuestion();
+
+          const questionKey = `${question.type}-${question.question}-${question.answer}`;
+
+          if (!uniqueQuestions.has(questionKey)) {
+            uniqueQuestions.add(questionKey); 
+            await Question.create(question); 
+            uniqueCount++; 
+            console.log(`Pregunta guardada: ${question.question}`);
+          } else {
+            console.log(`Pregunta duplicada ignorada: ${question.question}`);
+          }
+        } catch (error) {
+          console.error('Error al generar o guardar la pregunta:', error.message);
+        }
+      }
+    }
+
+    console.log('Base de datos rellenada con 30 preguntas únicas por tipo.');
+  } catch (error) {
+    console.error('Error al poblar la base de datos:', error.message);
+  }
+}
+
+populateDatabase();
 
 module.exports = { generateQuestion };

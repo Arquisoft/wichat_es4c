@@ -156,6 +156,55 @@ app.post('/incrementGamesPlayed', async (req, res) => {
     }
 });
 
+app.post('/saveSettings/:username', async (req, res) => {
+  try {
+    const username = req.params.username; // Corrige cómo se obtiene el username
+    const settings = req.body; // Obtén los ajustes desde req.body
+
+    if (!username) {
+      return res.status(400).json({ error: "El nombre de usuario es obligatorios" });
+    }
+
+    if (!settings) {
+      return res.status(400).json({ error: "Los ajustes son obligatorios" });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Actualizar los ajustes del usuario
+    user.settings = settings;
+    await user.save();
+    res.json({ message: "Ajustes guardados", settings });
+  } catch (error) {
+    console.error("Error al guardar los ajustes:", error);
+    res.status(500).json({ error: "Error al guardar los ajustes" });
+  }
+});
+
+app.get('/getSettings/:username', async (req, res) => {
+  try {
+    const username = req.params.username;
+
+    if (!username) {
+      return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Devolver los ajustes del usuario
+    res.json(user.settings);
+  } catch (error) {
+    console.error("Error al obtener los ajustes:", error);
+    res.status(500).json({ error: "Error al obtener los ajustes" });
+  }
+});
+
 // **Obtener el ranking de usuarios**
 app.get('/ranking', async (req, res) => {
     try {
