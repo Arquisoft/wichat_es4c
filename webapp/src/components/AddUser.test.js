@@ -3,6 +3,7 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import AddUser from './AddUser';
+import { BrowserRouter } from 'react-router-dom'; // Importa BrowserRouter
 
 const mockAxios = new MockAdapter(axios);
 
@@ -11,8 +12,16 @@ describe('AddUser component', () => {
     mockAxios.reset();
   });
 
+  const renderWithRouter = (component) => {
+    return render(
+      <BrowserRouter>
+        {component}
+      </BrowserRouter>
+    );
+  };
+
   it('should add user successfully', async () => {
-    render(<AddUser />);
+    renderWithRouter(<AddUser />); // Usa renderWithRouter
 
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
@@ -32,10 +41,14 @@ describe('AddUser component', () => {
     await waitFor(() => {
       expect(screen.getByText(/User added successfully/i)).toBeInTheDocument();
     });
+
+    // Puedes añadir una espera para la redirección si es necesario,
+    // pero como estás mockeando navigate, no se producirá una redirección real.
+    // Si quieres probar la redirección, necesitarías un mock más complejo de navigate.
   });
 
   it('should handle error when adding user', async () => {
-    render(<AddUser />);
+    renderWithRouter(<AddUser />); // Usa renderWithRouter
 
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
