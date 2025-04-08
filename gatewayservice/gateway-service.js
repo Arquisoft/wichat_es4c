@@ -76,6 +76,30 @@ app.get('/ranking', async (req, res) => {
   }
 });
 
+// Obtener lista de amigos
+app.post('/friends', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/friends`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al obtener la lista de amigos"
+    });
+  }
+});
+
+// Añadir un amigo
+app.post('/addFriend', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/addFriend`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al añadir amigo"
+    });
+  }
+});
+
 // Actualizar estadísticas del usuario
 app.post('/updateStats', async (req, res) => {
   try {
