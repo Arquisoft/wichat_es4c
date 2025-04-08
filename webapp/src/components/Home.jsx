@@ -52,6 +52,7 @@ const Home = () => {
             sx={{ mb: 2, bgcolor: '#ff4081', '&:hover': { bgcolor: '#f50057' } }}
             component={Link}
             to="/login"
+            data-testid="login-button"
           >
             Login
           </Button>
@@ -61,6 +62,7 @@ const Home = () => {
             sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: '#ff4081', color: '#ff4081' } }}
             component={Link}
             to="/register"
+            data-testid="register-button"
           >
             Register
           </Button>
