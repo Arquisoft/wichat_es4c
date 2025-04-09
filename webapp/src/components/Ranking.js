@@ -116,7 +116,10 @@ const Ranking = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Typography variant="h6" sx={{mb: 2, color: "#ff4081" }}>Haga click en un jugador para ver su perfil.</Typography>
+          <Typography variant="body2" sx={{ mb: 2, color: "#ffb3d1", textAlign: "center" }}>
+            Haga click en un jugador para ver su perfil.
+          </Typography>
+
           <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
             <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", '&:hover': { bgcolor: ' #f50057' } }}>
               Volver al menú

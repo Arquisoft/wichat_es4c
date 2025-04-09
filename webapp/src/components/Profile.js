@@ -146,9 +146,19 @@ const Profile = () => {
                 </Typography>
               ) : (
                 friends.map((friend, index) => (
-                  <ListItem key={index}>
-                    <ListItemText primary={friend} primaryTypographyProps={{ color: "white" }} />
+                  <ListItem 
+                    key={index} 
+                    button 
+                    onClick={() => navigate(`/profile/${friend}`)} 
+                    sx={{ 
+                      '&:hover': { backgroundColor: "#ffffff22" }, 
+                      borderRadius: 1, 
+                      cursor: "pointer" 
+                    }}
+                  >
+                    <ListItemText primary={friend} primaryTypographyProps={{ color: "white", fontWeight: "bold" }} />
                   </ListItem>
+
                 ))
               )}
             </List>
@@ -194,13 +204,23 @@ const Profile = () => {
                 <Button type="submit" size="small" fullWidth variant="contained" sx={{
                   backgroundColor: "#00bcd4", fontWeight: "bold", "&:hover": { backgroundColor: "#0097a7" }
                 }}>
-                  A\u00f1adir amigo
+                  Añadir amigo
                 </Button>
               </Box>
             </Box>
           </Box>
         </Drawer>
       )}
+  <Box
+  sx={{
+    flexGrow: 1,
+    display: "flex",
+    justifyContent: "center",
+    transition: "margin 0.3s ease",
+    marginRight: username === localUsername ? "240px" : 0, // Ajusta si Drawer está abierto
+  }}
+>
+  
 
       <Card
         sx={{
@@ -309,7 +329,7 @@ const Profile = () => {
               onClick={() => navigate("/startmenu")}
               sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", "&:hover": { bgcolor: "#f50057" } }}
             >
-              Volver al men\u00fa
+              Volver al menú
             </Button>
             <Button
               variant="contained"
@@ -321,6 +341,7 @@ const Profile = () => {
           </Box>
         </CardContent>
       </Card>
+    </Box>
 
       <Snackbar open={openSnackbar} autoHideDuration={6000} message={`Error: ${error}`} onClose={() => setOpenSnackbar(false)} />
     </Box>
