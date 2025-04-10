@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Typography, TextField, Button, Snackbar, Box, styled, InputAdornment} from '@mui/material';
+import { Container, Typography, TextField, Button, Snackbar, Box, styled, InputAdornment } from '@mui/material';
 import Globe from 'react-globe.gl';
-import { Typewriter } from "react-simple-typewriter";
 import { useSpring, animated } from 'react-spring';
 import { FaUser, FaLock } from 'react-icons/fa';
 
@@ -55,7 +54,6 @@ const Login = ({ onLoginSuccess }) => {
   const [arcsData, setArcsData] = useState([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [createdAt, setCreatedAt] = useState('');
@@ -63,7 +61,6 @@ const Login = ({ onLoginSuccess }) => {
 
   const navigate = useNavigate();
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:8000';
-  const apiKey = process.env.REACT_APP_LLM_API_KEY || 'None';
 
   const formAnimation = useSpring({
     from: { opacity: 0, transform: 'translateY(-50px)' },
@@ -117,20 +114,6 @@ const Login = ({ onLoginSuccess }) => {
   const loginUser = async () => {
     try {
       const response = await axios.post(`${apiEndpoint}/login`, { username, password });
-      const question = `Please, generate a greeting message for a student called ${username} that is a student of the Software Architecture course in the University of Oviedo. Be nice and polite.`;
-      const model = "empathy";
-      let greetingMessage = "Welcome!";
-      if (apiKey !== 'None') {
-        try {
-          const messageResponse = await axios.post(`${apiEndpoint}/askllm`, { question, model, apiKey });
-          greetingMessage = messageResponse.data?.answer || "Default greeting message.";
-        } catch (error) {
-          greetingMessage = "Failed to fetch greeting message.";
-        }
-      } else {
-        greetingMessage = "LLM API key is not set. Cannot contact the LLM.";
-      }
-      setMessage(greetingMessage);
       setCreatedAt(response.data?.createdAt || '');
       setLoginSuccess(true);
       setOpenSnackbar(true);
@@ -151,9 +134,7 @@ const Login = ({ onLoginSuccess }) => {
           errMsg = data.error || data.message || JSON.stringify(data);
         }
       }
-
       setError(errMsg);
-
     }
   };
 
@@ -205,7 +186,6 @@ const Login = ({ onLoginSuccess }) => {
         <AnimatedPaper style={formAnimation}>
           {loginSuccess ? (
             <div>
-              <Typewriter words={[message]} cursor cursorStyle="|" typeSpeed={50} />
               <Typography variant="body1" sx={{ textAlign: 'center', marginTop: 2, color: 'white' }}>
                 Your account was created on {new Date(createdAt).toLocaleDateString()}.
               </Typography>

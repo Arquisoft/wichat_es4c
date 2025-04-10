@@ -56,6 +56,8 @@ const AddUser = () => {
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const navigate = useNavigate();
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:8000';
@@ -109,15 +111,35 @@ const AddUser = () => {
     }
   }, []);
 
+  const validateInput = () => {
+    let isValid = true;
+    setUsernameError('');
+    setPasswordError('');
+
+    if (username.length < 3) {
+      setUsernameError('Username must be at least 3 characters long');
+      isValid = false;
+    }
+
+    if (password.length < 3) {
+      setPasswordError('Password must be at least 3 characters long');
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
   const addUser = async () => {
-    try {
-      await axios.post(`${apiEndpoint}/adduser`, { username, password });
-      setMessage(`User ${username} created successfully!`);
-      setRegisterSuccess(true);
-      setOpenSnackbar(true);
-      setTimeout(() => navigate('/login'), 3000);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Error creating user');
+    if (validateInput()) {
+      try {
+        await axios.post(`${apiEndpoint}/adduser`, { username, password });
+        setMessage(`User ${username} created successfully!`);
+        setRegisterSuccess(true);
+        setOpenSnackbar(true);
+        setTimeout(() => navigate('/login'), 3000);
+      } catch (err) {
+        setError(err.response?.data?.error || 'Error creating user');
+      }
     }
   };
 
@@ -184,6 +206,8 @@ const AddUser = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyDown={handleKeyPress}
+                error={!!usernameError}
+                helperText={usernameError}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -199,6 +223,8 @@ const AddUser = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyPress}
+                error={!!passwordError}
+                helperText={passwordError}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
