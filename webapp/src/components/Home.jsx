@@ -114,7 +114,7 @@ const Home = () => {
           arcDashLength={0.4}          // Longitud del segmento del trazo
           arcDashGap={0.1}             // Espacio entre segmentos
           arcDashAnimateTime={ARC_ANIMATION_SPEED} // Tiempo de animación del trazo
-          arcStroke={ARC_STROKE}       // Grosor del arco
+          arcStroke={() => ARC_STROKE}       // Grosor del arco
           // --------------------------
         />
       </Box>

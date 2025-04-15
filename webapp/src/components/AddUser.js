@@ -182,7 +182,7 @@ const AddUser = () => {
           arcDashLength={0.3}
           arcDashGap={0.15}
           arcDashAnimateTime={ARC_ANIMATION_SPEED}
-          arcStroke={ARC_STROKE}
+          arcStroke={() => ARC_STROKE}
         />
       </Box>
 
