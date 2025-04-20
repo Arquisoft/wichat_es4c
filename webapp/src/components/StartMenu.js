@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Card, CardContent, Typography, Menu, MenuItem } from "@mui/material";
+import "../assets/css/StartMenu.css";
+import WIChatLogo from "../assets/images/WIChat.png";
+
 
 const StartMenu = () => {
   const [username, setUsername] = useState(null);
   const navigate = useNavigate();
-
   const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
@@ -14,10 +16,9 @@ const StartMenu = () => {
       setUsername(storedUsername);
     }
   }, []);
-  
 
   const handleOpenAccount = (event) => {
-    setAnchorEl(event.currentTarget); // Guarda la referencia del botón
+    setAnchorEl(event.currentTarget);
   };
   const handleClose = () => setAnchorEl(null);
   const handleStartGame = () => navigate("/game");
@@ -29,41 +30,16 @@ const StartMenu = () => {
       alert("No se ha iniciado sesión.");
     }
   };
-  const handleOpenSettings = () => navigate(`/settings/${username}`);	
+  const handleOpenSettings = () => navigate(`/settings/${username}`);
   const handleLogout = () => {
-    localStorage.removeItem("username"); // Clear username from local storage
-    setUsername(null); // Reset username state
-    navigate("/"); // Redirect to the start menu or login page
+    localStorage.removeItem("username");
+    setUsername(null);
+    navigate("/");
   };
 
   return (
-    <Box
-      sx={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-        background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)',
-        backgroundSize: '400% 400%',
-        animation: 'gradientWave 10s infinite normal forwards',
-        '@keyframes gradientWave': {
-          '0%': {
-            backgroundPosition: '0% 50%',
-          },
-          '50%': {
-            backgroundPosition: '100% 50%',
-          },
-          '100%': {
-            backgroundPosition: '0% 50%',
-          }
-      },
-        color: " #ffffff",
-        textAlign: "center",
-      }}
-    >
+    <Box className="start-menu-container">
+      {/* Contenido del menú */}
       <Box sx={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 2 }}>
         <Button
           variant="contained"
@@ -73,7 +49,7 @@ const StartMenu = () => {
             color: "#fff",
             fontWeight: "bold",
             boxShadow: 3,
-            '&:hover': { bgcolor: '#f50057' },
+            "&:hover": { bgcolor: "#f50057" },
           }}
         >
           Ranking
@@ -82,18 +58,18 @@ const StartMenu = () => {
           variant="contained"
           onClick={handleOpenAccount}
           sx={{
-            backgroundColor: " #ff4081",
+            backgroundColor: "#ff4081",
             color: "#fff",
             fontWeight: "bold",
             boxShadow: 3,
-            '&:hover': { bgcolor: ' #f50057' },
+            "&:hover": { bgcolor: "#f50057" },
           }}
         >
           Cuenta
         </Button>
-        <Menu 
-          anchorEl={anchorEl} 
-          open={Boolean(anchorEl)} 
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
           onClose={handleClose}
           sx={{
             "& .MuiMenu-paper": {
@@ -101,59 +77,63 @@ const StartMenu = () => {
               backdropFilter: "blur(10px)",
               boxShadow: 5,
             },
-          }}>
-          <MenuItem 
+          }}
+        >
+          <MenuItem
             onClick={handleOpenProfile}
             sx={{
-              backgroundColor: ' #6a11cb',
-              color: '#fff',
-              "&:hover": { backgroundColor: "#fff", color: " #6a11cb" }
+              backgroundColor: "#6a11cb",
+              color: "#fff",
+              "&:hover": { backgroundColor: "#fff", color: "#6a11cb" },
             }}
-            >Perfil
+          >
+            Perfil
           </MenuItem>
-          <MenuItem 
+          <MenuItem
             onClick={handleOpenSettings}
             sx={{
-              backgroundColor: ' #6a11cb',
-              color: '#fff',
-              "&:hover": { backgroundColor: "#fff", color: " #6a11cb" }
+              backgroundColor: "#6a11cb",
+              color: "#fff",
+              "&:hover": { backgroundColor: "#fff", color: "#6a11cb" },
             }}
-            >Ajustes
+          >
+            Ajustes
           </MenuItem>
-          <MenuItem 
+          <MenuItem
             onClick={() => {
               handleLogout();
               handleClose();
             }}
             sx={{
-              backgroundColor: ' #6a11cb',
-              color: '#fff',
-              "&:hover": { backgroundColor: "#fff", color: " #6a11cb" }
+              backgroundColor: "#6a11cb",
+              color: "#fff",
+              "&:hover": { backgroundColor: "#fff", color: "#6a11cb" },
             }}
-            >Cerrar Sesion
+          >
+            Cerrar Sesión
           </MenuItem>
-      </Menu>
+        </Menu>
       </Box>
 
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
         <Box
           component="img"
-          src="https://cdn.pixabay.com/photo/2020/09/23/07/53/quiz-5595288_1280.jpg"
+          src={WIChatLogo}
           alt="Imagen"
           sx={{
             maxWidth: 500,
+            maxHeight: 360,
             height: "auto",
             borderRadius: 3,
             boxShadow: 5,
           }}
         />
-
         <Card
           sx={{
             maxWidth: 500,
             height: "auto",
             p: 3,
-            background: " #6a11cb",
+            background: "#071330",
             backdropFilter: "blur(10px)",
             borderRadius: 3,
             boxShadow: 5,
@@ -164,7 +144,7 @@ const StartMenu = () => {
             <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#ff4081" }}>
               ¿Cómo jugar?
             </Typography>
-            <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light" , color: "#ffffff" }}>
+            <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light", color: "#ffffff" }}>
               Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 5 posibles
               respuestas. Cada pregunta debe ser respondida en un tiempo determinado. Se ofrece la posibilidad de obtener
               pistas mediante un chatbot.
@@ -181,7 +161,7 @@ const StartMenu = () => {
               width: "100%",
               boxShadow: 3,
               fontWeight: "bold",
-              '&:hover': { bgcolor: '#f50057' },
+              "&:hover": { bgcolor: "#f50057" },
             }}
             onClick={handleStartGame}
             data-testid="play-button"

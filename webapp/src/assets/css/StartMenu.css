@@ -1,0 +1,33 @@
+/* Fondo para el componente StartMenu */
+.start-menu-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: transparent url('../images/world-bg.png');
+    background-size: cover;
+    background-repeat: repeat; /* Para que el mapa pueda desplazarse de forma continua */
+    background-position: 0 0; /* Posición inicial del fondo */
+    animation: zoomMap 20s ease-in-out infinite; /* Animación de zoom */
+    color: #ffffff;
+    text-align: center;
+  }
+
+  @keyframes zoomMap {
+    0% {
+      background-size: 100%; /* Tamaño original */
+    }
+    50% {
+      background-size: 110%; /* Zoom hacia adentro */
+    }
+    100% {
+      background-size: 100%; /* Regresa al tamaño original */
+    }
+  }
+
+  
+
+  
