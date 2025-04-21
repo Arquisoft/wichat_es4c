@@ -128,24 +128,43 @@ const StartMenu = () => {
             boxShadow: 5,
           }}
         />
-        <Card
-          className="start-card"
-          sx={{
-            maxWidth: 500,
-            height: "auto",
-            p: 3,
-            background: "#0C2D48",
-            backdropFilter: "blur(10px)",
-            borderRadius: 5,
-            boxShadow: 5,
-            textAlign: "left",
-          }}
+          <Card
+            className="start-card"
+            sx={{
+              margin: "0 auto",
+              padding: "20px",
+              width: 500,
+              background: "#0C2D48",
+              textAlign: "center",
+              borderRadius: "10px",
+              position: "relative",
+              zIndex: 1,
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                inset: 0,
+                border: "4px solid transparent",
+                borderRadius: "10px",
+                background: "linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet, red)", 
+                backgroundSize: "400% 400%",
+                zIndex: -1,
+                animation: "animatedBorder 8s linear infinite alternate",
+                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                maskComposite: "exclude",
+                WebkitMaskComposite: "destination-out",
+                padding: "4px",
+              },
+              "@keyframes animatedBorder": {
+                "0%": { backgroundPosition: "0% 50%" },
+                "100%": { backgroundPosition: "100% 50%" },
+              },
+            }}
         >
           <CardContent>
             <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#FF6584" }}>
               ¿Cómo jugar?
             </Typography>
-            <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light", color: "#ffffff" }}>
+            <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light", color: "#FED43F" }}>
               Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 5 posibles
               respuestas. Cada pregunta debe ser respondida en un tiempo determinado. Se ofrece la posibilidad de obtener
               pistas mediante un chatbot.
