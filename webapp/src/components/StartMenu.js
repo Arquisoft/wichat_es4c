@@ -45,7 +45,7 @@ const StartMenu = () => {
           variant="contained"
           onClick={handleOpenRanking}
           sx={{
-            backgroundColor: "#ff4081",
+            backgroundColor: "#FF6584",
             color: "#fff",
             fontWeight: "bold",
             boxShadow: 3,
@@ -58,7 +58,7 @@ const StartMenu = () => {
           variant="contained"
           onClick={handleOpenAccount}
           sx={{
-            backgroundColor: "#ff4081",
+            backgroundColor: "#FF6584",
             color: "#fff",
             fontWeight: "bold",
             boxShadow: 3,
@@ -129,19 +129,20 @@ const StartMenu = () => {
           }}
         />
         <Card
+          className="start-card"
           sx={{
             maxWidth: 500,
             height: "auto",
             p: 3,
-            background: "#071330",
+            background: "#0C2D48",
             backdropFilter: "blur(10px)",
-            borderRadius: 3,
+            borderRadius: 5,
             boxShadow: 5,
             textAlign: "left",
           }}
         >
           <CardContent>
-            <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#ff4081" }}>
+            <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#FF6584" }}>
               ¿Cómo jugar?
             </Typography>
             <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light", color: "#ffffff" }}>
@@ -154,7 +155,7 @@ const StartMenu = () => {
             variant="contained"
             sx={{
               mt: 2,
-              backgroundColor: "#ff4081",
+              backgroundColor: "#FF6584",
               color: "#fff",
               fontSize: "1.2rem",
               padding: "12px 24px",

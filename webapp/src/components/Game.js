@@ -10,7 +10,7 @@ import LLMChat from "./LLMChat";
 import { Howl } from 'howler';
 import correctSoundFile from '../assets/sounds/correct.mp3';
 import wrongSoundFile from '../assets/sounds/wrong.mp3';
-import tickingSoundFile from '../assets/sounds/ticking.mp3';
+import mapBg from '../assets/images/world-bg.png';
 
 const Game = () => {
   const navigate = useNavigate();
@@ -34,7 +34,6 @@ const Game = () => {
   const [soundEnabled, setSoundEnabled] = useState(true); 
   const correctSound = new Howl({ src: [correctSoundFile] });
   const wrongSound = new Howl({ src: [wrongSoundFile] });
-  const tickingSound = new Howl({ src: [tickingSoundFile], loop: true });
 
   const toggleSound = () => {
     setSoundEnabled((prev) => !prev);
@@ -46,11 +45,6 @@ const Game = () => {
     }
   };
 
-  const stopSound = (sound) => {
-    if (soundEnabled) {
-      sound.stop();
-    }
-  };
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -147,17 +141,10 @@ useEffect(() => {
     setPaused(loadingQuestion);
   }, [loadingQuestion]);
 
-  // Reproducir sonido de tic-tac cuando queden pocos segundos
-  useEffect(() => {
-    if (timerEndTime - Date.now() <= 3000 && !paused && !answered) {
-      playSound(tickingSound);
-    } else {
-      stopSound(tickingSound);
-    }
-  }, [timerEndTime, paused, answered]);
 
   const handleAnswer = async (answer) => {
     if (!answer || loadingQuestion) return;
+
   
     const isCorrect = answer === questionData.answer;
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
@@ -265,15 +252,9 @@ useEffect(() => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)',
-          backgroundSize: '400% 400%',
-          animation: 'gradientWave 10s infinite normal forwards',
-          '@keyframes gradientWave': {
-            '0%': { backgroundPosition: '0% 50%' },
-            '50%': { backgroundPosition: '100% 50%' },
-            '100%': { backgroundPosition: '0% 50%' },
-          },
-          color: "#ffffff",
+          background: `url(${mapBg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -283,7 +264,7 @@ useEffect(() => {
                 sx={{
                   p: 3,
                   borderRadius: 3,
-                  backgroundColor: "rgb(110, 35, 189)",
+                  backgroundColor: "#0C2D48",
                   backdropFilter: "blur(10px)",
                   boxShadow: 5,
                   color: "#fff",
@@ -302,7 +283,7 @@ useEffect(() => {
                                   questionData.type === 'capital' ? 'Capital' :
                                     `Imagen de ${questionData.question}`
                           }
-                          style={{ width: "100%", maxWidth: "450px", borderRadius: "8px" }}
+                          style={{ width: "100%", maxWidth: "450px", maxHeight: "300px" ,borderRadius: "8px" }}
                         />
                       </Box>
                     )}
@@ -319,10 +300,10 @@ useEffect(() => {
                           sx={{
                             textTransform: "none",
                             fontWeight: "bold",
-                            backgroundColor: "#ff4081", // Set background color
-                            color: "#fff", // Set text color
+                            backgroundColor: "#FF6584", 
+                            color: "#fff", 
                             "&:hover": {
-                              backgroundColor: "#e91e63", // Slightly darker shade for hover
+                              backgroundColor: "#e91e63",
                             },
                           }}
                         >
@@ -365,7 +346,7 @@ useEffect(() => {
                 sx={{
                   p: 3,
                   borderRadius: 3,
-                  backgroundColor: "#6a11cb",
+                  backgroundColor: "#0C2D48",
                   backdropFilter: "blur(10px)",
                   boxShadow: 5,
                   textAlign: "center",
