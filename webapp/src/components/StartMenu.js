@@ -40,7 +40,7 @@ const StartMenu = () => {
   return (
     <Box className="start-menu-container">
       {/* Contenido del menú */}
-      <Box sx={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 2 }}>
+      <Box sx={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 6 }}>
         <Button
           variant="contained"
           onClick={handleOpenRanking}
@@ -49,6 +49,8 @@ const StartMenu = () => {
             color: "#fff",
             fontWeight: "bold",
             boxShadow: 3,
+            scale: 1.25,
+            fontFamily: "Orbitron, sans-serif",
             "&:hover": { bgcolor: "#f50057" },
           }}
         >
@@ -62,6 +64,8 @@ const StartMenu = () => {
             color: "#fff",
             fontWeight: "bold",
             boxShadow: 3,
+            scale: 1.25,
+            fontFamily: "Orbitron, sans-serif",
             "&:hover": { bgcolor: "#f50057" },
           }}
         >
@@ -84,6 +88,7 @@ const StartMenu = () => {
             sx={{
               backgroundColor: "#6a11cb",
               color: "#fff",
+              fontFamily: "Orbitron, sans-serif",
               "&:hover": { backgroundColor: "#fff", color: "#6a11cb" },
             }}
           >
@@ -94,6 +99,7 @@ const StartMenu = () => {
             sx={{
               backgroundColor: "#6a11cb",
               color: "#fff",
+              fontFamily: "Orbitron, sans-serif",
               "&:hover": { backgroundColor: "#fff", color: "#6a11cb" },
             }}
           >
@@ -107,6 +113,7 @@ const StartMenu = () => {
             sx={{
               backgroundColor: "#6a11cb",
               color: "#fff",
+              fontFamily: "Orbitron, sans-serif",
               "&:hover": { backgroundColor: "#fff", color: "#6a11cb" },
             }}
           >
@@ -121,51 +128,56 @@ const StartMenu = () => {
           src={WIChatLogo}
           alt="Imagen"
           sx={{
-            maxWidth: 500,
-            maxHeight: 360,
+            maxWidth: 700,
+            maxHeight: 500,
             height: "auto",
             borderRadius: 3,
             boxShadow: 5,
           }}
         />
-          <Card
-            className="start-card"
-            sx={{
-              margin: "0 auto",
-              padding: "20px",
-              width: 500,
-              background: "#0C2D48",
-              textAlign: "center",
+        <Card
+          className="start-card"
+          sx={{
+            margin: "0 auto",
+            padding: "24px 24px 20px", 
+            width: 540,
+            minHeight: 500, 
+            background: "#0C2D48",
+            textAlign: "center",
+            borderRadius: "10px",
+            position: "relative",
+            zIndex: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between", 
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              inset: 0,
+              border: "4px solid transparent",
               borderRadius: "10px",
-              position: "relative",
-              zIndex: 1,
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                inset: 0,
-                border: "4px solid transparent",
-                borderRadius: "10px",
-                background: "linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet, red)", 
-                backgroundSize: "400% 400%",
-                zIndex: -1,
-                animation: "animatedBorder 8s linear infinite alternate",
-                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                maskComposite: "exclude",
-                WebkitMaskComposite: "destination-out",
-                padding: "4px",
-              },
-              "@keyframes animatedBorder": {
-                "0%": { backgroundPosition: "0% 50%" },
-                "100%": { backgroundPosition: "100% 50%" },
-              },
-            }}
+              background: "linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet, red)",
+              backgroundSize: "400% 400%",
+              zIndex: -1,
+              animation: "animatedBorder 8s linear infinite alternate",
+              mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              maskComposite: "exclude",
+              WebkitMaskComposite: "destination-out",
+              padding: "4px",
+            },
+            "@keyframes animatedBorder": {
+              "0%": { backgroundPosition: "0% 50%" },
+              "100%": { backgroundPosition: "100% 50%" },
+            },
+          }}
         >
+
           <CardContent>
-            <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#FF6584" }}>
-              ¿Cómo jugar?
+            <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#FF6584", fontFamily: "Orbitron, sans-serif" }}>
+              ¿CÓMO JUGAR?
             </Typography>
-            <Typography variant="body1" sx={{ fontSize: "18px", fontWeight: "light", color: "#FED43F" }}>
-              Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 5 posibles
+            <Typography variant="body1" sx={{ fontSize: "20px", fontWeight: "bold", color: "#FED43F", fontFamily: "Orbitron, sans-serif", marginTop: 8 }}>
+              Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 4 posibles
               respuestas. Cada pregunta debe ser respondida en un tiempo determinado. Se ofrece la posibilidad de obtener
               pistas mediante un chatbot.
             </Typography>
@@ -182,6 +194,7 @@ const StartMenu = () => {
               boxShadow: 3,
               fontWeight: "bold",
               "&:hover": { bgcolor: "#f50057" },
+              fontFamily: "Orbitron, sans-serif"
             }}
             onClick={handleStartGame}
             data-testid="play-button"

@@ -234,7 +234,7 @@ useEffect(() => {
                 alignItems="center"
                 justifyContent="center"
             >
-                <Typography variant="h6" color="#fff">
+                <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>
                     {seconds}s
                 </Typography>
             </Box>
@@ -283,11 +283,17 @@ useEffect(() => {
                                   questionData.type === 'capital' ? 'Capital' :
                                     `Imagen de ${questionData.question}`
                           }
-                          style={{ width: "100%", maxWidth: "450px", maxHeight: "300px" ,borderRadius: "8px" }}
+                          style={{ width: "100%", maxWidth: "450px", maxHeight: "300px" ,borderRadius: "8px", fontFamily: "Orbitron, sans-serif" }}
                         />
                       </Box>
                     )}
-                    <Typography variant="h6" gutterBottom>{questionData.question}</Typography>
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom 
+                      sx={{ fontFamily: "Orbitron, sans-serif" }}
+                    >
+                      {questionData.question}
+                    </Typography>
                     <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
                     {questionData.choices.map((option, index) => (
                       <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
@@ -302,6 +308,7 @@ useEffect(() => {
                             fontWeight: "bold",
                             backgroundColor: "#FF6584", 
                             color: "#fff", 
+                            fontFamily: "Orbitron, sans-serif",
                             "&:hover": {
                               backgroundColor: "#e91e63",
                             },
@@ -326,7 +333,7 @@ useEffect(() => {
                     {answered && selectedAnswer !== questionData.answer && (
                       <Typography
                         variant="h6"
-                        sx={{ mt: 2, color: "#fff", textAlign: "center" }}
+                        sx={{ mt: 2, color: "#fff", textAlign: "center", fontFamily: "Orbitron, sans-serif", }}
                       >
                         La respuesta correcta era: {questionData.answer} ✅
                       </Typography>
@@ -350,10 +357,13 @@ useEffect(() => {
                   backdropFilter: "blur(10px)",
                   boxShadow: 5,
                   textAlign: "center",
+                  alignSelf: "center",
+                  width: "50%",
                 }}
               >
-                <Typography variant="h5" gutterBottom color="#fff">Tiempo restante:</Typography>
+                <Typography variant="h5" gutterBottom color="#fff" sx={{fontFamily: "Orbitron, sans-serif",}}>Tiempo restante:</Typography>
                 <Countdown
+                sx={{ fontFamily: "Orbitron, sans-serif"}}
                   date={timerEndTime}
                   renderer={renderer}
                   autoStart={!paused}
@@ -396,6 +406,7 @@ useEffect(() => {
             sx={{
               textTransform: "none",
               fontWeight: "bold",
+              fontFamily: "Orbitron, sans-serif",
               backgroundColor: soundEnabled ? "#4caf50" : "#f44336",
               color: "#fff",
               "&:hover": {
@@ -413,7 +424,7 @@ useEffect(() => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleSnackbarClose} severity="info" sx={{ width: '100%' }}>
+        <Alert onClose={handleSnackbarClose} severity="info" sx={{ width: '100%', fontFamily: "Orbitron, sans-serif", }}>
           {answered ? "¡Fin del juego! Volviendo al menú principal..." : "⏳ Tiempo agotado. Volviendo al menú principal..."}
         </Alert>
       </Snackbar>
