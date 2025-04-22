@@ -44,7 +44,7 @@ const Profile = () => {
         setUser(response.data);
         setUserId(response.data._id);
       } catch (error) {
-        setError(error.response?.data?.error || "No se pudo obtener la informaci\u00f3n del perfil");
+        setError(error.response?.data?.error || "No se pudo obtener la informacion del perfil");
         setOpenSnackbar(true);
       } finally {
         setLoading(false);
@@ -136,7 +136,7 @@ const Profile = () => {
           }}
         >
           <Box sx={{ p: 2 }}>
-            <Typography variant="h6" sx={{ color: "#fff", textAlign: "center" }}>👥 Amigos</Typography>
+            <Typography variant="h6" sx={{ color: "#fff", textAlign: "center" }}>Amigos</Typography>
             <Divider sx={{ backgroundColor: "#ffffff33", mb: 1 }} />
 
             <List dense>
@@ -185,7 +185,7 @@ const Profile = () => {
 
             <Box sx={{ mt: 1 }}>
               <Typography variant="body2" sx={{ color: "#fff", mb: 0.5 }}>
-                A\u00f1adir amigo por ID:
+                Añadir amigo por ID:
               </Typography>
               <Box component="form" onSubmit={handleAddFriend}>
                 <input
