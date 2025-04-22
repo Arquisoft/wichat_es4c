@@ -51,7 +51,7 @@ describe('StartMenu Component', () => {
     fireEvent.click(accountButton);
     expect(screen.getByText(/Perfil/i)).toBeVisible();
     expect(screen.getByText(/Ajustes/i)).toBeVisible();
-    expect(screen.getByText(/Cerrar Sesion/i)).toBeVisible();
+    expect(screen.getByText(/Cerrar Sesión/i)).toBeVisible();
   });
 
   it('should navigate to the profile page if username exists when clicking "Perfil"', () => {
@@ -106,7 +106,7 @@ describe('StartMenu Component', () => {
     );
     const accountButton = screen.getByRole('button', { name: /Cuenta/i });
     fireEvent.click(accountButton);
-    const logoutButton = screen.getByText(/Cerrar Sesion/i);
+    const logoutButton = screen.getByText(/Cerrar Sesión/i);
     fireEvent.click(logoutButton);
     expect(localStorage.getItem('username')).toBeNull();
     expect(mockNavigate).toHaveBeenCalledWith('/');
@@ -133,4 +133,22 @@ describe('StartMenu Component', () => {
     fireEvent.click(startButton);
     expect(mockNavigate).toHaveBeenCalledWith('/game');
   });
+});
+
+it('should close the account menu when clicking outside', () => {
+  render(
+    <BrowserRouter>
+      <StartMenu />
+    </BrowserRouter>
+  );
+
+  const accountButton = screen.getByRole('button', { name: /Cuenta/i });
+  fireEvent.click(accountButton);
+
+
+  expect(screen.getByText(/Perfil/i)).toBeVisible();
+
+
+  fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
+
 });
