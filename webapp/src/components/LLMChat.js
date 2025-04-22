@@ -64,15 +64,15 @@ const LLMChat = ({ correctAnswer }) => {
         flexDirection: "column",
         alignItems: "center",
         p: 3,
-        bgcolor: "background.paper",
+        bgcolor: "#0C2D48",
         borderRadius: 3,
         boxShadow: 3,
         textAlign: "center",
         width: "100%",
       }}
     >
-      <Typography variant="h6" gutterBottom>
-        Pregunta al LLM
+      <Typography variant="h6" gutterBottom color="#fff" fontFamily={"Orbitron, sans-serif"}>
+        Pregunta a WIChat buddy:
       </Typography>
       <TextField
         fullWidth
@@ -82,7 +82,7 @@ const LLMChat = ({ correctAnswer }) => {
         onChange={(e) => setQuestion(e.target.value)}
         onKeyPress={handleKeyPress} // Detectar la tecla "Enter"
         inputRef={inputRef} // Asignar la referencia al cuadro de texto
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, color:"#fff", fontFamily: "Orbitron, sans-serif" }}
       />
       <Button
         variant="contained"
@@ -107,14 +107,14 @@ const LLMChat = ({ correctAnswer }) => {
       >
         {chatHistory.map((chat, index) => (
           <Box key={index} sx={{ mb: 2, textAlign: "left" }}>
-            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#BB86FC" }}>
+            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#BB86FC", fontFamily: "Orbitron, sans-serif" }}>
               Pregunta:
             </Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>{chat.question}</Typography>
-            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#03DAC6" }}>
+            <Typography variant="body1" color="#fff" sx={{ mb: 1 }}>{chat.question}</Typography>
+            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#03DAC6", fontFamily: "Orbitron, sans-serif" }}>
               Respuesta:
             </Typography>
-            <Typography variant="body1">{chat.response}</Typography>
+            <Typography variant="body1" color="#fff">{chat.response}</Typography>
           </Box>
         ))}
       </Box>
