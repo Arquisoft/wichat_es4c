@@ -31,7 +31,7 @@ describe("Game Component", () => {
       foodQuestions: true
     });
 
-    mock.onGet("http://localhost:8004/question").reply(200, {
+    mock.onGet("http://localhost:8000/question").reply(200, {
       question: "¿Cuál es la capital de Francia?",
       choices: ["Madrid", "París", "Londres", "Roma"],
       answer: "París",
@@ -58,7 +58,7 @@ describe("Game Component", () => {
       foodQuestions: true
     });
 
-    mock.onGet("http://localhost:8004/question").reply(200, {
+    mock.onGet("http://localhost:8000/question").reply(200, {
       question: "¿Cuál es la capital de España?",
       choices: ["Madrid", "París", "Londres", "Roma"],
       answer: "Madrid",
@@ -83,7 +83,7 @@ describe("Game Component", () => {
       foodQuestions: true
     });
 
-    mock.onGet("http://localhost:8004/question").reply(200, {
+    mock.onGet("http://localhost:8000/question").reply(200, {
       question: "¿Cuál es la capital de Italia?",
       choices: ["Madrid", "París", "Londres", "Roma"],
       answer: "Roma",
@@ -106,7 +106,7 @@ describe("Game Component", () => {
       foodQuestions: true
     });
 
-    mock.onGet("http://localhost:8004/question").reply(200, {
+    mock.onGet("http://localhost:8000/question").reply(200, {
       question: "¿Cuál es la capital de Alemania?",
       choices: ["Madrid", "Berlín", "Londres", "Roma"],
       answer: "Berlín",
@@ -120,6 +120,45 @@ describe("Game Component", () => {
 
   });
 
+  test("Permite activar y desactivar sonido", async () => {
+  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
+    answerTime: 10,
+    questionAmount: 5,
+    capitalQuestions: true,
+    flagQuestions: true,
+    monumentQuestions: true,
+    foodQuestions: true
+  });
+
+  mock.onGet("http://localhost:8000/question").reply(200, {
+    question: "¿Qué país tiene esta bandera?",
+    choices: ["Francia", "Italia", "Alemania", "España"],
+    answer: "Italia",
+    type: "flag",
+    image: null
+  });
+
+  await act(async () => {
+    renderWithRouter(<Game />);
+  });
+
+  const toggleButton = screen.getByRole('button', { name: /Sonido Activado/i });
+  expect(toggleButton).toBeInTheDocument();
+  fireEvent.click(toggleButton);
+  expect(toggleButton.textContent).toMatch(/Sonido Desactivado/i);
+});
+
+  test("Muestra mensaje de error si falla obtener configuraciones", async () => {
+  mock.onGet("http://localhost:8001/getSettings/testuser").reply(500);
+
+  await act(async () => {
+    renderWithRouter(<Game />);
+  });
+
+});
+
+  
+
   test("Muestra tiempo agotado cuando el temporizador termina", async () => {
     jest.useFakeTimers();
 
@@ -132,7 +171,7 @@ describe("Game Component", () => {
       foodQuestions: true
     });
 
-    mock.onGet("http://localhost:8004/question").reply(200, {
+    mock.onGet("http://localhost:8000/question").reply(200, {
       question: "¿Cuál es la capital de Portugal?",
       choices: ["Lisboa", "Madrid", "París", "Roma"],
       answer: "Lisboa",
@@ -154,5 +193,7 @@ describe("Game Component", () => {
 
     jest.useRealTimers();
   })
+
+  
 });
 

@@ -34,7 +34,7 @@ describe("LLMChat Component", () => {
 
   it("renders correctly", () => {
     render(<LLMChat correctAnswer="España" />); // Renderiza el componente importado
-    expect(screen.getByText("Pregunta al LLM")).toBeInTheDocument();
+    expect(screen.getByText("Pregunta a WIChat buddy:")).toBeInTheDocument();
     expect(screen.getByLabelText("Escribe tu pregunta")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Enviar" })).toBeInTheDocument();
   });
