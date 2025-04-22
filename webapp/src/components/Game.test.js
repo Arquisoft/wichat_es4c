@@ -17,11 +17,19 @@ describe("Game Component", () => {
     localStorage.clear(); // Clear localStorage after each test
   });
 
-  const renderWithRouter = (ui) => {
-    return render(<MemoryRouter>{ui}</MemoryRouter>);
+  // Función para renderizar el componente Game con MemoryRouter
+  const renderGame = async () => {
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <Game />
+        </MemoryRouter>
+      );
+    });
   };
 
-  test("Renderiza correctamente el juego", async () => {
+  // Función para configurar el mock de la API
+  const mockGameData = (questionData) => {
     mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
       answerTime: 10,
       questionAmount: 5,
@@ -31,17 +39,20 @@ describe("Game Component", () => {
       foodQuestions: true
     });
 
-    mock.onGet("http://localhost:8000/question").reply(200, {
+    mock.onGet("http://localhost:8000/question").reply(200, questionData);
+  };
+
+  test("Renderiza correctamente el juego", async () => {
+    const questionData = {
       question: "¿Cuál es la capital de Francia?",
       choices: ["Madrid", "París", "Londres", "Roma"],
       answer: "París",
       type: "capital",
       image: null
-    });
+    };
 
-    await act(async () => {
-      renderWithRouter(<Game />);
-    }, { timeout: 5000 });
+    mockGameData(questionData);
+    await renderGame();
 
     await waitFor(() => {
       expect(screen.getByText(/Tiempo restante:/i)).toBeInTheDocument();
@@ -49,139 +60,81 @@ describe("Game Component", () => {
   });
 
   test("Carga una pregunta desde la API y la muestra", async () => {
-    mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
-      answerTime: 10,
-      questionAmount: 5,
-      capitalQuestions: true,
-      flagQuestions: true,
-      monumentQuestions: true,
-      foodQuestions: true
-    });
-
-    mock.onGet("http://localhost:8000/question").reply(200, {
+    const questionData = {
       question: "¿Cuál es la capital de España?",
       choices: ["Madrid", "París", "Londres", "Roma"],
       answer: "Madrid",
       type: "capital",
       image: null
-    });
+    };
 
-    await act(async () => {
-      renderWithRouter(<Game />);
-    }, { timeout: 3000 });
-
-  
+    mockGameData(questionData);
+    await renderGame();  // Llamamos a la función para renderizar el componente
   });
 
   test("Permite seleccionar una respuesta y muestra feedback correcto", async () => {
-    mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
-      answerTime: 10,
-      questionAmount: 5,
-      capitalQuestions: true,
-      flagQuestions: true,
-      monumentQuestions: true,
-      foodQuestions: true
-    });
-
-    mock.onGet("http://localhost:8000/question").reply(200, {
+    const questionData = {
       question: "¿Cuál es la capital de Italia?",
       choices: ["Madrid", "París", "Londres", "Roma"],
       answer: "Roma",
       type: "capital",
       image: null
-    });
+    };
 
-    await act(async () => {
-      renderWithRouter(<Game />);
-    }, { timeout: 5000 });
+    mockGameData(questionData);
+    await renderGame();  // Llamamos a la función para renderizar el componente
   });
 
   test("Muestra la respuesta correcta si el usuario falla", async () => {
-    mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
-      answerTime: 10,
-      questionAmount: 5,
-      capitalQuestions: true,
-      flagQuestions: true,
-      monumentQuestions: true,
-      foodQuestions: true
-    });
-
-    mock.onGet("http://localhost:8000/question").reply(200, {
+    const questionData = {
       question: "¿Cuál es la capital de Alemania?",
       choices: ["Madrid", "Berlín", "Londres", "Roma"],
       answer: "Berlín",
       type: "capital",
       image: null
-    });
+    };
 
-    await act(async () => {
-      renderWithRouter(<Game />);
-    }, { timeout: 5000 });
-
+    mockGameData(questionData);
+    await renderGame();  // Llamamos a la función para renderizar el componente
   });
 
   test("Permite activar y desactivar sonido", async () => {
-  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
-    answerTime: 10,
-    questionAmount: 5,
-    capitalQuestions: true,
-    flagQuestions: true,
-    monumentQuestions: true,
-    foodQuestions: true
-  });
+    const questionData = {
+      question: "¿Qué país tiene esta bandera?",
+      choices: ["Francia", "Italia", "Alemania", "España"],
+      answer: "Italia",
+      type: "flag",
+      image: null
+    };
 
-  mock.onGet("http://localhost:8000/question").reply(200, {
-    question: "¿Qué país tiene esta bandera?",
-    choices: ["Francia", "Italia", "Alemania", "España"],
-    answer: "Italia",
-    type: "flag",
-    image: null
-  });
+    mockGameData(questionData);
+    await renderGame();  // Llamamos a la función para renderizar el componente
 
-  await act(async () => {
-    renderWithRouter(<Game />);
+    const toggleButton = screen.getByRole('button', { name: /Sonido Activado/i });
+    expect(toggleButton).toBeInTheDocument();
+    fireEvent.click(toggleButton);
+    expect(toggleButton.textContent).toMatch(/Sonido Desactivado/i);
   });
-
-  const toggleButton = screen.getByRole('button', { name: /Sonido Activado/i });
-  expect(toggleButton).toBeInTheDocument();
-  fireEvent.click(toggleButton);
-  expect(toggleButton.textContent).toMatch(/Sonido Desactivado/i);
-});
 
   test("Muestra mensaje de error si falla obtener configuraciones", async () => {
-  mock.onGet("http://localhost:8001/getSettings/testuser").reply(500);
+    mock.onGet("http://localhost:8001/getSettings/testuser").reply(500);
 
-  await act(async () => {
-    renderWithRouter(<Game />);
+    await renderGame();  // Llamamos a la función para renderizar el componente
   });
-
-});
-
-  
 
   test("Muestra tiempo agotado cuando el temporizador termina", async () => {
     jest.useFakeTimers();
 
-    mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
-      answerTime: 10,
-      questionAmount: 5,
-      capitalQuestions: true,
-      flagQuestions: true,
-      monumentQuestions: true,
-      foodQuestions: true
-    });
-
-    mock.onGet("http://localhost:8000/question").reply(200, {
+    const questionData = {
       question: "¿Cuál es la capital de Portugal?",
       choices: ["Lisboa", "Madrid", "París", "Roma"],
       answer: "Lisboa",
       type: "capital",
       image: null
-    });
+    };
 
-    await act(async () => {
-      renderWithRouter(<Game />);
-    }, { timeout: 5000 });
+    mockGameData(questionData);
+    await renderGame();  // Llamamos a la función para renderizar el componente
 
     await act(async () => {
       jest.advanceTimersByTime(11000);
@@ -192,8 +145,5 @@ describe("Game Component", () => {
     }, { timeout: 5000 });
 
     jest.useRealTimers();
-  })
-
-  
+  });
 });
-
