@@ -106,6 +106,17 @@ app.get('/question', async (req, res) => {
   }
 });
 
+app.get('/adminPanel', async (req, res) => {
+  try {
+    const authResponse = await axios.get(`${authServiceUrl}/adminPanel`);
+    res.json(authResponse.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al obtener lista de usuarios"
+    });
+  }
+});
+
 // OpenAPI - Swagger Documentation
 const openapiPath = './openapi.yaml';
 if (fs.existsSync(openapiPath)) {
