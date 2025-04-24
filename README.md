@@ -1,79 +1,129 @@
-# wichat_es4c
+
+---
+
+# 🤖 WiChat · ES4C
+
+<p>
+  <img src="webapp/src/assets/images/WIChat.png" width="300" alt="WiChat Logo">
+</p>
 
 [![Actions Status](https://github.com/arquisoft/wichat_es4c/workflows/CI%20for%20wichat_es4c/badge.svg)](https://github.com/arquisoft/wichat_es4c/actions)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_wichat_es4c&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Arquisoft_wichat_es4c)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_wichat_es4c&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Arquisoft_wichat_es4c)
 
 <p float="left">
-<img src="https://blog.wildix.com/wp-content/uploads/2020/06/react-logo.jpg" height="100">
-<img src="https://miro.medium.com/max/365/1*Jr3NFSKTfQWRUyjblBSKeg.png" height="100">
+  <img src="https://blog.wildix.com/wp-content/uploads/2020/06/react-logo.jpg" height="100">
+  <img src="https://miro.medium.com/max/365/1*Jr3NFSKTfQWRUyjblBSKeg.png" height="100">
 </p>
 
-This is a base project for the Software Architecture course in 2024/2025. It is a basic application composed of several components.
+---
 
-- **User service**. Express service that handles the insertion of new users in the system.
-- **Auth service**. Express service that handles the authentication of users.
-- **LLM service**. Express service that handles the communication with the LLM.
-- **Gateway service**. Express service that is exposed to the public and serves as a proxy to the two previous ones.
-- **Webapp**. React web application that uses the gateway service to allow basic login and new user features.
+## 📌 Project Description
 
-Both the user and auth service share a Mongo database that is accessed with mongoose.
+**WiChat** is a project developed for the Software Architecture course (2024/2025). It is a distributed system composed of several services working together to build a question game application.
 
-## Quick start guide
+---
 
-First, clone the project:
+## 👥 Development Team
 
-```git clone git@github.com:arquisoft/wichat_es4c.git```
+Meet the amazing team behind WiChat:
 
-### LLM API key configuration
 
-In order to communicate with the LLM integrated in this project, we need to setup an API key. Two integrations are available in this propotipe: gemini and empaphy. The API key provided must match the LLM provider used.
+- **Adrián Mahía**     
+- **Andrés Carballo**  
+- **Bruno Pérez**
+- **Miguel Gutiérrez**
 
-We need to create two .env files. 
-- The first one in the webapp directory (for executing the webapp using ```npm start```). The content of this .env file should be as follows:
+---
+
+### 🧩 Microservices
+
+- **User Service**: Manages user creation and storage.
+- **Auth Service**: Handles user authentication.
+- **LLM Service**: Interfaces with a Large Language Model.
+- **Gateway Service**: Acts as a public proxy for the other services.
+- **Question Service**: Gathers information from Wikidata and generates questions.
+- **Webapp**: A React frontend that interacts with the backend via the gateway.
+
+The user and auth services share a MongoDB instance accessed via Mongoose.
+
+---
+
+## 🚀 Quick Start Guide
+
+### Clone the repository
+
+```bash
+git clone git@github.com:arquisoft/wichat_es4c.git
 ```
+
+### 🔐 LLM API Key Configuration
+
+In order to use the LLM integrations (Gemini and Empaphy), you must provide a valid API key in two `.env` files:
+
+- In the `webapp/` directory (for `npm start`):
+```env
 REACT_APP_LLM_API_KEY="YOUR-API-KEY"
 ```
-- The second one located in the root of the project (along the docker-compose.yml). This .env file is used for the docker-compose when launching the app with docker. The content of this .env file should be as follows:
-```
+
+- In the project root (for Docker Compose):
+```env
 LLM_API_KEY="YOUR-API-KEY"
 ```
 
-Note that these files must NOT be uploaded to the github repository (they are excluded in the .gitignore).
+> **Note:** These files are ignored by Git and should **not** be committed. When deploying, the key must be added as a repository secret (`LLM_API_KEY`) to be used in GitHub Actions.
 
-An extra configuration for the LLM to work in the deployed version of the app is to include it as a repository secret (LLM_API_KEY). This secret will be used by GitHub Action when building and deploying the application.
+---
 
+### 🐳 Launching with Docker
 
-### Launching Using docker
-For launching the propotipe using docker compose, just type:
-```docker compose --profile dev up --build```
+```bash
+docker compose --profile dev up --build
+```
 
-### Component by component start
-First, start the database. Either install and run Mongo or run it using docker:
+---
 
-``````
+### 🧱 Launching Component by Component
 
-You can use also services like Mongo Altas for running a Mongo database in the cloud.
+Start the database:
 
-Now launch the auth, user, question and gateway services. Just go to each directory and run `npm install` followed by `npm start`.
+```bash
+docker run -d -p 27017:27017 --name=my-mongo mongo:latest
+```
 
-Lastly, go to the webapp directory and launch this component with `npm install` followed by `npm start`.
+Or use services like MongoDB Atlas.
 
-After all the components are launched, the app should be available in localhost in port 3000.
+Then launch each service individually:
 
-## Deployment
-For the deployment, we have several options. The first and more flexible is to deploy to a virtual machine using SSH. This will work with any cloud service (or with our own server). Other options include using the container services that all the cloud services provide. This means, deploying our Docker containers directly. Here I am going to use the first approach. I am going to create a virtual machine in a cloud service and after installing docker and docker-compose, deploy our containers there using GitHub Actions and SSH.
+```bash
+# Inside each service folder:
+npm install
+npm start
+```
 
-### Machine requirements for deployment
-The machine for deployment can be created in services like Microsoft Azure or Amazon AWS. These are in general the settings that it must have:
+Finally, run the webapp the same way:
 
-- Linux machine with Ubuntu > 20.04 (the recommended is 24.04).
-- Docker installed.
-- Open ports for the applications installed (in this case, ports 3000 for the webapp and 8000 for the gateway service).
+```bash
+cd webapp
+npm install
+npm start
+```
 
-Once you have the virtual machine created, you can install **docker** using the following instructions:
+> The application will be available at `http://localhost:3000`.
 
-```ssh
+---
+
+## ☁️ Deployment
+
+The application can be deployed using a virtual machine and GitHub Actions. The recommended setup includes:
+
+- Ubuntu 20.04+ (preferably 24.04)
+- Docker & Docker Compose
+- Open ports: `3000` (webapp), `8000` (gateway)
+
+You can set up Docker on your VM using:
+
+```bash
 sudo apt update
 sudo apt install apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -83,37 +133,33 @@ sudo apt install docker-ce
 sudo usermod -aG docker ${USER}
 ```
 
-### Continuous delivery (GitHub Actions)
-Once we have our machine ready, we could deploy by hand the application, taking our docker-compose file and executing it in the remote machine. In this repository, this process is done automatically using **GitHub Actions**. The idea is to trigger a series of actions when some condition is met in the repository. The precondition to trigger a deployment is going to be: "create a new release". The actions to execute are the following:
+---
 
-![imagen](https://github.com/user-attachments/assets/7ead6571-0f11-4070-8fe8-1bbc2e327ad2)
+## 🔄 Continuous Delivery (GitHub Actions)
 
+A GitHub Actions workflow automatically deploys the app when a new release is published. It builds, tests, pushes images, and deploys via SSH.
 
-As you can see, unitary tests of each module and e2e tests are executed before pushing the docker images and deploying them. Using this approach we avoid deploying versions that do not pass the tests.
-
-The deploy action is the following:
+Example of the deploy step:
 
 ```yml
-deploy:
-    name: Deploy over SSH
-    runs-on: ubuntu-latest
-    needs: [docker-push-userservice,docker-push-authservice,docker-push-llmservice,docker-push-gatewayservice,docker-push-webapp]
-    steps:docker run -d -p 27017:27017 --name=my-mongo mongo:latest
-    - name: Deploy over SSH
-      uses: fifsky/ssh-action@master
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        user: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.DEPLOY_KEY }}
-        command: |
-          wget https://raw.githubusercontent.com/arquisoft/wichat_es4c/master/docker-compose.yml -O docker-compose.yml
-          docker compose --profile prod down
-          docker compose --profile prod up -d --pull always
+- name: Deploy over SSH
+  uses: fifsky/ssh-action@master
+  with:
+    host: ${{ secrets.DEPLOY_HOST }}
+    user: ${{ secrets.DEPLOY_USER }}
+    key: ${{ secrets.DEPLOY_KEY }}
+    command: |
+      wget https://raw.githubusercontent.com/arquisoft/wichat_es4c/master/docker-compose.yml -O docker-compose.yml
+      docker compose --profile prod down
+      docker compose --profile prod up -d --pull always
 ```
 
-This action uses three secrets that must be configured in the repository:
-- DEPLOY_HOST: IP of the remote machine.
-- DEPLOY_USER: user with permission to execute the commands in the remote machine.
-- DEPLOY_KEY: key to authenticate the user in the remote machine.
+Secrets required:
+- `DEPLOY_HOST`
+- `DEPLOY_USER`
+- `DEPLOY_KEY`
 
-Note that this action logs in the remote machine and downloads the docker-compose file from the repository and launches it. Obviously, previous actions have been executed which have uploaded the docker images to the GitHub Packages repository.
+
+
+
+
