@@ -43,7 +43,8 @@ app.post('/adduser', async (req, res) => {
             correctAnswers: 0,
             wrongAnswers: 0,
             totalTimePlayed: 0,
-            gameHistory: []
+            gameHistory: [],
+            role: 'user'
         });
 
         await newUser.save();
