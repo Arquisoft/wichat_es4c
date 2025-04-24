@@ -450,7 +450,7 @@ const Game = () => {
           sx={{
             position: 'absolute',
             top: 16,
-            left: 1520,
+            right: 16,
             zIndex: 10,
           }}
         >
