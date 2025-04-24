@@ -30,6 +30,10 @@ const Game = () => {
   const [loadingQuestion, setLoadingQuestion] = useState(false);
   const [paused, setPaused] = useState(false);
   const [questionCounter, setQuestionCounter] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [wrongCount, setWrongCount] = useState(0);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+
   const startTime = useRef(Date.now());
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
   const username = localStorage.getItem("username");
@@ -45,60 +49,20 @@ const Game = () => {
   const correctSound = new Howl({ src: [correctSoundFile], volume: 0.2 });
   const wrongSound = new Howl({ src: [wrongSoundFile], volume: 0.2 });
 
-  const toggleSound = () => {
-    setSoundEnabled((prev) => !prev);
-  };
+  const toggleSound = () => setSoundEnabled((prev) => !prev);
+  const playSound = (sound) => { if (soundEnabled) sound.play(); };
 
-  const playSound = (sound) => {
-    if (soundEnabled) {
-      sound.play();
-    }
-  };
+  useEffect(() => { soundEnabled ? backgroundMusic.play() : backgroundMusic.pause(); }, [soundEnabled]);
+  useEffect(() => { if (soundEnabled) backgroundMusic.play(); return () => backgroundMusic.stop(); }, []);
 
-  useEffect(() => {
-    if (soundEnabled) {
-      if (!backgroundMusic.playing()) {
-        backgroundMusic.play();
-      }
-    } else {
-      backgroundMusic.pause();
-    }
-  }, [soundEnabled]);
-
-  useEffect(() => {
-    if (soundEnabled) {
-      backgroundMusic.play();
-    }
-    return () => {
-      backgroundMusic.stop();
-    };
-  }, []);
-
-  const handleOpenConfirmationModal = () => {
-    setOpenConfirmationModal(true);
-  };
-
-  const handleCloseConfirmationModal = () => {
-    setOpenConfirmationModal(false);
-  };
-
-  const handleConfirmExit = () => {
-    backgroundMusic.stop(); // ⛔ detener música al salir
-    navigate("/startmenu");
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
+  const handleOpenConfirmationModal = () => setOpenConfirmationModal(true);
+  const handleCloseConfirmationModal = () => setOpenConfirmationModal(false);
+  const handleConfirmExit = () => { backgroundMusic.stop(); navigate("/startmenu"); };
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   const newGame = useCallback(async () => {
-    try {
-      if (username) {
-        await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
-      }
-    } catch (error) {
-      console.error("Error incrementing game:", error);
-    }
+    try { if (username) await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username }); }
+    catch (error) { console.error("Error incrementing game:", error); }
   }, [username, apiEndpoint]);
 
   const fetchQuestion = useCallback(async () => {
@@ -110,37 +74,28 @@ const Game = () => {
       setFeedback({});
       setAnswered(false);
       startTime.current = Date.now();
-
+      
+      // Primero establecer el nuevo tiempo
+      setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+      
       const response = await axios.get(`${apiEndpoint}/question`);
       setQuestionData(response.data);
-      setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
     } catch (error) {
       console.error("Error fetching question:", error);
     } finally {
       setLoadingQuestion(false);
     }
   }, [loadingQuestion, apiEndpoint, settings.answerTime]);
+  
+
+  useEffect(() => { if (!hasFetched.current && settings.answerTime) { newGame(); fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
 
   useEffect(() => {
-    if (!hasFetched.current && settings.answerTime) {
-      newGame();
-      fetchQuestion();
-      hasFetched.current = true;
-    }
-  }, [newGame, fetchQuestion, settings.answerTime]);
-
-  useEffect(() => {
-    if (!username) {
-      handleConfirmExit();
-      return;
-    }
-
+    if (!username) { handleConfirmExit(); return; }
     const fetchUserSettings = async () => {
       try {
         const response = await fetch(`http://localhost:8001/getSettings/${username}`);
-        if (!response.ok) {
-          throw new Error("No se pudo obtener la información del perfil");
-        }
+        if (!response.ok) throw new Error("No se pudo obtener la información del perfil");
         const data = await response.json();
         setUser(data);
       } catch (error) {
@@ -149,7 +104,6 @@ const Game = () => {
         setLoading(false);
       }
     };
-
     fetchUserSettings();
   }, [username, navigate]);
 
@@ -166,85 +120,52 @@ const Game = () => {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (settings.answerTime) {
-      setTimerEndTime(Date.now() + settings.answerTime * 1000);
-    }
-  }, [settings.answerTime]);
-
-  useEffect(() => {
-    setPaused(loadingQuestion);
-  }, [loadingQuestion]);
-
   const handleAnswer = async (answer) => {
     if (!answer || loadingQuestion) return;
-
     const isCorrect = answer === questionData.answer;
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
-
-    setFeedback({
-      ...feedback,
-      [answer]: isCorrect ? "✅" : "❌"
-    });
-
+  
+    setFeedback({ ...feedback, [answer]: isCorrect ? "✅" : "❌" });
     setAnswered(true);
     setPaused(true);
-
+    
     if (isCorrect) {
+      setCorrectCount((prev) => prev + 1);
       playSound(correctSound);
     } else {
+      setWrongCount((prev) => prev + 1);
       playSound(wrongSound);
     }
-
-    setTimerEndTime(Date.now() + settings.answerTime * 1000);
-
+  
     if (username) {
       try {
-        await axios.post(`${apiEndpoint}/updateStats`, {
-          username,
-          isCorrect,
-          timeTaken
-        });
+        await axios.post(`${apiEndpoint}/updateStats`, { username, isCorrect, timeTaken });
       } catch (error) {
         console.error("Error al actualizar estadísticas:", error);
       }
     }
-
+  
     setTimeout(() => {
-      setPaused(false);
-      setQuestionCounter((prev) => prev + 1);
-
-      if (questionCounter + 1 >= settings.questionAmount) {
-        setSnackbarOpen(true);
-        setTimeout(() => navigate("/startmenu"), 3000);
+      const next = questionCounter + 1;
+      setQuestionCounter(next);
+      if (next >= settings.questionAmount) {
+        setShowSummaryModal(true);
       } else {
+        // Establecer nuevo tiempo ANTES de fetchQuestion
+        setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
         fetchQuestion();
       }
+      setAnswered(false);
+      setPaused(false);
     }, 1000);
   };
 
   const renderer = ({ seconds, completed }) => {
-    if (paused) {
-      return (
-        <Typography variant="h4" color="textSecondary">
-          Pausado...
-        </Typography>
-      );
-    }
-
+    if (paused) return <Typography variant="h4" color="textSecondary">Pausado...</Typography>;
     if (completed) {
-      setTimeout(() => {
-        setSnackbarOpen(true);
-        navigate("/startmenu");
-      }, 0);
-
-      return (
-        <Typography variant="h4" color="#fff">
-          ⏳ Tiempo agotado
-        </Typography>
-      );
+      setTimeout(() => { setSnackbarOpen(true);}, 0);
+      return <Typography variant="h4" color="#fff">⏳ Tiempo agotado</Typography>;
     }
-
     return (
       <Box position="relative" display="inline-flex">
         <CircularProgress
@@ -254,23 +175,20 @@ const Game = () => {
           thickness={4}
           sx={{ color: seconds < 3 ? "red" : "#ff4081" }}
         />
-        <Box
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
-          position="absolute"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>
-            {seconds}s
-          </Typography>
+        <Box position="absolute" top={0} left={0} bottom={0} right={0} display="flex" alignItems="center" justifyContent="center">
+          <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>{seconds}s</Typography>
         </Box>
       </Box>
     );
   };
+
+  const handlePlayAgain = () => {
+    setCorrectCount(0);
+    setWrongCount(0);
+    setQuestionCounter(0);
+    setShowSummaryModal(false);
+    fetchQuestion();
+  };  
 
   return (
     <>
@@ -393,16 +311,33 @@ const Game = () => {
               >
                 <Typography variant="h5" gutterBottom color="#fff" sx={{fontFamily: "Orbitron, sans-serif",}}>Tiempo restante:</Typography>
                 <Countdown
-                  sx={{ fontFamily: "Orbitron, sans-serif"}}
-                  date={timerEndTime}
-                  renderer={renderer}
-                  autoStart={!paused}
-                  onComplete={() => {
-                    if (!answered) {
-                      setAnswered(true);
-                    }
-                  }}
-                />
+                key={timerEndTime} // ¡Esto es crucial! Forza el reinicio del temporizador
+                date={timerEndTime}
+                renderer={renderer}
+                autoStart={!paused}
+                onComplete={() => {
+                  if (!answered) {
+                    setAnswered(true);
+                    setPaused(true);
+                    setWrongCount(prev => prev + 1);
+                    playSound(wrongSound);
+                    
+                    setTimeout(() => {
+                      const next = questionCounter + 1;
+                      setQuestionCounter(next);
+                      if (next >= settings.questionAmount) {
+                        setShowSummaryModal(true);
+                      } else {
+                        // Establecer nuevo tiempo ANTES de fetchQuestion
+                        setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+                        fetchQuestion();
+                      }
+                      setAnswered(false);
+                      setPaused(false);
+                    }, 1000);
+                  }
+                }}
+              />
               </Paper>
 
               <Paper
@@ -473,17 +408,6 @@ const Game = () => {
           </Button>
         </Box>
       </Box>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity="info" sx={{ width: '100%', fontFamily: "Orbitron, sans-serif", }}>
-          {answered ? "¡Fin del juego! Volviendo al menú principal..." : "⏳ Tiempo agotado. Volviendo al menú principal..."}
-        </Alert>
-      </Snackbar>
-
       <Dialog
         open={openConfirmationModal}
         onClose={handleCloseConfirmationModal}
@@ -504,6 +428,26 @@ const Game = () => {
           <Button onClick={handleConfirmExit} autoFocus sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#f44336', color: '#fff', '&:hover': { backgroundColor: '#d32f2f' } }} variant="contained">
             Salir
           </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={showSummaryModal}
+        onClose={() => setShowSummaryModal(false)}
+        sx={{ '& .MuiDialog-paper': { backgroundColor: '#0C2D48', color: '#fff', borderRadius: 2 } }}
+      >
+        <DialogTitle sx={{ fontFamily: "Orbitron, sans-serif", fontWeight: 'bold', fontSize: '1.5rem' }}>
+          ¡Resumen de la partida!
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', fontSize: '1rem' }}>
+            <br />Preguntas totales: {correctCount + wrongCount}
+            <br />✅ Correctas: {correctCount}
+            <br />❌ Incorrectas: {wrongCount}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'space-around', padding: '16px' }}>
+          <Button onClick={handlePlayAgain} sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', borderColor: '#fff' }} variant="outlined">Volver a jugar</Button>
+          <Button onClick={handleConfirmExit} sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: 'primary', color: '#fff' }} variant="contained">Volver al menú</Button>
         </DialogActions>
       </Dialog>
     </>
