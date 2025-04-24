@@ -117,6 +117,18 @@ app.get('/adminPanel', async (req, res) => {
   }
 });
 
+app.delete('/adminPanel/deleteUser/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const response = await axios.delete(`${userServiceUrl}/deleteUser/${username}`);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al eliminar usuario"
+    });
+  }
+});
+
 // OpenAPI - Swagger Documentation
 const openapiPath = './openapi.yaml';
 if (fs.existsSync(openapiPath)) {

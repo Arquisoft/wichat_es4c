@@ -205,6 +205,24 @@ app.get('/ranking', async (req, res) => {
     }
 });
 
+app.delete('/deleteUser/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    // Busca y elimina el usuario
+    const deletedUser = await User.findOneAndDelete({ username });
+
+    if (!deletedUser) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json({ message: `Usuario ${username} eliminado correctamente.` });
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+    res.status(500).json({ error: "Error al eliminar usuario" });
+  }
+});
+
 // Iniciar el servidor
 const server = app.listen(port, () => {
     console.log(`User Service escuchando en http://localhost:${port}`);
