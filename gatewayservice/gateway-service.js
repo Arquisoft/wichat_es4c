@@ -108,7 +108,12 @@ app.get('/question', async (req, res) => {
 
 app.get('/adminPanel', async (req, res) => {
   try {
-    const authResponse = await axios.get(`${authServiceUrl}/adminPanel`);
+    const authHeader = req.headers.authorization; 
+    const authResponse = await axios.get(`${authServiceUrl}/adminPanel`, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
     res.json(authResponse.data);
   } catch (error) {
     res.status(error.response?.status || 500).json({
@@ -120,7 +125,14 @@ app.get('/adminPanel', async (req, res) => {
 app.delete('/adminPanel/deleteUser/:username', async (req, res) => {
   try {
     const { username } = req.params;
-    const response = await axios.delete(`${userServiceUrl}/deleteUser/${username}`);
+    const authHeader = req.headers.authorization;
+
+    const response = await axios.delete(`${userServiceUrl}/deleteUser/${username}`, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+
     res.json(response.data);
   } catch (error) {
     res.status(error.response?.status || 500).json({
@@ -128,6 +140,7 @@ app.delete('/adminPanel/deleteUser/:username', async (req, res) => {
     });
   }
 });
+
 
 // OpenAPI - Swagger Documentation
 const openapiPath = './openapi.yaml';

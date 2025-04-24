@@ -46,6 +46,8 @@ mongoose.connection.once('open', () => {
   createAdminIfNotExists();
 });
 
+
+
 // Function to validate required fields in the request body
 function validateRequiredFields(req, requiredFields) {
     for (const field of requiredFields) {
@@ -88,10 +90,23 @@ app.post('/login',  [
 
 app.get('/adminPanel', async (req, res) => {
   try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'your-secret-key'); // Usa la misma clave que al firmar el token
+
+    // Verifica en la base de datos que el usuario sigue siendo admin
+    const user = await User.findById(decoded.userId);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Acceso denegado. Se requiere rol de administrador.' });
+    }
+
     const users = await User.find({}, '-password');
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Error interno en auth-service' });
+    return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 });
 

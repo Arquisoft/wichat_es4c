@@ -24,8 +24,13 @@ const AdminPanel = () => {
   const usersPerPage = 5;
 
   const fetchUsers = async () => {
+    const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`${apiEndpoint}/adminPanel`);
+      const response = await fetch(`${apiEndpoint}/adminPanel`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -35,21 +40,27 @@ const AdminPanel = () => {
     }
   };
 
-  const handleDeleteUser = async (username) => {
-    try {
-      const response = await fetch(`${apiEndpoint}/adminPanel/deleteUser/${username}`, {
-        method: 'DELETE',
-      });
+const handleDeleteUser = async (username) => {
+  const token = localStorage.getItem("token"); // Obtener el token almacenado
 
-      if (response.ok) {
-        setUsers((prev) => prev.filter((u) => u.username !== username));
-      } else {
-        console.error("Error deleting user");
-      }
-    } catch (error) {
-      console.error("Error deleting user:", error);
+  try {
+    const response = await fetch(`${apiEndpoint}/adminPanel/deleteUser/${username}`, {
+      method: 'DELETE',
+      headers: {
+        "Authorization": `Bearer ${token}`, 
+      },
+    });
+
+    if (response.ok) {
+      setUsers((prev) => prev.filter((u) => u.username !== username));
+    } else {
+      console.error("Error deleting user");
     }
-  };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+  }
+};
+
 
   useEffect(() => {
     fetchUsers();
