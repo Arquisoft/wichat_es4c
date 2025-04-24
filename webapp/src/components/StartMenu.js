@@ -40,7 +40,7 @@ const StartMenu = () => {
   return (
     <Box className="start-menu-container">
       {/* Contenido del menú */}
-      <Box sx={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 6 }}>
+      <Box sx={{ position: "absolute", top: 20, right: 25, display: "flex", gap: 5 }}>
         <Button
           variant="contained"
           onClick={handleOpenRanking}
@@ -48,8 +48,9 @@ const StartMenu = () => {
             backgroundColor: "#FF6584",
             color: "#fff",
             fontWeight: "bold",
+            width: 130,
             boxShadow: 3,
-            scale: 1.25,
+            scale: 1.15,
             fontFamily: "Orbitron, sans-serif",
             "&:hover": { bgcolor: "#f50057" },
           }}
@@ -63,8 +64,10 @@ const StartMenu = () => {
             backgroundColor: "#FF6584",
             color: "#fff",
             fontWeight: "bold",
+            width: 130,
             boxShadow: 3,
-            scale: 1.25,
+            scale: 1.15,
+            borderRadius: 1,
             fontFamily: "Orbitron, sans-serif",
             "&:hover": { bgcolor: "#f50057" },
           }}
@@ -78,8 +81,10 @@ const StartMenu = () => {
           sx={{
             "& .MuiMenu-paper": {
               backgroundColor: "#6a11cb",
-              backdropFilter: "blur(10px)",
               boxShadow: 5,
+              width: 150,
+              borderRadius: 1,
+              transformOrigin: 'top right',
             },
           }}
         >

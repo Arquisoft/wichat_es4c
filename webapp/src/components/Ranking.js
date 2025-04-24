@@ -5,6 +5,7 @@ import {
   Box, Card, CardContent, Typography, CircularProgress, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, Paper, Button, Select, MenuItem
 } from "@mui/material";
+import "../assets/css/Ranking.css";
 
 const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 
@@ -51,11 +52,10 @@ const Ranking = () => {
   }
 
   return (
-    <Box sx={{
+    <Box className="start-menu-container" sx={{
       width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-      background: `radial-gradient(ellipse at top left, #2c003e, #0d0d1a)`,
       backgroundSize: "200% 200%",
-      animation: "floatBg 30s ease-in-out infinite",
+      animation: "floatBg 40s ease-in-out infinite",
       '@keyframes floatBg': {
         '0%': { backgroundPosition: '0% 0%' },
         '50%': { backgroundPosition: '100% 100%' },
@@ -67,7 +67,7 @@ const Ranking = () => {
     }}>
       <Card sx={{
         backdropFilter: "blur(16px)",
-        backgroundColor: "rgba(15,15,30,0.85)",
+        backgroundColor: "rgba(15, 15, 30, 0.72)",
         border: "1px solid rgba(179,136,255,0.2)",
         borderRadius: 5,
         p: 4,
