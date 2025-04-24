@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, CardActions, Button, TextField, Typography, Box, FormControlLabel, Checkbox, Snackbar, Alert } from "@mui/material";
+ import { useNavigate, useParams } from 'react-router-dom';
+ import { Card, CardContent, CardActions, Button, TextField, Typography, Box, FormControlLabel, Checkbox, Snackbar, Alert, FormGroup } from "@mui/material";
+ import SettingsIcon from '@mui/icons-material/Settings';
+ import SaveIcon from '@mui/icons-material/Save';
+ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-export default function SettingsCard() {
+ export default function SettingsCard() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [warningSnackbar, setWarningSnackbar] = useState(false);
   const [errorSnackbar, setErrorSnackbar] = useState(false);
@@ -18,6 +21,7 @@ export default function SettingsCard() {
     foodQuestions: true
   });
   const [loading, setLoading] = useState(true);
+  const [timeWarningSnackbar, setTimeWarningSnackbar] = useState(false);
 
   const paramAliases = {
     answerTime: "Tiempo de respuesta (s)",
@@ -36,17 +40,17 @@ export default function SettingsCard() {
       try {
         setLoading(true);
         const response = await fetch(`http://localhost:8001/getSettings/${username}`);
-        
+
         if (!response.ok) {
           const errorData = await response.text();
           console.error("API Error:", errorData);
           throw new Error(`Error ${response.status}: No se pudo obtener la información del perfil`);
         }
-        
+
         const data = await response.json();
         console.log("Settings data received:", data);
         setUser(data);
-        
+
         // Initialize settings with received data or defaults
         setSettings({
           answerTime: data.answerTime || 10,
@@ -76,8 +80,13 @@ export default function SettingsCard() {
       return;
     }
 
-    setSettings(prev => ({ 
-      ...prev, 
+    if (name === "answerTime" && parseInt(value) > 60) {
+      setTimeWarningSnackbar(true);
+      return;
+    }
+
+    setSettings(prev => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : (
         // Convert string values to numbers for numeric fields
         name === "answerTime" || name === "questionAmount" ? parseInt(value) || 0 : value
@@ -95,13 +104,13 @@ export default function SettingsCard() {
         },
         body: JSON.stringify(settings),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.text();
         console.error("API Error:", errorData);
         throw new Error(`Error ${response.status}: No se pudieron guardar los ajustes`);
       }
-      
+
       const data = await response.json();
       console.log("Save response:", data);
       setOpenSnackbar(true);
@@ -118,39 +127,38 @@ export default function SettingsCard() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" 
-        sx={{ 
-          background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)', 
-          backgroundSize: '400% 400%', 
-          animation: 'gradientWave 10s infinite normal forwards',
-          '@keyframes gradientWave': {
-            '0%': { backgroundPosition: '0% 50%' },
-            '50%': { backgroundPosition: '100% 50%' },
-            '100%': { backgroundPosition: '0% 50%' }
-          }
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh"
+        sx={{
+          background: 'radial-gradient(circle, #3f51b5 0%, #1a237e 100%)',
         }}>
-        <Typography variant="h5" color="white">Cargando...</Typography>
+        <Typography variant="h5" color="white">Cargando ajustes...</Typography>
       </Box>
     );
   }
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" 
-      sx={{ 
-        background: 'linear-gradient(90deg,rgb(73, 17, 203),rgb(113, 29, 182),rgb(38, 35, 223), #66ccff, #4e69c2)', 
-        backgroundSize: '400% 400%', 
-        animation: 'gradientWave 10s infinite normal forwards',
-        '@keyframes gradientWave': {
-          '0%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
-          '100%': { backgroundPosition: '0% 50%' }
-        }
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh"
+      sx={{
+        background: 'radial-gradient(circle, #3f51b5 0%, #1a237e 100%)',
+        padding: 4,
       }}>
-      <Card sx={{ maxWidth: 600, p: 3, boxShadow: 3, borderRadius: 2, backgroundColor: "#ff4081", backdropFilter: "blur(10px)" }}>
+      <Card sx={{
+        maxWidth: 600,
+        p: 3,
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+        borderRadius: 4,
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        backdropFilter: "blur(15px)",
+        color: "#ffffff",
+        width: "100%",
+      }}>
         <CardContent>
-          <Typography variant="h4" gutterBottom color={"#fff"}>
-            Ajustes
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <SettingsIcon sx={{ color: "#64b5f6", mr: 1, fontSize: "2rem" }} />
+            <Typography variant="h5" gutterBottom fontWeight="bold" fontFamily="Roboto, sans-serif">
+              Ajustes del Juego
+            </Typography>
+          </Box>
           {Object.keys(paramAliases).map((key) => (
             <TextField
               key={key}
@@ -162,66 +170,68 @@ export default function SettingsCard() {
               fullWidth
               margin="normal"
               variant="outlined"
-              InputLabelProps={{ style: { color: "white" } }}
-              InputProps={{ style: { color: "white", borderColor: "white" } }}
+              InputLabelProps={{ style: { color: "#f5f5f5" } }}
+              InputProps={{ style: { color: "#f5f5f5" } }}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "white" },
-                  "&:hover fieldset": { borderColor: "white" },
-                  "&.Mui-focused fieldset": { borderColor: "white" },
-                }
+                  "& fieldset": { borderColor: "#f5f5f5" },
+                  "&:hover fieldset": { borderColor: "#bbdefb" },
+                  "&.Mui-focused fieldset": { borderColor: "#64b5f6" },
+                },
               }}
             />
           ))}
-          <FormControlLabel
-            control={<Checkbox checked={!!settings.capitalQuestions} onChange={handleChange} name="capitalQuestions" sx={{
-              color: "white",
-              "&.Mui-checked": { color: "white" }
-            }}/>}
-            label="Mostrar preguntas sobre capitales"
-            sx={{color:"#fff"}}
-          />
-          <FormControlLabel
-            control={<Checkbox checked={!!settings.flagQuestions} onChange={handleChange} name="flagQuestions" sx={{
-              color: "white",
-              "&.Mui-checked": { color: "white" }
-            }}/>}
-            label="Mostrar preguntas sobre banderas"
-            sx={{color:"#fff"}}
-          />
-          <FormControlLabel
-            control={<Checkbox checked={!!settings.monumentQuestions} onChange={handleChange} name="monumentQuestions" sx={{
-              color: "white",
-              "&.Mui-checked": { color: "white" }
-            }}/>}
-            label="Mostrar preguntas sobre monumentos"
-            sx={{color:"#fff"}}
-          />
-          <FormControlLabel
-            control={<Checkbox checked={!!settings.foodQuestions} onChange={handleChange} name="foodQuestions" sx={{
-              color: "white",
-              "&.Mui-checked": { color: "white" }
-            }}/>}
-            label="Mostrar preguntas sobre comida"
-            sx={{color:"#fff"}}
-          />
+          <FormGroup sx={{ mt: 2 }}>
+            <FormControlLabel
+              control={<Checkbox checked={!!settings.capitalQuestions} onChange={handleChange} name="capitalQuestions" sx={{ color: "#bbdefb", "&.Mui-checked": { color: "#64b5f6" } }} />}
+              label={<Typography color="#f5f5f5" fontFamily="Roboto, sans-serif">Mostrar preguntas sobre capitales</Typography>}
+            />
+            <FormControlLabel
+              control={<Checkbox checked={!!settings.flagQuestions} onChange={handleChange} name="flagQuestions" sx={{ color: "#bbdefb", "&.Mui-checked": { color: "#64b5f6" } }} />}
+              label={<Typography color="#f5f5f5" fontFamily="Roboto, sans-serif">Mostrar preguntas sobre banderas</Typography>}
+            />
+            <FormControlLabel
+              control={<Checkbox checked={!!settings.monumentQuestions} onChange={handleChange} name="monumentQuestions" sx={{ color: "#bbdefb", "&.Mui-checked": { color: "#64b5f6" } }} />}
+              label={<Typography color="#f5f5f5" fontFamily="Roboto, sans-serif">Mostrar preguntas sobre monumentos</Typography>}
+            />
+            <FormControlLabel
+              control={<Checkbox checked={!!settings.foodQuestions} onChange={handleChange} name="foodQuestions" sx={{ color: "#bbdefb", "&.Mui-checked": { color: "#64b5f6" } }} />}
+              label={<Typography color="#f5f5f5" fontFamily="Roboto, sans-serif">Mostrar preguntas sobre comida</Typography>}
+            />
+          </FormGroup>
         </CardContent>
-        <CardActions>
-          <Button onClick={handleSave} variant="contained" fullWidth
-            sx={{ backgroundColor: "#fff", color: "#f50057", fontWeight: "bold", 
-              '&:hover': { bgcolor: '#ff4081', color: "#fff"} 
-            }}>
-            Guardar
-          </Button>
-          <Button onClick={handleBack} variant="contained" fullWidth 
-            sx={{ backgroundColor: "#fff", color: "#f50057", fontWeight: "bold", 
-              '&:hover': { bgcolor: '#ff4081', color: "#fff"} 
-            }}>
+        <CardActions sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
+          <Button
+            onClick={handleBack}
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            sx={{
+              color: "#bbdefb",
+              borderColor: "#bbdefb",
+              fontWeight: "bold",
+              "&:hover": { borderColor: "#fff", color: "#fff" },
+              fontFamily: "Roboto, sans-serif",
+            }}
+          >
             Volver
+          </Button>
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            endIcon={<SaveIcon />}
+            sx={{
+              backgroundColor: "#64b5f6",
+              color: "#fff",
+              fontWeight: "bold",
+              "&:hover": { backgroundColor: "#42a5f5" },
+              fontFamily: "Roboto, sans-serif",
+            }}
+          >
+            Guardar
           </Button>
         </CardActions>
       </Card>
-      
+
       {/* Success notification */}
       <Snackbar
         open={openSnackbar}
@@ -230,11 +240,11 @@ export default function SettingsCard() {
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
-          ¡Guardado con éxito!
+          ¡Ajustes guardados con éxito!
         </Alert>
       </Snackbar>
-      
-      {/* Warning notification */}
+
+      {/* Warning notification for question amount */}
       <Snackbar
         open={warningSnackbar}
         autoHideDuration={3000}
@@ -245,7 +255,19 @@ export default function SettingsCard() {
           El número máximo de preguntas es 40.
         </Alert>
       </Snackbar>
-      
+
+      {/* Warning notification for answer time */}
+      <Snackbar
+        open={timeWarningSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setTimeWarningSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="warning" onClose={() => setTimeWarningSnackbar(false)}>
+          El tiempo máximo de respuesta es 60 segundos.
+        </Alert>
+      </Snackbar>
+
       {/* Error notification */}
       <Snackbar
         open={errorSnackbar}
@@ -259,4 +281,4 @@ export default function SettingsCard() {
       </Snackbar>
     </Box>
   );
-}
+ }
