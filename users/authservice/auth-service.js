@@ -38,7 +38,6 @@ async function createAdminIfNotExists() {
   } else if (existingAdmin.role !== 'admin') {
     existingAdmin.role = 'admin';
     await existingAdmin.save();
-    console.log(`Usuario ${adminName} actualizado a administrador`);
   }
 }
 
