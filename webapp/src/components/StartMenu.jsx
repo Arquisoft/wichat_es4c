@@ -46,10 +46,8 @@ const StartMenu = () => {
           sx={{ 
             position: "absolute", 
             top: 20, 
-            left: 20, 
+            left: 25, 
             display: "flex", 
-            gap: 2, 
-            zIndex: 2 
           }}
         >
           <Button
@@ -60,7 +58,7 @@ const StartMenu = () => {
               color: "#fff",
               fontWeight: "bold",
               boxShadow: 3,
-              scale: 1.25,
+              scale: 1.15,
               fontFamily: "Orbitron, sans-serif",
               "&:hover": { bgcolor: "#f50057" },
             }}

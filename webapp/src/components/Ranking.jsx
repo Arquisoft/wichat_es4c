@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Box, Card, CardContent, Typography, CircularProgress, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow, Paper, Button, Select, MenuItem
+  TableCell, TableContainer, TableHead, TableRow, Paper, Button, Select, MenuItem,
+  Pagination // Importa el componente Pagination de Material-UI
 } from "@mui/material";
 import "../assets/css/Ranking.css";
 
@@ -16,6 +17,10 @@ const Ranking = () => {
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("correctAnswers");
   const loggedInUser = localStorage.getItem("username");
+
+  // Estados para la paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const playersPerPage = 5; // Define cuántos jugadores mostrar por página
 
   useEffect(() => {
     const fetchRanking = async () => {
@@ -31,6 +36,17 @@ const Ranking = () => {
 
     fetchRanking();
   }, [sortBy]);
+
+  // Calcula los índices del primer y último jugador en la página actual
+  const indexOfLastPlayer = currentPage * playersPerPage;
+  const indexOfFirstPlayer = indexOfLastPlayer - playersPerPage;
+  const currentPlayers = players.slice(indexOfFirstPlayer, indexOfLastPlayer);
+  const totalPages = Math.ceil(players.length / playersPerPage);
+
+  // Función para cambiar de página
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
 
   if (loading) {
     return (
@@ -93,19 +109,19 @@ const Ranking = () => {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 sx={{
-                  backgroundColor: "#b388ff", // Color de fondo del combobox
-                  color: "#0d0d1a", // Color de la letra
+                  backgroundColor: "#b388ff",
+                  color: "#0d0d1a",
                   borderRadius: 2,
                   fontWeight: "bold",
                   boxShadow: "0 0 10px #b388ff",
                   fontFamily: "Orbitron, sans-serif",
-                  width: "250px", // Ancho adecuado para el combobox
-                  margin: "0 auto", // Centramos el combobox
+                  width: "250px",
+                  margin: "0 auto",
                   "& .MuiSelect-icon": {
                     color: "#0d0d1a"
                   },
                   "& .MuiOutlinedInput-root": {
-                    paddingRight: "8px", // Espaciado para la flecha
+                    paddingRight: "8px",
                     backgroundColor: "#b388ff",
                     borderRadius: "8px",
                   }
@@ -145,24 +161,24 @@ const Ranking = () => {
                 <TableRow>
                   {["#", "Jugador", "🎮 Partidas", "✅ Aciertos", "❌ Fallos", "⏳ Tiempo"].map((col, i) => (
                     <TableCell
-                    key={i}
-                    sx={{
-                      backgroundColor: "rgba(25, 0, 50, 0.85)",
-                      color: "#d1b3ff",
-                      fontWeight: "bold",
-                      textShadow: "0 0 6px #b388ff",
-                      fontFamily: "Orbitron, sans-serif",
-                      borderBottom: "1px solid rgba(179,136,255,0.2)",
-                      textAlign: "center"
-                    }}
-                  >
-                    {col}
-                  </TableCell>
+                      key={i}
+                      sx={{
+                        backgroundColor: "rgba(25, 0, 50, 0.85)",
+                        color: "#d1b3ff",
+                        fontWeight: "bold",
+                        textShadow: "0 0 6px #b388ff",
+                        fontFamily: "Orbitron, sans-serif",
+                        borderBottom: "1px solid rgba(179,136,255,0.2)",
+                        textAlign: "center"
+                      }}
+                    >
+                      {col}
+                    </TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {players.map((player, index) => (
+                {currentPlayers.map((player, index) => (
                   <TableRow
                     key={player.username}
                     hover
@@ -180,7 +196,7 @@ const Ranking = () => {
                       }
                     }}
                   >
-                    <TableCell sx={{ color: "#fff", textAlign: "center" }}>{index + 1}</TableCell>
+                    <TableCell sx={{ color: "#fff", textAlign: "center" }}>{indexOfFirstPlayer + index + 1}</TableCell>
                     <TableCell sx={{ color: "#fff", fontWeight: "bold", textAlign: "center" }}>
                       {player.username}
                       {player.username === loggedInUser && <span style={{ marginLeft: 6 }}>🌟</span>}
@@ -194,6 +210,25 @@ const Ranking = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Componente de Paginación */}
+          <Box display="flex" justifyContent="center" mt={4}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="secondary"
+              sx={{
+                "& .MuiPaginationItem-root": {
+                  color: "#fff",
+                  fontFamily: "Orbitron, sans-serif",
+                  "&.Mui-selected": {
+                    backgroundColor: "#b388ff",
+                  }
+                }
+              }}
+            />
+          </Box>
 
           <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
             <Button

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -22,6 +23,8 @@ const AdminPanel = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 5;
+
+  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     const token = localStorage.getItem("token");
@@ -77,13 +80,14 @@ const handleDeleteUser = async (username) => {
 
   return (
     <Box className="start-menu-container" sx={{ p: 4 }}>
-      <Paper elevation={5} sx={{
-        p: 4,
-        borderRadius: 4,
-        backgroundColor: "#0C2D48",
-        color: "#fff",
-        boxShadow: 5
-      }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 16,
+          right: 16,
+          zIndex: 10,
+        }}
+      >
         <Button
           variant="contained"
           onClick={handleGoBack}
@@ -100,6 +104,14 @@ const handleDeleteUser = async (username) => {
         >
           Volver atrás
         </Button>
+      </Box>
+      <Paper elevation={5} sx={{
+        p: 4,
+        borderRadius: 4,
+        backgroundColor: "#0C2D48",
+        color: "#fff",
+        boxShadow: 5
+      }}>
         <Typography variant="h3" gutterBottom sx={{ color: "#FF6584", fontFamily: "Orbitron, sans-serif", fontWeight: "bold" }}>
           Panel de Administración
         </Typography>
