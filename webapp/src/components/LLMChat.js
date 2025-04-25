@@ -80,17 +80,48 @@ const LLMChat = ({ correctAnswer }) => {
         label="Escribe tu pregunta"
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
-        onKeyPress={handleKeyPress} // Detectar la tecla "Enter"
-        inputRef={inputRef} // Asignar la referencia al cuadro de texto
-        sx={{ mb: 2, color:"#fff", fontFamily: "Orbitron, sans-serif" }}
+        onKeyPress={handleKeyPress}
+        inputRef={inputRef}
+        sx={{
+          mb: 2,
+          fontFamily: "Orbitron, sans-serif",
+          "& .MuiOutlinedInput-root": {
+            color: "#fff", // texto
+            "& fieldset": {
+              borderColor: "#fff", // borde
+            },
+            "&:hover fieldset": {
+              borderColor: "#fff", // borde al hacer hover
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#fff", // borde al estar enfocado
+            },
+          },
+          "& .MuiInputLabel-root": {
+            color: "#fff", // color del label
+          },
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: "#fff", // color del label al enfocar
+          },
+          backgroundColor: "#0C2D48", // fondo oscuro
+          borderRadius: 1,
+        }}
       />
       <Button
         variant="contained"
-        color="primary"
         onClick={handleAskLLM}
         disabled={loading}
+        sx={{
+          backgroundColor: "#FF6584",
+          color: "#fff",
+          fontFamily: "Orbitron, sans-serif",
+          fontWeight: "bold",
+          "&:hover": {
+            backgroundColor: "#e05070",
+          },
+        }}
       >
-        {loading ? <CircularProgress size={24} /> : "Enviar"}
+        {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Enviar"}
       </Button>
 
       <Box
@@ -100,7 +131,6 @@ const LLMChat = ({ correctAnswer }) => {
           width: "100%",
           maxHeight: 300,
           overflowY: "auto",
-          bgcolor: "#1E1E1E",
           p: 2,
           borderRadius: 2,
         }}

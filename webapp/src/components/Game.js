@@ -3,14 +3,22 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Container, Typography, Box, Button, Grid,
- RadioGroup, Paper, CircularProgress, Snackbar, Alert
+  RadioGroup, Paper, CircularProgress, Snackbar, Alert,
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
 import Countdown from 'react-countdown';
 import LLMChat from "./LLMChat";
 import { Howl } from 'howler';
 import correctSoundFile from '../assets/sounds/correct.mp3';
 import wrongSoundFile from '../assets/sounds/wrong.mp3';
+import backgroundMusicFile from '../assets/sounds/backgroundMusic.mp3';
 import mapBg from '../assets/images/world-bg.png';
+
+const backgroundMusic = new Howl({
+  src: [backgroundMusicFile],
+  loop: true,
+  volume: 0.1,
+});
 
 const Game = () => {
   const navigate = useNavigate();
@@ -21,7 +29,11 @@ const Game = () => {
   const [answered, setAnswered] = useState(false);
   const [loadingQuestion, setLoadingQuestion] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [questionCounter, setQuestionCounter] = useState(0); // Contador de preguntas
+  const [questionCounter, setQuestionCounter] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [wrongCount, setWrongCount] = useState(0);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+
   const startTime = useRef(Date.now());
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
   const username = localStorage.getItem("username");
@@ -31,80 +43,59 @@ const Game = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true); 
-  const correctSound = new Howl({ src: [correctSoundFile] });
-  const wrongSound = new Howl({ src: [wrongSoundFile] });
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
-  const toggleSound = () => {
-    setSoundEnabled((prev) => !prev);
-  };
+  const correctSound = new Howl({ src: [correctSoundFile], volume: 0.2 });
+  const wrongSound = new Howl({ src: [wrongSoundFile], volume: 0.2 });
 
-  const playSound = (sound) => {
-    if (soundEnabled) {
-      sound.play();
-    }
-  };
+  const toggleSound = () => setSoundEnabled((prev) => !prev);
+  const playSound = (sound) => { if (soundEnabled) sound.play(); };
 
+  useEffect(() => { soundEnabled ? backgroundMusic.play() : backgroundMusic.pause(); }, [soundEnabled]);
+  useEffect(() => { if (soundEnabled) backgroundMusic.play(); return () => backgroundMusic.stop(); }, []);
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
+  const handleOpenConfirmationModal = () => setOpenConfirmationModal(true);
+  const handleCloseConfirmationModal = () => setOpenConfirmationModal(false);
+  const handleConfirmExit = () => { backgroundMusic.stop(); navigate("/startmenu"); };
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   const newGame = useCallback(async () => {
-    try {
-      if (username) {
-        await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
-      }
-    } catch (error) {
-      console.error("Error incrementing game:", error);
-    }
+    try { if (username) await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username }); }
+    catch (error) { console.error("Error incrementing game:", error); }
   }, [username, apiEndpoint]);
-
 
   const fetchQuestion = useCallback(async () => {
     if (loadingQuestion) return;
-
     setLoadingQuestion(true);
-
     try {
       setQuestionData(null);
       setSelectedAnswer("");
       setFeedback({});
       setAnswered(false);
       startTime.current = Date.now();
-
+      
+      // Primero establecer el nuevo tiempo
+      setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+      
       const response = await axios.get(`${apiEndpoint}/question`);
       setQuestionData(response.data);
-      setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
     } catch (error) {
       console.error("Error fetching question:", error);
     } finally {
       setLoadingQuestion(false);
     }
   }, [loadingQuestion, apiEndpoint, settings.answerTime]);
+  
 
-  // useEffect para inicializar el juego
-  useEffect(() => {
-    if (!hasFetched.current && settings.answerTime) {
-      newGame();
-      fetchQuestion();
-      hasFetched.current = true;
-    }
-  }, [newGame, fetchQuestion, settings.answerTime]);
-
+  useEffect(() => { if (!hasFetched.current && settings.answerTime) { newGame(); fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
 
   useEffect(() => {
-    if (!username) {
-      navigate("/startmenu");
-      return;
-    }
-
+    if (!username) { handleConfirmExit(); return; }
     const fetchUserSettings = async () => {
       try {
         const response = await fetch(`http://localhost:8001/getSettings/${username}`);
-        if (!response.ok) {
-          throw new Error("No se pudo obtener la información del perfil");
-        }
+        if (!response.ok) throw new Error("No se pudo obtener la información del perfil");
         const data = await response.json();
         setUser(data);
       } catch (error) {
@@ -113,134 +104,91 @@ const Game = () => {
         setLoading(false);
       }
     };
-
     fetchUserSettings();
-}, [username, navigate]);
-
-
-useEffect(() => {
-  if (user) {
-    setSettings({
-      answerTime: user.answerTime || 10, // Valores por defecto en caso de undefined
-      questionAmount: user.questionAmount || 10, // Aquí se define el número de preguntas
-      capitalQuestions: user.capitalQuestions ?? true,
-      flagQuestions: user.flagQuestions ?? true,
-      monumentQuestions: user.monumentQuestions ?? true,
-      foodQuestions: user.foodQuestions ?? true,
-    });
-  }
-}, [user]);
-
-useEffect(() => {
-  if (settings.answerTime) {
-    setTimerEndTime(Date.now() + settings.answerTime * 1000);
-  }
-}, [settings.answerTime]);
+  }, [username, navigate]);
 
   useEffect(() => {
-    setPaused(loadingQuestion);
-  }, [loadingQuestion]);
-
+    if (user) {
+      setSettings({
+        answerTime: user.answerTime || 10,
+        questionAmount: user.questionAmount || 10,
+        capitalQuestions: user.capitalQuestions ?? true,
+        flagQuestions: user.flagQuestions ?? true,
+        monumentQuestions: user.monumentQuestions ?? true,
+        foodQuestions: user.foodQuestions ?? true,
+      });
+    }
+  }, [user]);
 
   const handleAnswer = async (answer) => {
     if (!answer || loadingQuestion) return;
-
-  
     const isCorrect = answer === questionData.answer;
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
   
-    setFeedback({
-      ...feedback,
-      [answer]: isCorrect ? "✅" : "❌"
-    });
-  
+    setFeedback({ ...feedback, [answer]: isCorrect ? "✅" : "❌" });
     setAnswered(true);
     setPaused(true);
-  
-    // Reproducir sonido según la respuesta
+    
     if (isCorrect) {
+      setCorrectCount((prev) => prev + 1);
       playSound(correctSound);
     } else {
+      setWrongCount((prev) => prev + 1);
       playSound(wrongSound);
     }
   
-    setTimerEndTime(Date.now() + settings.answerTime * 1000); // Reiniciar el temporizador
-  
     if (username) {
       try {
-        await axios.post(`${apiEndpoint}/updateStats`, {
-          username,
-          isCorrect,
-          timeTaken
-        });
+        await axios.post(`${apiEndpoint}/updateStats`, { username, isCorrect, timeTaken });
       } catch (error) {
         console.error("Error al actualizar estadísticas:", error);
       }
     }
   
     setTimeout(() => {
-      setPaused(false);
-      setQuestionCounter((prev) => prev + 1); // Incrementar el contador de preguntas
-  
-      if (questionCounter + 1 >= settings.questionAmount) {
-        setSnackbarOpen(true); // Mostrar Snackbar
-        setTimeout(() => navigate("/startmenu"), 3000); // Redirigir al menú principal después de 3 segundos
+      const next = questionCounter + 1;
+      setQuestionCounter(next);
+      if (next >= settings.questionAmount) {
+        setShowSummaryModal(true);
       } else {
+        // Establecer nuevo tiempo ANTES de fetchQuestion
+        setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
         fetchQuestion();
       }
+      setAnswered(false);
+      setPaused(false);
     }, 1000);
   };
-  
 
   const renderer = ({ seconds, completed }) => {
-    if (paused) {
-        return (
-            <Typography variant="h4" color="textSecondary">
-                Pausado...
-            </Typography>
-        );
-    }
-
+    if (paused) return <Typography variant="h4" color="textSecondary">Pausado...</Typography>;
     if (completed) {
-        // Avoid calling setState during rendering
-        setTimeout(() => {
-            setSnackbarOpen(true);
-            navigate("/startmenu");
-        }, 0);
-
-        return (
-            <Typography variant="h4" color="#fff">
-                ⏳ Tiempo agotado
-            </Typography>
-        );
+      setTimeout(() => { setSnackbarOpen(true);}, 0);
+      return <Typography variant="h4" color="#fff">⏳ Tiempo agotado</Typography>;
     }
-
     return (
-        <Box position="relative" display="inline-flex">
-            <CircularProgress
-                variant="determinate"
-                value={(seconds / settings.answerTime) * 100}
-                size={80}
-                thickness={4}
-                sx={{ color: seconds < 3 ? "red" : "#ff4081" }}
-            />
-            <Box
-                top={0}
-                left={0}
-                bottom={0}
-                right={0}
-                position="absolute"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-            >
-                <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>
-                    {seconds}s
-                </Typography>
-            </Box>
+      <Box position="relative" display="inline-flex">
+        <CircularProgress
+          variant="determinate"
+          value={(seconds / settings.answerTime) * 100}
+          size={80}
+          thickness={4}
+          sx={{ color: seconds < 3 ? "red" : "#ff4081" }}
+        />
+        <Box position="absolute" top={0} left={0} bottom={0} right={0} display="flex" alignItems="center" justifyContent="center">
+          <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>{seconds}s</Typography>
         </Box>
+      </Box>
     );
   };
+
+  const handlePlayAgain = () => {
+    setCorrectCount(0);
+    setWrongCount(0);
+    setQuestionCounter(0);
+    setShowSummaryModal(false);
+    fetchQuestion();
+  };  
 
   return (
     <>
@@ -287,57 +235,57 @@ useEffect(() => {
                         />
                       </Box>
                     )}
-                    <Typography 
-                      variant="h6" 
-                      gutterBottom 
+                    <Typography
+                      variant="h6"
+                      gutterBottom
                       sx={{ fontFamily: "Orbitron, sans-serif" }}
                     >
                       {questionData.question}
                     </Typography>
                     <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
-                    {questionData.choices.map((option, index) => (
-                      <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
-                        <Button
-                          variant="contained"
-                          color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
-                          fullWidth
-                          onClick={() => handleAnswer(option)}
-                          disabled={answered} // Deshabilitar los botones después de responder
-                          sx={{
-                            textTransform: "none",
-                            fontWeight: "bold",
-                            backgroundColor: "#FF6584", 
-                            color: "#fff", 
-                            fontFamily: "Orbitron, sans-serif",
-                            "&:hover": {
-                              backgroundColor: "#e91e63",
-                            },
-                          }}
-                        >
-                          {option}
-                        </Button>
-                        {feedback[option] && (
-                          <Typography
-                            variant="h6"
+                      {questionData.choices.map((option, index) => (
+                        <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
+                          <Button
+                            variant="contained"
+                            color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
+                            fullWidth
+                            onClick={() => handleAnswer(option)}
+                            disabled={answered} // Deshabilitar los botones después de responder
                             sx={{
-                              ml: 2,
-                              color: feedback[option] === "✅" ? "green" : "red",
+                              textTransform: "none",
+                              fontWeight: "bold",
+                              backgroundColor: "#FF6584",
+                              color: "#fff",
+                              fontFamily: "Orbitron, sans-serif",
+                              "&:hover": {
+                                backgroundColor: "#e91e63",
+                              },
                             }}
                           >
-                            {feedback[option]}
-                          </Typography>
-                        )}
-                      </Box>
-                    ))}
+                            {option}
+                          </Button>
+                          {feedback[option] && (
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                ml: 2,
+                                color: feedback[option] === "✅" ? "green" : "red",
+                              }}
+                            >
+                              {feedback[option]}
+                            </Typography>
+                          )}
+                        </Box>
+                      ))}
 
-                    {answered && selectedAnswer !== questionData.answer && (
-                      <Typography
-                        variant="h6"
-                        sx={{ mt: 2, color: "#fff", textAlign: "center", fontFamily: "Orbitron, sans-serif", }}
-                      >
-                        La respuesta correcta era: {questionData.answer} ✅
-                      </Typography>
-                    )}
+                      {answered && selectedAnswer !== questionData.answer && (
+                        <Typography
+                          variant="h6"
+                          sx={{ mt: 2, color: "#fff", textAlign: "center", fontFamily: "Orbitron, sans-serif", }}
+                        >
+                          La respuesta correcta era: {questionData.answer} ✅
+                        </Typography>
+                      )}
                     </RadioGroup>
                   </>
                 ) : (
@@ -363,18 +311,35 @@ useEffect(() => {
               >
                 <Typography variant="h5" gutterBottom color="#fff" sx={{fontFamily: "Orbitron, sans-serif",}}>Tiempo restante:</Typography>
                 <Countdown
-                sx={{ fontFamily: "Orbitron, sans-serif"}}
-                  date={timerEndTime}
-                  renderer={renderer}
-                  autoStart={!paused}
-                  onComplete={() => {
-                      if (!answered) {
-                          setAnswered(true); 
+                key={timerEndTime} // ¡Esto es crucial! Forza el reinicio del temporizador
+                date={timerEndTime}
+                renderer={renderer}
+                autoStart={!paused}
+                onComplete={() => {
+                  if (!answered) {
+                    setAnswered(true);
+                    setPaused(true);
+                    setWrongCount(prev => prev + 1);
+                    playSound(wrongSound);
+                    
+                    setTimeout(() => {
+                      const next = questionCounter + 1;
+                      setQuestionCounter(next);
+                      if (next >= settings.questionAmount) {
+                        setShowSummaryModal(true);
+                      } else {
+                        // Establecer nuevo tiempo ANTES de fetchQuestion
+                        setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+                        fetchQuestion();
                       }
-                  }}
-                />
+                      setAnswered(false);
+                      setPaused(false);
+                    }, 1000);
+                  }
+                }}
+              />
               </Paper>
-              
+
               <Paper
                 sx={{
                   mt: 4,
@@ -400,6 +365,31 @@ useEffect(() => {
           }}
         >
           <Button
+            variant="contained2"
+            onClick={handleOpenConfirmationModal}
+            sx={{
+              textTransform: "none",
+              fontWeight: "bold",
+              fontFamily: "Orbitron, sans-serif",
+              backgroundColor: "#f44336",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: "#d32f2f",
+              },
+            }}
+          >
+            Salir al menú principal
+          </Button>
+        </Box>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            zIndex: 10,
+          }}
+        >
+          <Button
             variant="contained"
             color={soundEnabled ? "success" : "error"}
             onClick={toggleSound}
@@ -418,16 +408,48 @@ useEffect(() => {
           </Button>
         </Box>
       </Box>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      <Dialog
+        open={openConfirmationModal}
+        onClose={handleCloseConfirmationModal}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        sx={{ '& .MuiDialog-paper': { backgroundColor: '#0C2D48', color: '#fff', borderRadius: 2 } }}
       >
-        <Alert onClose={handleSnackbarClose} severity="info" sx={{ width: '100%', fontFamily: "Orbitron, sans-serif", }}>
-          {answered ? "¡Fin del juego! Volviendo al menú principal..." : "⏳ Tiempo agotado. Volviendo al menú principal..."}
-        </Alert>
-      </Snackbar>
+        <DialogTitle id="alert-dialog-title" sx={{ fontFamily: "Orbitron, sans-serif", fontWeight: 'bold', fontSize: '1.5rem' }}>
+          {"¿Seguro que quieres salir?"}
+        </DialogTitle>
+        <DialogContent sx={{ fontFamily: "Orbitron, sans-serif", }}>
+          <DialogContentText id="alert-dialog-description" sx={{ color: '#fff', fontFamily: "Orbitron, sans-serif", fontSize: '1rem' }}>
+            Si sales ahora, se terminará la partida actual. ¿Estás seguro de que deseas volver al menú principal?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'space-around', padding: '16px' }}>
+          <Button onClick={handleCloseConfirmationModal} sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', borderColor: '#fff', '&:hover': { borderColor: '#fff' } }} variant="outlined">Cancelar</Button>
+          <Button onClick={handleConfirmExit} autoFocus sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#f44336', color: '#fff', '&:hover': { backgroundColor: '#d32f2f' } }} variant="contained">
+            Salir
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={showSummaryModal}
+        onClose={() => setShowSummaryModal(false)}
+        sx={{ '& .MuiDialog-paper': { backgroundColor: '#0C2D48', color: '#fff', borderRadius: 2 } }}
+      >
+        <DialogTitle sx={{ fontFamily: "Orbitron, sans-serif", fontWeight: 'bold', fontSize: '1.5rem' }}>
+          ¡Resumen de la partida!
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', fontSize: '1rem' }}>
+            <br />Preguntas totales: {correctCount + wrongCount}
+            <br />✅ Correctas: {correctCount}
+            <br />❌ Incorrectas: {wrongCount}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'space-around', padding: '16px' }}>
+          <Button onClick={handlePlayAgain} sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', borderColor: '#fff' }} variant="outlined">Volver a jugar</Button>
+          <Button onClick={handleConfirmExit} sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: 'primary', color: '#fff' }} variant="contained">Volver al menú</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

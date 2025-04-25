@@ -1,0 +1,25 @@
+.start-menu-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: transparent url('../images/world-bg.png');
+    background-size: cover;
+    text-align: center;
+  }
+
+
+  @keyframes zoomMap {
+    0% {
+      background-size: 100%; 
+    }
+    50% {
+      background-size: 110%; 
+    }
+    100% {
+      background-size: 100%; 
+    }
+  }
