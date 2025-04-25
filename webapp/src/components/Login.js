@@ -117,7 +117,9 @@ const Login = ({ onLoginSuccess }) => {
       setCreatedAt(response.data?.createdAt || '');
       setLoginSuccess(true);
       setOpenSnackbar(true);
+      localStorage.setItem("token", response.data.token);
       localStorage.setItem("username", username);
+      localStorage.setItem("role", response.data.role);
       onLoginSuccess();
       navigate('/startmenu');
     } catch (error) {

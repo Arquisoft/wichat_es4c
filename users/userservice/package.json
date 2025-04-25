@@ -19,9 +19,10 @@
   "homepage": "https://github.com/arquisoft/wichat_es4c#readme",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
     "express": "^4.21.2",
-    "mongoose": "^8.9.3",
-    "cors": "^2.8.5" 
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.3"
   },
   "devDependencies": {
     "jest": "^29.7.0",

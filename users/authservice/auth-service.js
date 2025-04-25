@@ -1,8 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('./auth-model')
+const User = require('./auth-model');
 const { check, matchedData, validationResult } = require('express-validator');
 const app = express();
 const port = 8002; 
@@ -14,6 +15,39 @@ app.use(express.json());
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/userdb';
 mongoose.connect(mongoUri);
 
+// Crear usuario admin al iniciar si no existe
+async function createAdminIfNotExists() {
+  const adminName = process.env.ADMIN_NAME;
+  const adminPswd = process.env.ADMIN_PSWD;
+
+  if (!adminName || !adminPswd) {
+    console.warn("ADMIN_NAME o ADMIN_PSWD no definido en .env");
+    return;
+  }
+
+  const existingAdmin = await User.findOne({ username: adminName });
+  if (!existingAdmin) {
+    const hashedPswd = await bcrypt.hash(adminPswd, 10);
+    await User.create({
+      username: adminName,
+      password: hashedPswd,
+      role: 'admin',
+      createdAt: new Date()
+    });
+    console.log(`Administrador ${adminName} creado`);
+  } else if (existingAdmin.role !== 'admin') {
+    existingAdmin.role = 'admin';
+    await existingAdmin.save();
+  }
+}
+
+// Llama a la función una vez conectada la base de datos
+mongoose.connection.once('open', () => {
+  createAdminIfNotExists();
+});
+
+
+
 // Function to validate required fields in the request body
 function validateRequiredFields(req, requiredFields) {
     for (const field of requiredFields) {
@@ -23,32 +57,29 @@ function validateRequiredFields(req, requiredFields) {
     }
 }
 
-// Route for user login
+
+// Endpoint: login
 app.post('/login',  [
   check('username').isLength({ min: 3 }).trim().escape(),
   check('password').isLength({ min: 3 }).trim().escape()
 ],async (req, res) => {
   try {
-    // Check if required fields are present in the request body
-  
-  validateRequiredFields(req, ['username', 'password']);
-  
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ error: errors.array().toString()});
-  }
-    let username =req.body.username.toString();
-    let password =req.body.password.toString();
-    // Find the user by username in the database
+    validateRequiredFields(req, ['username', 'password']);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().toString()});
+    }
+    let username = req.body.username.toString();
+    let password = req.body.password.toString();
     const user = await User.findOne({ username });
-    
-
-    // Check if the user exists and verify the password
     if (user && await bcrypt.compare(password, user.password)) {
-      // Generate a JWT token
-      const token = jwt.sign({ userId: user._id }, 'your-secret-key', { expiresIn: '1h' });
-      // Respond with the token and user information
-      res.json({ token: token, username: username, createdAt: user.createdAt });
+      // Incluimos el atributo role en el JWT
+      const token = jwt.sign(
+        { userId: user._id, role: user.role }, // Incluye el rol
+        'your-secret-key',
+        { expiresIn: '1h' }
+      );
+      res.json({ token: token, username: username, role: user.role, createdAt: user.createdAt });
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -57,14 +88,35 @@ app.post('/login',  [
   }
 });
 
-// Start the server
+app.get('/adminPanel', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'your-secret-key'); // Usa la misma clave que al firmar el token
+
+    // Verifica en la base de datos que el usuario sigue siendo admin
+    const user = await User.findById(decoded.userId);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Acceso denegado. Se requiere rol de administrador.' });
+    }
+
+    const users = await User.find({}, '-password');
+    res.json(users);
+  } catch (error) {
+    return res.status(401).json({ error: 'Token inválido o expirado' });
+  }
+});
+
+// Start server
 const server = app.listen(port, () => {
   console.log(`Auth Service listening at http://localhost:${port}`);
 });
 
 server.on('close', () => {
-    // Close the Mongoose connection
     mongoose.connection.close();
-  });
+});
 
-module.exports = server
+module.exports = server;
