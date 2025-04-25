@@ -75,25 +75,29 @@ import { useState, useEffect } from "react";
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
+  
+    if ((name === "answerTime" || name === "questionAmount") && parseInt(value) < 0) {
+      return;
+    }
+  
     if (name === "questionAmount" && parseInt(value) > 40) {
       setWarningSnackbar(true);
       return;
     }
-
+  
     if (name === "answerTime" && parseInt(value) > 60) {
       setTimeWarningSnackbar(true);
       return;
     }
-
+  
     setSettings(prev => ({
       ...prev,
       [name]: type === "checkbox" ? checked : (
-        // Convert string values to numbers for numeric fields
         name === "answerTime" || name === "questionAmount" ? parseInt(value) || 0 : value
       )
     }));
   };
+  
 
   const handleSave = async () => {
     console.log("Guardando ajustes:", settings);
@@ -183,7 +187,10 @@ import { useState, useEffect } from "react";
               margin="normal"
               variant="outlined"
               InputLabelProps={{ style: { color: "#f5f5f5" } }}
-              InputProps={{ style: { color: "#f5f5f5" } }}
+              InputProps={{
+                style: { color: "#f5f5f5" },
+                inputProps: { min: 0 }
+              }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": { borderColor: "#f5f5f5" },
