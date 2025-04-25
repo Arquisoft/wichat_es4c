@@ -66,29 +66,30 @@ app.post('/adduser', async (req, res) => {
     }
 });
 
-// **Obtener el perfil de un usuario**
 app.get('/profile/:username', async (req, res) => {
-    try {
-        const user = await User.findOne({ username: req.params.username });
+  try {
+    const user = await User.findOne({ username: req.params.username });
 
-        if (!user) {
-            return res.status(404).json({ error: "Usuario no encontrado" });
-        }
-
-        res.json({
-            _id: user._id,
-            username: user.username,
-            gamesPlayed: user.gamesPlayed,
-            correctAnswers: user.correctAnswers,
-            wrongAnswers: user.wrongAnswers,
-            totalTimePlayed: user.totalTimePlayed,
-            gameHistory: user.gameHistory
-        });
-    } catch (error) {
-        console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error);
-        res.status(500).json({ error: `Error al obtener el perfil del usuario ${req.params.username}` });
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      gamesPlayed: user.gamesPlayed,
+      correctAnswers: user.correctAnswers,
+      wrongAnswers: user.wrongAnswers,
+      totalTimePlayed: user.totalTimePlayed,
+      gameHistory: user.gameHistory,
+      challengeRequest: user.challengeRequest || null 
+    });
+  } catch (error) {
+    console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error);
+    res.status(500).json({ error: `Error al obtener el perfil del usuario ${req.params.username}` });
+  }
 });
+
 
 // **Actualizar estadísticas del usuario** 
 app.post('/updateStats', async (req, res) => {
@@ -251,6 +252,108 @@ app.post('/addFriend', async (req, res) => {
   }
 });
 
+app.post('/removeFriend', async (req, res) => {
+  try {
+    const { userId, friendUsername } = req.body;
+
+    if (!userId || !friendUsername) {
+      return res.status(400).json({ error: "Faltan userId o friendUsername" });
+    }
+
+    const user = await User.findById(userId);
+    const friend = await User.findOne({ username: friendUsername });
+
+    if (!user || !friend) {
+      return res.status(404).json({ error: "Usuario o amigo no encontrado" });
+    }
+
+    // Filtrar para eliminar del array de amigos (en ambos sentidos)
+    user.friends = user.friends.filter(id => id.toString() !== friend._id.toString());
+    friend.friends = friend.friends.filter(id => id.toString() !== user._id.toString());
+
+    await user.save();
+    await friend.save();
+
+    res.json({ message: "Amigo eliminado correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar amigo:", error);
+    res.status(500).json({ error: "Error al eliminar amigo" });
+  }
+});
+
+// Estructura opcional del reto, como objeto embebido
+// Lo puedes añadir en user-model.js si no existe:
+// challengeRequest: { from: String, timestamp: Date }
+
+app.post('/challengeFriend', async (req, res) => {
+  try {
+    const { fromUsername, toUsername } = req.body;
+
+    if (!fromUsername || !toUsername) {
+      return res.status(400).json({ error: "Faltan datos del reto" });
+    }
+
+    if (fromUsername === toUsername) {
+      return res.status(400).json({ error: "No puedes retarte a ti mismo" });
+    }
+
+    const toUser = await User.findOne({ username: toUsername });
+
+    if (!toUser) {
+      return res.status(404).json({ error: "Usuario destinatario no encontrado" });
+    }
+
+    toUser.challengeRequest = {
+      from: fromUsername,
+      timestamp: new Date()
+    };
+
+    await toUser.save();
+
+    res.json({ message: "Reto enviado" });
+  } catch (error) {
+    console.error("Error al enviar el reto:", error);
+    res.status(500).json({ error: "Error al enviar el reto" });
+  }
+});
+
+// Aceptar un reto
+app.post('/acceptChallenge', async (req, res) => {
+  const { username } = req.body;
+  try {
+    const user = await User.findOne({ username });
+    if (!user || !user.challengeRequest) {
+      return res.status(404).json({ error: "No hay ningún reto activo." });
+    }
+
+    // Lógica para iniciar la batalla iría aquí...
+
+    user.challengeRequest = null;
+    await user.save();
+    res.json({ message: "Reto aceptado y limpiado" });
+  } catch (err) {
+    console.error("Error al aceptar reto:", err);
+    res.status(500).json({ error: "Error al aceptar reto" });
+  }
+});
+
+// Rechazar un reto
+app.post('/rejectChallenge', async (req, res) => {
+  const { username } = req.body;
+  try {
+    const user = await User.findOne({ username });
+    if (!user || !user.challengeRequest) {
+      return res.status(404).json({ error: "No hay ningún reto activo." });
+    }
+
+    user.challengeRequest = null;
+    await user.save();
+    res.json({ message: "Reto rechazado y limpiado" });
+  } catch (err) {
+    console.error("Error al rechazar reto:", err);
+    res.status(500).json({ error: "Error al rechazar reto" });
+  }
+});
 
 
 app.get('/getSettings/:username', async (req, res) => {

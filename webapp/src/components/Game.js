@@ -419,6 +419,12 @@ const Game = () => {
         </Box>
       </Box>
 
+      <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 10, color: '#fff', fontFamily: 'Orbitron, sans-serif' }}>
+        <Typography variant="h6">
+          {localStorage.getItem("username")}
+        </Typography>
+      </Box>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}

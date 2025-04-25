@@ -100,6 +100,54 @@ app.post('/addFriend', async (req, res) => {
   }
 });
 
+// Borrar un amigo
+app.post('/removeFriend', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/removeFriend`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al borrar amigo"
+    });
+  }
+});
+
+// Retar un amigo
+app.post('/challengeFriend', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/challengeFriend`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al retar a un amigo"
+    });
+  }
+});
+
+// Retar un amigo
+app.post('/rejectChallenge', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/rejectChallenge`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al rechazar reto"
+    });
+  }
+});
+
+// Retar un amigo
+app.post('/acceptChallenge', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/acceptChallenge`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al aceptar reto"
+    });
+  }
+});
+
 // Actualizar estadísticas del usuario
 app.post('/updateStats', async (req, res) => {
   try {

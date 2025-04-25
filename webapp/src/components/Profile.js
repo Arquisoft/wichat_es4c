@@ -2,6 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
+  Tooltip,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
   Card,
   CardContent,
@@ -16,6 +22,7 @@ import {
   ListItemText,
   Drawer,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 
@@ -29,6 +36,10 @@ const Profile = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [friends, setFriends] = useState([]);
   const [friendIdInput, setFriendIdInput] = useState("");
+  const [challengeRequest, setChallengeRequest] = useState(null);
+  const [challengeDialogOpen, setChallengeDialogOpen] = useState(false);
+  const [waitingForChallenge, setWaitingForChallenge] = useState(false);
+  const [challengedFriend, setChallengedFriend] = useState("");
 
   const localUsername = localStorage.getItem("username");
 
@@ -44,15 +55,29 @@ const Profile = () => {
         setUser(response.data);
         setUserId(response.data._id);
       } catch (error) {
-        setError(error.response?.data?.error || "No se pudo obtener la informacion del perfil");
+        setError(error.response?.data?.error || "No se pudo obtener la información del perfil");
         setOpenSnackbar(true);
       } finally {
         setLoading(false);
       }
     };
 
+    const checkChallengeRequest = async () => {
+      if (username !== localUsername) return;
+      try {
+        const res = await axios.get(`${apiEndpoint}/profile/${localUsername}`);
+        if (res.data.challengeRequest?.from) {
+          setChallengeRequest(res.data.challengeRequest);
+          setChallengeDialogOpen(true);
+        }
+      } catch (err) {
+        console.error("Error al comprobar retos:", err);
+      }
+    };
+
     fetchUserProfile();
-  }, [username, navigate]);
+    checkChallengeRequest();
+  }, [username, navigate, localUsername]);
 
   const fetchFriends = async () => {
     if (username !== localUsername) return;
@@ -80,7 +105,6 @@ const Profile = () => {
       });
 
       await fetchFriends();
-
       alert("Amigo añadido correctamente.");
       setFriendIdInput("");
     } catch (error) {
@@ -88,6 +112,66 @@ const Profile = () => {
       console.error(error);
     }
   };
+
+  const handleRemoveFriend = async (friendUsername) => {
+    try {
+      await axios.post(`${apiEndpoint}/removeFriend`, {
+        userId,
+        friendUsername,
+      });
+
+      await fetchFriends();
+      alert("Amigo eliminado correctamente.");
+    } catch (error) {
+      alert("Error al eliminar amigo.");
+      console.error(error);
+    }
+  };
+
+  const sendChallenge = async (friendUsername) => {
+    try {
+      await axios.post(`${apiEndpoint}/challengeFriend`, {
+        fromUsername: localUsername,
+        toUsername: friendUsername,
+      });
+
+      setChallengedFriend(friendUsername);
+      setWaitingForChallenge(true);
+    } catch (error) {
+      alert("Error al enviar el reto.");
+      console.error(error);
+    }
+  };
+
+  const acceptChallenge = async () => {
+    try {
+      await axios.post(`${apiEndpoint}/acceptChallenge`, {
+        username: localUsername,
+        from: challengeRequest?.from
+      });
+      alert("Reto aceptado. ¡Preparando batalla!");
+      setChallengeDialogOpen(false);
+      setChallengeRequest(null);
+    } catch (error) {
+      console.error("Error al aceptar el reto:", error);
+      alert("Error al aceptar el reto.");
+    }
+  };
+  
+  const rejectChallenge = async () => {
+    try {
+      await axios.post(`${apiEndpoint}/rejectChallenge`, {
+        username: localUsername
+      });
+      alert("Reto rechazado.");
+      setChallengeDialogOpen(false);
+      setChallengeRequest(null);
+    } catch (error) {
+      console.error("Error al rechazar el reto:", error);
+      alert("Error al rechazar el reto.");
+    }
+  };
+  
 
   if (loading) {
     return (
@@ -146,19 +230,45 @@ const Profile = () => {
                 </Typography>
               ) : (
                 friends.map((friend, index) => (
-                  <ListItem 
-                    key={index} 
-                    button 
-                    onClick={() => navigate(`/profile/${friend}`)} 
-                    sx={{ 
-                      '&:hover': { backgroundColor: "#ffffff22" }, 
-                      borderRadius: 1, 
-                      cursor: "pointer" 
+                  <ListItem
+                    key={index}
+                    sx={{
+                      '&:hover': { backgroundColor: "#ffffff22" },
+                      borderRadius: 1
                     }}
+                    secondaryAction={
+                      <>
+                        <Tooltip title="Retar a batalla">
+                          <IconButton
+                            edge="end"
+                            sx={{ color: "#0f0" }}
+                            onClick={() => sendChallenge(friend)}
+                          >
+                            ⚔️
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Eliminar amigo">
+                          <IconButton
+                            edge="end"
+                            sx={{ color: "#f44336" }}
+                            onClick={() => handleRemoveFriend(friend)}
+                          >
+                            <CloseIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    }
                   >
-                    <ListItemText primary={friend} primaryTypographyProps={{ color: "white", fontWeight: "bold" }} />
+                    <ListItemText
+                      primary={friend}
+                      primaryTypographyProps={{
+                        color: "white",
+                        fontWeight: "bold",
+                        sx: { cursor: "pointer" },
+                        onClick: () => navigate(`/profile/${friend}`)
+                      }}
+                    />
                   </ListItem>
-
                 ))
               )}
             </List>
@@ -211,137 +321,105 @@ const Profile = () => {
           </Box>
         </Drawer>
       )}
-  <Box
-  sx={{
-    flexGrow: 1,
-    display: "flex",
-    justifyContent: "center",
-    transition: "margin 0.3s ease",
-    marginRight: username === localUsername ? "240px" : 0, // Ajusta si Drawer está abierto
-  }}
->
-  
 
-      <Card
+      <Box
         sx={{
-          backgroundColor: "rgba(255, 255, 255, 0.15)",
-          backdropFilter: "blur(10px)",
-          color: "#ffffff",
-          borderRadius: 3,
-          p: 4,
-          minWidth: 450,
-          maxWidth: 600,
-          boxShadow: 5,
+          flexGrow: 1,
+          display: "flex",
+          justifyContent: "center",
+          transition: "margin 0.3s ease",
+          marginRight: username === localUsername ? "240px" : 0,
         }}
       >
-        <CardContent>
-          <Box sx={{ textAlign: "center", mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#ff4081" }}>
-              {user.username}
-            </Typography>
-            <Typography variant="body1" sx={{ color: "#ffffff99" }}>
-              Jugador activo
-            </Typography>
-          </Box>
+        <Card
+          sx={{
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            backdropFilter: "blur(10px)",
+            color: "#ffffff",
+            borderRadius: 3,
+            p: 4,
+            minWidth: 450,
+            maxWidth: 600,
+            boxShadow: 5,
+          }}
+        >
+          <CardContent>
+            <Box sx={{ textAlign: "center", mb: 3 }}>
+              <Typography variant="h4" sx={{ fontWeight: "bold", color: "#ff4081" }}>
+                {user.username}
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#ffffff99" }}>
+                Jugador activo
+              </Typography>
+            </Box>
 
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <Typography variant="h6" sx={{ color: "#ffffff" }}>
-                🎮 Juegos Jugados
-              </Typography>
-              <Typography variant="body1">{user.gamesPlayed}</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6}><Typography variant="h6">🎮 Juegos Jugados</Typography><Typography>{user.gamesPlayed}</Typography></Grid>
+              <Grid item xs={6}><Typography variant="h6">✅ Respuestas Correctas</Typography><Typography sx={{ color: "#0f0" }}>{user.correctAnswers}</Typography></Grid>
+              <Grid item xs={6}><Typography variant="h6">❌ Respuestas Incorrectas</Typography><Typography sx={{ color: "#f00" }}>{user.wrongAnswers}</Typography></Grid>
+              <Grid item xs={6}><Typography variant="h6">⏳ Tiempo Jugado</Typography><Typography>{user.totalTimePlayed} seg</Typography></Grid>
             </Grid>
-            <Grid item xs={6}>
-              <Typography variant="h6" sx={{ color: "#ffffff" }}>
-                ✅ Respuestas Correctas
-              </Typography>
-              <Typography variant="body1" sx={{ color: "#0f0" }}>
-                {user.correctAnswers}
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Typography variant="h6" sx={{ color: "#ffffff" }}>
-                ❌ Respuestas Incorrectas
-              </Typography>
-              <Typography variant="body1" sx={{ color: "#f00" }}>
-                {user.wrongAnswers}
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Typography variant="h6" sx={{ color: "#ffffff" }}>
-                ⏳ Tiempo Jugado
-              </Typography>
-              <Typography variant="body1">{user.totalTimePlayed} seg</Typography>
-            </Grid>
-          </Grid>
 
-          {user?.gameHistory?.length > 0 && (
-            <Box sx={{ mt: 4 }}>
-              <Typography variant="h6" sx={{ mb: 1, textAlign: "center", color: "#ffffff" }}>
-                Historial de Partidas
-              </Typography>
-              <Box
-                sx={{
-                  maxHeight: "200px",
-                  overflowY: "auto",
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  borderRadius: 2,
-                  p: 2,
-                }}
-              >
-                {user.gameHistory
-                  .slice()
-                  .reverse()
-                  .map((game, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 1,
-                        borderBottom: "1px solid #ffffff33",
-                        pb: 1,
-                      }}
-                    >
-                      <Typography variant="body2" color="#ccc">
-                        {new Date(game.date).toLocaleString()}
-                      </Typography>
+            {user?.gameHistory?.length > 0 && (
+              <Box sx={{ mt: 4 }}>
+                <Typography variant="h6" sx={{ mb: 1, textAlign: "center" }}>Historial de Partidas</Typography>
+                <Box sx={{ maxHeight: "200px", overflowY: "auto", backgroundColor: "rgba(255, 255, 255, 0.1)", borderRadius: 2, p: 2 }}>
+                  {user.gameHistory.slice().reverse().map((game, index) => (
+                    <Box key={index} sx={{ display: "flex", justifyContent: "space-between", mb: 1, borderBottom: "1px solid #ffffff33", pb: 1 }}>
+                      <Typography variant="body2" color="#ccc">{new Date(game.date).toLocaleString()}</Typography>
                       <Box display="flex" gap={1}>
-                        <Typography variant="body2" sx={{ color: "lightgreen" }}>
-                          ✅ {game.correct}
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "red" }}>
-                          ❌ {game.wrong}
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#ffffffcc" }}>
-                          ⏱ {game.timePlayed}s
-                        </Typography>
+                        <Typography variant="body2" sx={{ color: "lightgreen" }}>✅ {game.correct}</Typography>
+                        <Typography variant="body2" sx={{ color: "red" }}>❌ {game.wrong}</Typography>
+                        <Typography variant="body2" sx={{ color: "#ffffffcc" }}>⏱ {game.timePlayed}s</Typography>
                       </Box>
                     </Box>
                   ))}
+                </Box>
               </Box>
-            </Box>
-          )}
+            )}
 
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 4 }}>
-            <Button
-              variant="contained"
-              onClick={() => navigate("/startmenu")}
-              sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", "&:hover": { bgcolor: "#f50057" } }}
-            >
-              Volver al menú
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => navigate("/ranking")}
-              sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", "&:hover": { bgcolor: "#f50057" } }}
-            >
-              Ver ranking
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
+            <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 4 }}>
+              <Button variant="contained" onClick={() => navigate("/startmenu")} sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", "&:hover": { bgcolor: "#f50057" } }}>
+                Volver al menú
+              </Button>
+              <Button variant="contained" onClick={() => navigate("/ranking")} sx={{ backgroundColor: "#ff4081", color: "#fff", fontWeight: "bold", "&:hover": { bgcolor: "#f50057" } }}>
+                Ver ranking
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+
+      <Dialog open={challengeDialogOpen} onClose={() => setChallengeDialogOpen(false)}>
+        <DialogTitle>¡Has sido retado!</DialogTitle>
+        <DialogContent>
+          <Typography><strong>{challengeRequest?.from}</strong> te ha retado a una batalla. ¿Aceptas?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={rejectChallenge} sx={{ color: "#f44336" }}>
+            Rechazar
+          </Button>
+          <Button onClick={acceptChallenge} autoFocus sx={{ color: "#4caf50" }}>
+            Aceptar
+          </Button>
+        </DialogActions>
+
+      </Dialog>
+
+      <Dialog open={waitingForChallenge} disableEscapeKeyDown hideBackdrop>
+        <DialogTitle>Esperando respuesta...</DialogTitle>
+        <DialogContent>
+          <Typography>Has retado a <strong>{challengedFriend}</strong>. Esperando su respuesta...</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setWaitingForChallenge(false);
+            setChallengedFriend("");
+          }} sx={{ color: "#f44336", fontWeight: "bold" }}>
+            Cancelar reto
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar open={openSnackbar} autoHideDuration={6000} message={`Error: ${error}`} onClose={() => setOpenSnackbar(false)} />
     </Box>

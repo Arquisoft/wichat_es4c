@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
       timePlayed: { type: Number, default: 0 }  // 🔹 Tiempo jugado en esa partida (segundos)
     }
   ],
+  challengeRequest: {
+    from: { type: String },
+    timestamp: { type: Date }
+  },
   settings: {
     answerTime: { type: Number, default: 10 },         // 🔹 Tiempo de respuesta por pregunta (en segundos)
     questionAmount: { type: Number, default: 10 },     // 🔹 Número de preguntas por partida
