@@ -6,7 +6,7 @@ import {
   TableCell, TableContainer, TableHead, TableRow, Paper, Button, Select, MenuItem,
   Pagination // Importa el componente Pagination de Material-UI
 } from "@mui/material";
-import "../assets/css/Ranking.css";
+import "../assets/css/AnimatedBackground.css";
 
 const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 
@@ -138,23 +138,24 @@ const Ranking = () => {
             backgroundColor: "rgba(255, 255, 255, 0.04)",
             borderRadius: 3,
             maxHeight: 420,
-            overflowY: "auto",
-            overflowX: "hidden",
+            overflowX: "hidden", // Mantenemos el overflowX hidden si lo tenías por diseño
             boxShadow: "inset 0 0 12px rgba(179,136,255,0.2)",
             backdropFilter: "blur(8px)",
-            scrollbarWidth: "thin",
-            scrollbarColor: "#b388ff88 transparent",
-            "&::-webkit-scrollbar": {
-              width: "8px"
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#b388ff88",
-              borderRadius: "8px",
-              boxShadow: "inset 0 0 6px #b388ff"
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "transparent"
-            }
+            // Eliminamos las siguientes líneas relacionadas con la scrollbar
+            // overflowY: "auto",
+            // scrollbarWidth: "thin",
+            // scrollbarColor: "#b388ff88 transparent",
+            // "&::-webkit-scrollbar": {
+            //   width: "8px"
+            // },
+            // "&::-webkit-scrollbar-thumb": {
+            //   backgroundColor: "#b388ff88",
+            //   borderRadius: "8px",
+            //   boxShadow: "inset 0 0 6px #b388ff"
+            // },
+            // "&::-webkit-scrollbar-track": {
+            //   backgroundColor: "transparent"
+            // }
           }}>
             <Table stickyHeader>
               <TableHead>
