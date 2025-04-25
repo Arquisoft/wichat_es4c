@@ -25,7 +25,7 @@ describe('Home Component', () => {
 
     // --- VERIFICACIONES CORREGIDAS ---
     // Verificar el título principal (h1)
-    expect(screen.getByRole('heading', { name: /World Capitals Quiz/i, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /WICHAT/i, level: 1 })).toBeInTheDocument();
 
     // Verificar el subtítulo (h6)
     expect(screen.getByRole('heading', { name: /Test your geography knowledge!/i, level: 6 })).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe('Home Component', () => {
     // Verificar el color del texto en el Paper (asegúrate que esta selección sea robusta)
     // El Paper es el contenedor de los títulos y botones
     // Podemos buscarlo por el texto que contiene y luego subir al contenedor Paper
-    const paperElement = screen.getByText(/World Capitals Quiz/i).closest('.MuiPaper-root'); // Busca el ancestro con la clase MuiPaper-root
+    const paperElement = screen.getByText(/WICHAT/i).closest('.MuiPaper-root'); // Busca el ancestro con la clase MuiPaper-root
     expect(paperElement).toHaveStyle('color: white');
     // También podrías añadir un data-testid al Paper en Home.jsx para una selección más fiable:
     // En Home.jsx: <Paper data-testid="content-paper" ... >

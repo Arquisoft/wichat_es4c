@@ -8,7 +8,7 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import "../assets/css/Profile.css";
+import "../assets/css/AnimatedBackground.css";
 
 const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
 

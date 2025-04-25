@@ -49,6 +49,15 @@ const Game = () => {
   const correctSound = new Howl({ src: [correctSoundFile], volume: 0.2 });
   const wrongSound = new Howl({ src: [wrongSoundFile], volume: 0.2 });
 
+  // Efecto para controlar la pausa durante el resumen
+  useEffect(() => {
+    if (showSummaryModal) {
+      setPaused(true);
+    } else {
+      setPaused(false);
+    }
+  }, [showSummaryModal]);
+
   const toggleSound = () => setSoundEnabled((prev) => !prev);
   const playSound = (sound) => { if (soundEnabled) sound.play(); };
 
@@ -57,7 +66,11 @@ const Game = () => {
 
   const handleOpenConfirmationModal = () => setOpenConfirmationModal(true);
   const handleCloseConfirmationModal = () => setOpenConfirmationModal(false);
-  const handleConfirmExit = () => { backgroundMusic.stop(); navigate("/startmenu"); };
+  const handleConfirmExit = () => { 
+    backgroundMusic.stop(); 
+    setPaused(true);
+    navigate("/startmenu"); 
+  };
   const handleSnackbarClose = () => setSnackbarOpen(false);
 
   const newGame = useCallback(async () => {
@@ -73,9 +86,9 @@ const Game = () => {
       setSelectedAnswer("");
       setFeedback({});
       setAnswered(false);
+      setPaused(false);
       startTime.current = Date.now();
       
-      // Primero establecer el nuevo tiempo
       setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
       
       const response = await axios.get(`${apiEndpoint}/question`);
@@ -87,7 +100,6 @@ const Game = () => {
     }
   }, [loadingQuestion, apiEndpoint, settings.answerTime]);
   
-
   useEffect(() => { if (!hasFetched.current && settings.answerTime) { newGame(); fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
 
   useEffect(() => {
@@ -121,7 +133,7 @@ const Game = () => {
   }, [user]);
 
   const handleAnswer = async (answer) => {
-    if (!answer || loadingQuestion) return;
+    if (!answer || loadingQuestion || answered) return;
     const isCorrect = answer === questionData.answer;
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
   
@@ -147,23 +159,22 @@ const Game = () => {
   
     setTimeout(() => {
       const next = questionCounter + 1;
-      setQuestionCounter(next);
       if (next >= settings.questionAmount) {
         setShowSummaryModal(true);
       } else {
-        // Establecer nuevo tiempo ANTES de fetchQuestion
+        setQuestionCounter(next);
         setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
         fetchQuestion();
       }
       setAnswered(false);
       setPaused(false);
-    }, 1000);
+    }, 2500);
   };
 
   const renderer = ({ seconds, completed }) => {
-    if (paused) return <Typography variant="h4" color="textSecondary">Pausado...</Typography>;
+    if (paused || showSummaryModal) return <Typography variant="h4" color="textSecondary">Pausado...</Typography>;
     if (completed) {
-      setTimeout(() => { setSnackbarOpen(true);}, 0);
+      setTimeout(() => { setSnackbarOpen(true); }, 0);
       return <Typography variant="h4" color="#fff">⏳ Tiempo agotado</Typography>;
     }
     return (
@@ -187,8 +198,11 @@ const Game = () => {
     setWrongCount(0);
     setQuestionCounter(0);
     setShowSummaryModal(false);
+    setAnswered(false);
+    setPaused(false);
+    setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
     fetchQuestion();
-  };  
+  };   
 
   return (
     <>
@@ -250,7 +264,7 @@ const Game = () => {
                             color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
                             fullWidth
                             onClick={() => handleAnswer(option)}
-                            disabled={answered} // Deshabilitar los botones después de responder
+                            disabled={answered || showSummaryModal}
                             sx={{
                               textTransform: "none",
                               fontWeight: "bold",
@@ -311,33 +325,32 @@ const Game = () => {
               >
                 <Typography variant="h5" gutterBottom color="#fff" sx={{fontFamily: "Orbitron, sans-serif",}}>Tiempo restante:</Typography>
                 <Countdown
-                key={timerEndTime} // ¡Esto es crucial! Forza el reinicio del temporizador
-                date={timerEndTime}
-                renderer={renderer}
-                autoStart={!paused}
-                onComplete={() => {
-                  if (!answered) {
-                    setAnswered(true);
-                    setPaused(true);
-                    setWrongCount(prev => prev + 1);
-                    playSound(wrongSound);
-                    
-                    setTimeout(() => {
-                      const next = questionCounter + 1;
-                      setQuestionCounter(next);
-                      if (next >= settings.questionAmount) {
-                        setShowSummaryModal(true);
-                      } else {
-                        // Establecer nuevo tiempo ANTES de fetchQuestion
-                        setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
-                        fetchQuestion();
-                      }
-                      setAnswered(false);
-                      setPaused(false);
-                    }, 1000);
-                  }
-                }}
-              />
+                  key={`${timerEndTime}-${questionCounter}`}
+                  date={timerEndTime}
+                  renderer={renderer}
+                  autoStart={!paused && !showSummaryModal}
+                  onComplete={() => {
+                    if (!answered && !showSummaryModal) {
+                      setAnswered(true);
+                      setPaused(true);
+                      setWrongCount(prev => prev + 1);
+                      playSound(wrongSound);
+                      
+                      setTimeout(() => {
+                        const next = questionCounter + 1;
+                        if (next >= settings.questionAmount) {
+                          setShowSummaryModal(true);
+                        } else {
+                          setQuestionCounter(next);
+                          setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+                          fetchQuestion();
+                        }
+                        setAnswered(false);
+                        setPaused(false);
+                      }, 1000);
+                    }
+                  }}
+                />
               </Paper>
 
               <Paper
@@ -440,9 +453,11 @@ const Game = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', fontSize: '1rem' }}>
-            <br />Preguntas totales: {correctCount + wrongCount}
+            <br />Preguntas totales: {settings.questionAmount}
+            <br />Preguntas respondidas: {correctCount + wrongCount}
             <br />✅ Correctas: {correctCount}
             <br />❌ Incorrectas: {wrongCount}
+            <br />Porcentaje de aciertos: {Math.round((correctCount / settings.questionAmount) * 100)}%
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-around', padding: '16px' }}>

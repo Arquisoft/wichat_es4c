@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
  import SettingsIcon from '@mui/icons-material/Settings';
  import SaveIcon from '@mui/icons-material/Save';
  import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+ import "../assets/css/AnimatedBackground.css";
 
  export default function SettingsCard() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -74,25 +75,29 @@ import { useState, useEffect } from "react";
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
+  
+    if ((name === "answerTime" || name === "questionAmount") && parseInt(value) < 0) {
+      return;
+    }
+  
     if (name === "questionAmount" && parseInt(value) > 40) {
       setWarningSnackbar(true);
       return;
     }
-
+  
     if (name === "answerTime" && parseInt(value) > 60) {
       setTimeWarningSnackbar(true);
       return;
     }
-
+  
     setSettings(prev => ({
       ...prev,
       [name]: type === "checkbox" ? checked : (
-        // Convert string values to numbers for numeric fields
         name === "answerTime" || name === "questionAmount" ? parseInt(value) || 0 : value
       )
     }));
   };
+  
 
   const handleSave = async () => {
     console.log("Guardando ajustes:", settings);
@@ -114,6 +119,9 @@ import { useState, useEffect } from "react";
       const data = await response.json();
       console.log("Save response:", data);
       setOpenSnackbar(true);
+      setTimeout(() => {
+        handleBack();
+      }, 1000);
     } catch (error) {
       console.error("Error saving settings:", error);
       setErrorMessage(error.message || "Error al guardar los ajustes");
@@ -137,21 +145,32 @@ import { useState, useEffect } from "react";
   }
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh"
+    <Box className="start-menu-container" display="flex" justifyContent="center" alignItems="center" minHeight="100vh"
       sx={{
-        background: 'radial-gradient(circle, #3f51b5 0%, #1a237e 100%)',
         padding: 4,
+        backgroundSize: "200% 200%",
+        animation: "floatBg 40s ease-in-out infinite",
+        '@keyframes floatBg': {
+          '0%': { backgroundPosition: '0% 0%' },
+          '50%': { backgroundPosition: '100% 100%' },
+          '100%': { backgroundPosition: '0% 0%' }
+        },
+        p: 2,
+        fontFamily: 'Orbitron, sans-serif',
+        overflow: "hidden"
       }}>
       <Card sx={{
         maxWidth: 600,
         p: 3,
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
         borderRadius: 4,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        backdropFilter: "blur(15px)",
+        background: "linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(50, 50, 50, 0.7))",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(255, 255, 255, 0.2)",
         color: "#ffffff",
         width: "100%",
       }}>
+
         <CardContent>
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <SettingsIcon sx={{ color: "#64b5f6", mr: 1, fontSize: "2rem" }} />
@@ -171,7 +190,10 @@ import { useState, useEffect } from "react";
               margin="normal"
               variant="outlined"
               InputLabelProps={{ style: { color: "#f5f5f5" } }}
-              InputProps={{ style: { color: "#f5f5f5" } }}
+              InputProps={{
+                style: { color: "#f5f5f5" },
+                inputProps: { min: 0 }
+              }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": { borderColor: "#f5f5f5" },

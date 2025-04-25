@@ -46,10 +46,8 @@ const StartMenu = () => {
           sx={{ 
             position: "absolute", 
             top: 20, 
-            left: 20, 
+            left: 25, 
             display: "flex", 
-            gap: 2, 
-            zIndex: 2 
           }}
         >
           <Button
@@ -60,7 +58,7 @@ const StartMenu = () => {
               color: "#fff",
               fontWeight: "bold",
               boxShadow: 3,
-              scale: 1.25,
+              scale: 1.15,
               fontFamily: "Orbitron, sans-serif",
               "&:hover": { bgcolor: "#f50057" },
             }}
@@ -212,7 +210,7 @@ const StartMenu = () => {
               ¿CÓMO JUGAR?
             </Typography>
             <Typography variant="body1" sx={{ fontSize: "20px", fontWeight: "bold", color: "#FED43F", fontFamily: "Orbitron, sans-serif", marginTop: 8 }}>
-              Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 4 posibles
+            ¡Pon a prueba tus conocimientos geográficos! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 4 posibles
               respuestas. Cada pregunta debe ser respondida en un tiempo determinado. Se ofrece la posibilidad de obtener
               pistas mediante un chatbot.
             </Typography>
