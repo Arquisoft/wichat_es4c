@@ -210,7 +210,7 @@ const StartMenu = () => {
               ¿CÓMO JUGAR?
             </Typography>
             <Typography variant="body1" sx={{ fontSize: "20px", fontWeight: "bold", color: "#FED43F", fontFamily: "Orbitron, sans-serif", marginTop: 8 }}>
-              Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 4 posibles
+            ¡Pon a prueba tus conocimientos geográficos! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 4 posibles
               respuestas. Cada pregunta debe ser respondida en un tiempo determinado. Se ofrece la posibilidad de obtener
               pistas mediante un chatbot.
             </Typography>

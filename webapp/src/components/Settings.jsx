@@ -119,6 +119,9 @@ import { useState, useEffect } from "react";
       const data = await response.json();
       console.log("Save response:", data);
       setOpenSnackbar(true);
+      setTimeout(() => {
+        handleBack();
+      }, 1000);
     } catch (error) {
       console.error("Error saving settings:", error);
       setErrorMessage(error.message || "Error al guardar los ajustes");

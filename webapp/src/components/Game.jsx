@@ -168,7 +168,7 @@ const Game = () => {
       }
       setAnswered(false);
       setPaused(false);
-    }, 1000);
+    }, 2500);
   };
 
   const renderer = ({ seconds, completed }) => {
