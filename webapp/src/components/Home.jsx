@@ -24,13 +24,11 @@ const Home = () => {
       const endLat = (Math.random() - 0.5) * 180;
       const endLng = (Math.random() - 0.5) * 360;
 
-      // Devuelve el objeto del arco
       return {
         startLat,
         startLng,
         endLat,
         endLng,
-        // Color aleatorio o fijo (ej: un tono cyan/blanco)
         color: `rgba(${100 + Math.random() * 155}, ${200 + Math.random() * 55}, 255, 0.8)`,
       };
     };
@@ -39,8 +37,7 @@ const Home = () => {
     const interval = setInterval(() => {
       setArcsData(prevArcs => {
         const newArc = generateRandomArc();
-        // Añade el nuevo arco y limita el total al MAX_ARCS, eliminando el más antiguo
-        // .slice(-(MAX_ARCS - 1)) toma los últimos N-1 elementos
+        
         const updatedArcs = [...prevArcs.slice(-(MAX_ARCS - 1)), newArc];
         return updatedArcs;
       });
@@ -115,7 +112,6 @@ const Home = () => {
           arcDashGap={0.1}             // Espacio entre segmentos
           arcDashAnimateTime={ARC_ANIMATION_SPEED} // Tiempo de animación del trazo
           arcStroke={() => ARC_STROKE}       // Grosor del arco
-          // --------------------------
         />
       </Box>
 
@@ -136,9 +132,8 @@ const Home = () => {
           zIndex: 1,
         }}
       >
-        {/* ... (El contenido de Typography y Buttons sigue igual) ... */}
         <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom sx={{ mb: 1 }}>
-          World Capitals Quiz
+          WICHAT
         </Typography>
         <Typography variant="h6" gutterBottom sx={{ mb: 3, color: 'rgba(255, 255, 255, 0.8)' }}>
           Test your geography knowledge!

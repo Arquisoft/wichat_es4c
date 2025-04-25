@@ -71,6 +71,10 @@ const handleDeleteUser = async (username) => {
   const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(users.length / usersPerPage);
 
+  const handleGoBack = (e) => {
+    navigate('/startmenu');
+  };
+
   return (
     <Box className="start-menu-container" sx={{ p: 4 }}>
       <Paper elevation={5} sx={{
@@ -80,6 +84,22 @@ const handleDeleteUser = async (username) => {
         color: "#fff",
         boxShadow: 5
       }}>
+        <Button
+          variant="contained"
+          onClick={handleGoBack}
+          sx={{
+            textTransform: "none",
+            fontWeight: "bold",
+            fontFamily: "Orbitron, sans-serif",
+            backgroundColor:"#454c5a",
+            color: "#fff",
+            "&:hover": {
+              backgroundColor: "#3a404c",
+            },
+          }}
+        >
+          Volver atrás
+        </Button>
         <Typography variant="h3" gutterBottom sx={{ color: "#FF6584", fontFamily: "Orbitron, sans-serif", fontWeight: "bold" }}>
           Panel de Administración
         </Typography>
