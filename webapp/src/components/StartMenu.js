@@ -40,6 +40,36 @@ const StartMenu = () => {
   return (
     <Box className="start-menu-container">
       {/* Contenido del menú */}
+
+      {localStorage.getItem("role") === "admin" && (
+        <Box 
+          sx={{ 
+            position: "absolute", 
+            top: 20, 
+            left: 20, 
+            display: "flex", 
+            gap: 2, 
+            zIndex: 2 
+          }}
+        >
+          <Button
+            variant="contained"
+            onClick={() => navigate(`/adminPanel`)}
+            sx={{
+              backgroundColor: "#FF6584",
+              color: "#fff",
+              fontWeight: "bold",
+              boxShadow: 3,
+              scale: 1.25,
+              fontFamily: "Orbitron, sans-serif",
+              "&:hover": { bgcolor: "#f50057" },
+            }}
+          >
+            Admin
+          </Button>
+        </Box>
+      )}
+
       <Box sx={{ position: "absolute", top: 20, right: 25, display: "flex", gap: 5 }}>
         <Button
           variant="contained"

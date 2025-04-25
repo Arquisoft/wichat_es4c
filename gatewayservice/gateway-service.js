@@ -106,6 +106,42 @@ app.get('/question', async (req, res) => {
   }
 });
 
+app.get('/adminPanel', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization; 
+    const authResponse = await axios.get(`${authServiceUrl}/adminPanel`, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+    res.json(authResponse.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al obtener lista de usuarios"
+    });
+  }
+});
+
+app.delete('/adminPanel/deleteUser/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const authHeader = req.headers.authorization;
+
+    const response = await axios.delete(`${userServiceUrl}/deleteUser/${username}`, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al eliminar usuario"
+    });
+  }
+});
+
+
 // OpenAPI - Swagger Documentation
 const openapiPath = './openapi.yaml';
 if (fs.existsSync(openapiPath)) {
