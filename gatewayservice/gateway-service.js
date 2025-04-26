@@ -148,6 +148,19 @@ app.post('/acceptChallenge', async (req, res) => {
   }
 });
 
+// Comprobar si un reto fue aceptado
+app.get('/checkChallengeStatus/:username', async (req, res) => {
+  try {
+    const response = await axios.get(`${userServiceUrl}/checkChallengeStatus/${req.params.username}`);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al comprobar el estado del reto"
+    });
+  }
+});
+
+
 // Actualizar estadísticas del usuario
 app.post('/updateStats', async (req, res) => {
   try {

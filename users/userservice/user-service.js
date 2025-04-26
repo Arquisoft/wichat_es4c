@@ -317,25 +317,32 @@ app.post('/challengeFriend', async (req, res) => {
   }
 });
 
-// Aceptar un reto
 app.post('/acceptChallenge', async (req, res) => {
-  const { username } = req.body;
   try {
-    const user = await User.findOne({ username });
-    if (!user || !user.challengeRequest) {
-      return res.status(404).json({ error: "No hay ningún reto activo." });
+    const { username, from } = req.body;
+
+    const challenger = await User.findOne({ username: from });
+    const receiver = await User.findOne({ username });
+
+    if (!challenger || !receiver) {
+      return res.status(404).json({ error: "Usuarios no encontrados" });
     }
 
-    // Lógica para iniciar la batalla iría aquí...
+    challenger.challengeAcceptedBy = username;
+    challenger.challengeRequest = undefined; // 🔹 limpiar si existía
+    await challenger.save();
 
-    user.challengeRequest = null;
-    await user.save();
-    res.json({ message: "Reto aceptado y limpiado" });
-  } catch (err) {
-    console.error("Error al aceptar reto:", err);
+    receiver.challengeRequest = undefined;
+    await receiver.save();
+
+    res.json({ message: "Reto aceptado correctamente" });
+  } catch (error) {
+    console.error("Error al aceptar reto:", error);
     res.status(500).json({ error: "Error al aceptar reto" });
   }
 });
+
+
 
 // Rechazar un reto
 app.post('/rejectChallenge', async (req, res) => {
@@ -355,6 +362,84 @@ app.post('/rejectChallenge', async (req, res) => {
   }
 });
 
+app.post('/submitDuelResult', async (req, res) => {
+  try {
+    const { username, opponent, correct, time } = req.body;
+
+    if (!username || !opponent) {
+      return res.status(400).json({ error: "Faltan datos" });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    user.duelResult = { opponent, correct, time, completed: true };
+    await user.save();
+
+    res.json({ message: "Resultado guardado" });
+  } catch (err) {
+    console.error("Error en submitDuelResult:", err);
+    res.status(500).json({ error: "Error al guardar resultado del duelo" });
+  }
+});
+
+app.post('/checkDuelResult', async (req, res) => {
+  try {
+    const { username, opponent } = req.body;
+
+    const user = await User.findOne({ username });
+    const rival = await User.findOne({ username: opponent });
+
+    if (!user || !rival) return res.status(404).json({ error: "Usuario o rival no encontrado" });
+
+    if (!user.duelResult?.completed || !rival.duelResult?.completed) {
+      return res.json({ status: "waiting" });
+    }
+
+    const uScore = user.duelResult.correct;
+    const rScore = rival.duelResult.correct;
+
+    let winner = "Empate";
+    if (uScore > rScore) winner = username;
+    else if (rScore > uScore) winner = opponent;
+
+    // Limpiar resultados para futuros duelos
+    user.duelResult = undefined;
+    rival.duelResult = undefined;
+    await user.save();
+    await rival.save();
+
+    res.json({ status: "done", winner });
+  } catch (err) {
+    console.error("Error en checkDuelResult:", err);
+    res.status(500).json({ error: "Error al verificar duelo" });
+  }
+});
+
+app.get('/checkChallengeStatus/:username', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    if (user.challengeAcceptedBy) {
+      const opponent = user.challengeAcceptedBy;
+
+      // Limpiar estado después de devolverlo
+      user.challengeAcceptedBy = undefined;
+      await user.save();
+
+      return res.json({ status: "accepted", opponent });
+    } else {
+      return res.json({ status: "waiting" });
+    }
+  } catch (error) {
+    console.error("Error al comprobar estado del reto:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
 
 app.get('/getSettings/:username', async (req, res) => {
   try {

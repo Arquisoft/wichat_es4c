@@ -42,6 +42,8 @@ const userSchema = new mongoose.Schema({
     from: { type: String },
     timestamp: { type: Date }
   },
+  challengeAcceptedBy: { type: String } 
+  ,  
   settings: {
     answerTime: { type: Number, default: 10 },         // 🔹 Tiempo de respuesta por pregunta (en segundos)
     questionAmount: { type: Number, default: 10 },     // 🔹 Número de preguntas por partida

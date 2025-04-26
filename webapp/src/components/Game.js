@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
   Container, Typography, Box, Button, Grid,
-  RadioGroup, Paper, CircularProgress, Snackbar, Alert
+  RadioGroup, Paper, CircularProgress, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
 import Countdown from 'react-countdown';
 import LLMChat from "./LLMChat";
@@ -14,6 +14,12 @@ import mapBg from '../assets/images/world-bg.png';
 
 const Game = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const isDuel = params.get("duel") === "true";
+  const player1 = params.get("player1");
+  const player2 = params.get("player2");
+
   const [questionData, setQuestionData] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [feedback, setFeedback] = useState({});
@@ -25,6 +31,9 @@ const Game = () => {
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
+  const [resultDialogOpen, setResultDialogOpen] = useState(false);
+  const [winner, setWinner] = useState("");
+
   const startTime = useRef(Date.now());
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
   const username = localStorage.getItem("username");
@@ -38,26 +47,13 @@ const Game = () => {
   const correctSound = new Howl({ src: [correctSoundFile] });
   const wrongSound = new Howl({ src: [wrongSoundFile] });
 
-  const toggleSound = () => {
-    setSoundEnabled((prev) => !prev);
-  };
-
-  const playSound = (sound) => {
-    if (soundEnabled) {
-      sound.play();
-    }
-  };
-
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
+  const toggleSound = () => setSoundEnabled((prev) => !prev);
+  const playSound = (sound) => { if (soundEnabled) sound.play(); };
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   const newGame = useCallback(async () => {
     try {
-      if (username) {
-        await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
-      }
+      if (username) await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
     } catch (error) {
       console.error("Error incrementing game:", error);
     }
@@ -65,9 +61,7 @@ const Game = () => {
 
   const fetchQuestion = useCallback(async () => {
     if (loadingQuestion) return;
-
     setLoadingQuestion(true);
-
     try {
       setQuestionData(null);
       setSelectedAnswer("");
@@ -102,9 +96,7 @@ const Game = () => {
     const fetchUserSettings = async () => {
       try {
         const response = await fetch(`http://localhost:8001/getSettings/${username}`);
-        if (!response.ok) {
-          throw new Error("No se pudo obtener la información del perfil");
-        }
+        if (!response.ok) throw new Error("No se pudo obtener la información del perfil");
         const data = await response.json();
         setUser(data);
       } catch (error) {
@@ -131,45 +123,22 @@ const Game = () => {
   }, [user]);
 
   useEffect(() => {
-    if (settings.answerTime) {
-      setTimerEndTime(Date.now() + settings.answerTime * 1000);
-    }
+    if (settings.answerTime) setTimerEndTime(Date.now() + settings.answerTime * 1000);
   }, [settings.answerTime]);
 
-  useEffect(() => {
-    setPaused(loadingQuestion);
-  }, [loadingQuestion]);
-
+  useEffect(() => setPaused(loadingQuestion), [loadingQuestion]);
 
   const handleAnswer = async (answer) => {
     if (!answer || loadingQuestion) return;
-
-  
     const isCorrect = answer === questionData.answer;
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
-
-    setFeedback({
-      ...feedback,
-      [answer]: isCorrect ? "✅" : "❌"
-    });
-
+    setFeedback({ ...feedback, [answer]: isCorrect ? "✅" : "❌" });
     setAnswered(true);
     setPaused(true);
-
-    if (isCorrect) {
-      setCorrectCount((prev) => prev + 1);
-    } else {
-      setWrongCount((prev) => prev + 1);
-    }
-
+    if (isCorrect) setCorrectCount((prev) => prev + 1);
+    else setWrongCount((prev) => prev + 1);
     setTotalTime((prev) => prev + timeTaken);
-
-    if (isCorrect) {
-      playSound(correctSound);
-    } else {
-      playSound(wrongSound);
-    }
-
+    playSound(isCorrect ? correctSound : wrongSound);
     setTimerEndTime(Date.now() + settings.answerTime * 1000);
 
     setTimeout(async () => {
@@ -178,7 +147,31 @@ const Game = () => {
       setQuestionCounter(nextCount);
 
       if (nextCount >= settings.questionAmount) {
-        if (username) {
+        if (isDuel) {
+          await axios.post(`${apiEndpoint}/submitDuelResult`, {
+            username,
+            opponent: username === player1 ? player2 : player1,
+            correct: correctCount + (isCorrect ? 1 : 0),
+            time: totalTime + timeTaken
+          });
+
+          const interval = setInterval(async () => {
+            try {
+              const res = await axios.post(`${apiEndpoint}/checkDuelResult`, {
+                username,
+                opponent: username === player1 ? player2 : player1
+              });
+
+              if (res.data.status === "done") {
+                clearInterval(interval);
+                setWinner(res.data.winner);
+                setResultDialogOpen(true);
+              }
+            } catch (err) {
+              console.error("Error comprobando resultado del duelo:", err);
+            }
+          }, 2000);
+        } else {
           try {
             await axios.post(`${apiEndpoint}/updateStats`, {
               username,
@@ -186,13 +179,13 @@ const Game = () => {
               wrong: wrongCount + (isCorrect ? 0 : 1),
               timeTaken: totalTime + timeTaken
             });
-          } catch (error) {
-            console.error("Error al guardar estadísticas finales:", error);
+          } catch (err) {
+            console.error("Error al guardar estadísticas finales:", err);
           }
-        }
 
-        setSnackbarOpen(true);
-        setTimeout(() => navigate("/startmenu"), 3000);
+          setSnackbarOpen(true);
+          setTimeout(() => navigate("/startmenu"), 3000);
+        }
       } else {
         fetchQuestion();
       }
@@ -200,51 +193,27 @@ const Game = () => {
   };
 
   const renderer = ({ seconds, completed }) => {
-    if (paused) {
-      return (
-        <Typography variant="h4" color="textSecondary">
-          Pausado...
-        </Typography>
-      );
-    }
-
+    if (paused) return <Typography variant="h4" color="textSecondary">Pausado...</Typography>;
     if (completed) {
       setTimeout(() => {
         setSnackbarOpen(true);
         navigate("/startmenu");
       }, 0);
-
-      return (
-        <Typography variant="h4" color="#fff">
-          ⏳ Tiempo agotado
-        </Typography>
-      );
+      return <Typography variant="h4" color="#fff">⏳ Tiempo agotado</Typography>;
     }
-
     return (
-        <Box position="relative" display="inline-flex">
-            <CircularProgress
-                variant="determinate"
-                value={(seconds / settings.answerTime) * 100}
-                size={80}
-                thickness={4}
-                sx={{ color: seconds < 3 ? "red" : "#ff4081" }}
-            />
-            <Box
-                top={0}
-                left={0}
-                bottom={0}
-                right={0}
-                position="absolute"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-            >
-                <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>
-                    {seconds}s
-                </Typography>
-            </Box>
+      <Box position="relative" display="inline-flex">
+        <CircularProgress
+          variant="determinate"
+          value={(seconds / settings.answerTime) * 100}
+          size={80}
+          thickness={4}
+          sx={{ color: seconds < 3 ? "red" : "#ff4081" }}
+        />
+        <Box position="absolute" top={0} left={0} right={0} bottom={0} display="flex" justifyContent="center" alignItems="center">
+          <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>{seconds}s</Typography>
         </Box>
+      </Box>
     );
   };
 
@@ -252,189 +221,107 @@ const Game = () => {
     <>
       <Box
         sx={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: `url(${mapBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          width: "100vw", height: "100vh",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          background: `url(${mapBg})`, backgroundSize: "cover", backgroundPosition: "center"
         }}
       >
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          <Grid container spacing={4} alignItems="stretch">
-            <Grid item xs={12} md={6}>
-              <Paper
-                sx={{
-                  p: 3,
-                  borderRadius: 3,
-                  backgroundColor: "#0C2D48",
-                  backdropFilter: "blur(10px)",
-                  boxShadow: 5,
-                  color: "#fff",
-                }}
-              >
-                {questionData ? (
-                  <>
-                    {questionData.image && (
-                      <Box display="flex" justifyContent="center" my={2}>
-                        <img
-                          src={questionData.image}
-                          alt={
-                            questionData.type === 'monument' ? 'Monumento' :
-                              questionData.type === 'food' ? 'Comida típica' :
-                                questionData.type === 'flag' ? 'Bandera' :
-                                  questionData.type === 'capital' ? 'Capital' :
-                                    `Imagen de ${questionData.question}`
-                          }
-                          style={{ width: "100%", maxWidth: "450px", maxHeight: "300px" ,borderRadius: "8px", fontFamily: "Orbitron, sans-serif" }}
-                        />
-                      </Box>
-                    )}
-                    <Typography 
-                      variant="h6" 
-                      gutterBottom 
-                      sx={{ fontFamily: "Orbitron, sans-serif" }}
-                    >
-                      {questionData.question}
-                    </Typography>
-                    <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
-                    {questionData.choices.map((option, index) => (
-                      <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
-                        <Button
-                          variant="contained"
-                          color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
-                          fullWidth
-                          onClick={() => handleAnswer(option)}
-                          disabled={answered} // Deshabilitar los botones después de responder
-                          sx={{
-                            textTransform: "none",
-                            fontWeight: "bold",
-                            backgroundColor: "#FF6584", 
-                            color: "#fff", 
-                            fontFamily: "Orbitron, sans-serif",
-                            "&:hover": {
-                              backgroundColor: "#e91e63",
-                            },
-                          }}
-                        >
-                          {option}
-                        </Button>
-                        {feedback[option] && (
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              ml: 2,
-                              color: feedback[option] === "✅" ? "green" : "red",
-                            }}
-                          >
-                            {feedback[option]}
-                          </Typography>
-                        )}
-                      </Box>
-                    ))}
+        {/* Usuario / Duel */}
+        <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
+          {isDuel ? (
+            <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>
+              ⚔️ {player1} vs {player2}
+            </Typography>
+          ) : (
+            <Typography variant="h6" color="#fff" sx={{ fontFamily: "Orbitron, sans-serif" }}>
+              👤 {username}
+            </Typography>
+          )}
+        </Box>
 
-                    {answered && selectedAnswer !== questionData.answer && (
-                      <Typography
-                        variant="h6"
-                        sx={{ mt: 2, color: "#fff", textAlign: "center", fontFamily: "Orbitron, sans-serif", }}
-                      >
-                        La respuesta correcta era: {questionData.answer} ✅
-                      </Typography>
-                    )}
-                    </RadioGroup>
-                  </>
-                ) : (
-                  <Box display="flex" justifyContent="center" alignItems="center" height="200px">
-                    <CircularProgress />
-                  </Box>
-                )}
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Paper
-                sx={{
-                  p: 3,
-                  borderRadius: 3,
-                  backgroundColor: "#0C2D48",
-                  backdropFilter: "blur(10px)",
-                  boxShadow: 5,
-                  textAlign: "center",
-                  alignSelf: "center",
-                  width: "50%",
-                }}
-              >
-                <Typography variant="h5" gutterBottom color="#fff" sx={{fontFamily: "Orbitron, sans-serif",}}>Tiempo restante:</Typography>
-                <Countdown
-                sx={{ fontFamily: "Orbitron, sans-serif"}}
-                  date={timerEndTime}
-                  renderer={renderer}
-                  autoStart={!paused}
-                  onComplete={() => {
-                    if (!answered) {
-                      setAnswered(true);
-                    }
-                  }}
-                />
-              </Paper>
-
-              <Paper
-                sx={{
-                  mt: 4,
-                  p: 3,
-                  borderRadius: 3,
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  backdropFilter: "blur(10px)",
-                  boxShadow: 5,
-                  textAlign: "center",
-                }}
-              >
-                {questionData && questionData.answer && <LLMChat correctAnswer={questionData.answer} />}
-              </Paper>
-            </Grid>
-          </Grid>
-        </Container>
-
+        {/* Botón sonido */}
         <Box sx={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
           <Button
             variant="contained"
             color={soundEnabled ? "success" : "error"}
             onClick={toggleSound}
             sx={{
-              textTransform: "none",
-              fontWeight: "bold",
-              fontFamily: "Orbitron, sans-serif",
-              backgroundColor: soundEnabled ? "#4caf50" : "#f44336",
-              color: "#fff",
-              "&:hover": {
-                backgroundColor: soundEnabled ? "#388e3c" : "#d32f2f",
-              },
+              textTransform: "none", fontWeight: "bold", fontFamily: "Orbitron, sans-serif",
+              backgroundColor: soundEnabled ? "#4caf50" : "#f44336", color: "#fff",
+              "&:hover": { backgroundColor: soundEnabled ? "#388e3c" : "#d32f2f" }
             }}
           >
             {soundEnabled ? "🔊 Sonido Activado" : "🔇 Sonido Desactivado"}
           </Button>
         </Box>
+
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3, borderRadius: 3, backgroundColor: "#0C2D48", color: "#fff" }}>
+                {questionData ? (
+                  <>
+                    {questionData.image && (
+                      <Box display="flex" justifyContent="center" my={2}>
+                        <img src={questionData.image} alt="Pregunta" style={{ width: "100%", maxWidth: 450, borderRadius: 8 }} />
+                      </Box>
+                    )}
+                    <Typography variant="h6" sx={{ fontFamily: "Orbitron, sans-serif" }}>{questionData.question}</Typography>
+                    <RadioGroup value={selectedAnswer} onChange={(e) => setSelectedAnswer(e.target.value)}>
+                      {questionData.choices.map((option, i) => (
+                        <Box key={i} display="flex" alignItems="center" mb={1}>
+                          <Button
+                            variant="contained"
+                            color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
+                            fullWidth
+                            onClick={() => handleAnswer(option)}
+                            disabled={answered}
+                            sx={{ textTransform: "none", fontWeight: "bold", fontFamily: "Orbitron, sans-serif" }}
+                          >{option}</Button>
+                          {feedback[option] && <Typography ml={2} color={feedback[option] === "✅" ? "green" : "red"}>{feedback[option]}</Typography>}
+                        </Box>
+                      ))}
+                      {answered && selectedAnswer !== questionData.answer && (
+                        <Typography sx={{ mt: 2, color: "#fff", textAlign: "center" }}>
+                          La respuesta correcta era: {questionData.answer} ✅
+                        </Typography>
+                      )}
+                    </RadioGroup>
+                  </>
+                ) : <Box display="flex" justifyContent="center"><CircularProgress /></Box>}
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3, borderRadius: 3, backgroundColor: "#0C2D48", textAlign: "center" }}>
+                <Typography variant="h5" color="#fff">Tiempo restante:</Typography>
+                <Countdown date={timerEndTime} renderer={renderer} autoStart={!paused} onComplete={() => !answered && setAnswered(true)} />
+              </Paper>
+              <Paper sx={{ mt: 4, p: 3, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.1)", backdropFilter: "blur(10px)" }}>
+                {questionData?.answer && <LLMChat correctAnswer={questionData.answer} />}
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
       </Box>
 
-      <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 10, color: '#fff', fontFamily: 'Orbitron, sans-serif' }}>
-        <Typography variant="h6">
-          {localStorage.getItem("username")}
-        </Typography>
-      </Box>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity="info" sx={{ width: '100%', fontFamily: "Orbitron, sans-serif", }}>
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert onClose={handleSnackbarClose} severity="info">
           {answered ? "¡Fin del juego! Volviendo al menú principal..." : "⏳ Tiempo agotado. Volviendo al menú principal..."}
         </Alert>
       </Snackbar>
+
+      <Dialog open={resultDialogOpen}>
+        <DialogTitle>Resultado del Duelo</DialogTitle>
+        <DialogContent>
+          <Typography variant="h6" textAlign="center">
+            {winner === "Empate" ? "¡Ha sido un empate!" : `🏆 ¡${winner} ha ganado el duelo!`}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => navigate("/startmenu")}>Volver al menú</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
