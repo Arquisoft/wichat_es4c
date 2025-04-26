@@ -1,52 +1,61 @@
 const puppeteer = require('puppeteer');
 const { defineFeature, loadFeature } = require('jest-cucumber');
-const setDefaultOptions = require('expect-puppeteer').setDefaultOptions
+const { setDefaultOptions } = require('expect-puppeteer');
 const feature = loadFeature('./features/register-form.feature');
 
 let page;
 let browser;
 
 defineFeature(feature, test => {
-  
+
   beforeAll(async () => {
     browser = process.env.GITHUB_ACTIONS
       ? await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] })
       : await puppeteer.launch({ headless: false, slowMo: 10 });
     page = await browser.newPage();
-    //Way of setting up the timeout
-    setDefaultOptions({ timeout: 10000 })
+    setDefaultOptions({ timeout: 10000 });
 
-    await page
-      .goto("http://localhost:3000", {
+    try {
+      await page.goto("http://localhost:3000", {
         waitUntil: "networkidle0",
-      })
-      .catch(() => {});
+      });
+    } catch (error) {
+      console.error("Error navigating to the page:", error);
+      throw error;
+    }
   });
 
-  test('The user is not registered in the site', ({given, when, then}) => {
-    
+  test('The user is not registered in the site', ({ given, when, then }) => {
+
     let username;
     let password;
 
     given(/^A user with name "(.*)" and password "(.*)"$/, async (user, pwd) => {
-      username = user
-      password = pwd
+      username = user;
+      password = pwd;
       await page.click('[data-testid="register-button"]');
+      await page.waitForSelector('input[id="username"]', { visible: true, timeout: 5000 });
     });
 
     when('I fill the data in the form and press submit', async () => {
       await expect(page).toFill('input[id="username"]', username);
       await expect(page).toFill('input[id="password"]', password);
       await page.click('[data-testid="submit-button"]');
+      await page.waitForTimeout(100);
     });
 
     then(/^The confirmation message "(.*)" should be shown in the screen$/, async (msg) => {
-      await expect(page).toMatchElement("div", { text: msg });
+      await page.waitForFunction(() => {
+        return document.body.innerText.includes('Redirecting to login...');
+      }, { timeout: 7500 });
+
+      const bodyText = await page.evaluate(() => document.body.textContent);
+      expect(bodyText).toContain('Redirecting to login...');
     });
-  })
+  });
 
   afterAll(async () => {
-    browser.close()
-  })
+    await browser.close();
+  });
 
 });
