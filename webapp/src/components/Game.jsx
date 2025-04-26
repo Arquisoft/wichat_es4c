@@ -104,14 +104,28 @@ const Game = () => {
       setFeedback({});
       setAnswered(false);
 
-      const res = await axios.get(`${apiEndpoint}/question`);
+      const res = await axios.get(`${apiEndpoint}/question`, {
+      params: {
+        capital: settings.capitalQuestions?.toString() ?? 'true',
+        flag: settings.flagQuestions?.toString() ?? 'true',
+        monument: settings.monumentQuestions?.toString() ?? 'true',
+        food: settings.foodQuestions?.toString() ?? 'true',
+      }
+      });
       setQuestionData(res.data);
     } catch (err) {
       console.error("Error fetching question:", err);
     } finally {
       setLoadingQuestion(false);
     }
-  }, [loadingQuestion, apiEndpoint, settings.answerTime]);
+  }, [
+    loadingQuestion,
+    apiEndpoint,
+    settings.capitalQuestions,
+    settings.flagQuestions,
+    settings.monumentQuestions,
+    settings.foodQuestions
+  ]);
 
   useEffect(() => {
     if (settings.answerTime && !hasFetched.current) {
