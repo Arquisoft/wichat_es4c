@@ -12,7 +12,6 @@ import { useState, useEffect } from "react";
   const [errorSnackbar, setErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const [allCategoriesDisabledSnackbar, setAllCategoriesDisabledSnackbar] = useState(false);
   const [settings, setSettings] = useState({
     answerTime: 10,
@@ -51,7 +50,6 @@ import { useState, useEffect } from "react";
 
         const data = await response.json();
         console.log("Settings data received:", data);
-        setUser(data);
 
         // Initialize settings with received data or defaults
         setSettings({
