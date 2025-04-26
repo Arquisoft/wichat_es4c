@@ -35,7 +35,7 @@ const Game = () => {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
 
   const startTime = useRef(Date.now());
-  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
+  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
   const username = localStorage.getItem("username");
   const hasFetched = useRef(false);
   const [user, setUser] = useState(null);
