@@ -23,14 +23,15 @@ const puppeteer = require('puppeteer');
      await expect(page).toFill('input[id="username"]', 'testuser');
      await expect(page).toFill('input[id="password"]', 'password');
      await page.click('[data-testid="submit-button"]');
-     await expect(page).toMatchElement('div', { text: 'User added successfully' });
-   }, 60000);
+     const bodyText = await page.evaluate(() => document.body.textContent);
+      expect(bodyText).toContain('Redirecting to login...');
+   }, 3000);
  
    beforeEach(async () => {
      await page.goto("http://localhost:3000", { waitUntil: "networkidle0" })
        .catch((error) => console.error("Navigation failed:", error));
  
-     await page.waitForSelector('[data-testid="login-button"]', { timeout: 30000 })
+     await page.waitForSelector('[data-testid="login-button"]', { timeout: 3000 })
        .catch((error) => console.error("Login button not found:", error));
      await page.click('[data-testid="login-button"]');
    });
@@ -55,7 +56,7 @@ const puppeteer = require('puppeteer');
      and('I press the statistics button', async () => {
        console.log("Pressing the statistics button...");
        try{
-           await page.waitForSelector('[data-testid="profile-button"]', { timeout: 60000 })
+           await page.waitForSelector('[data-testid="profile-button"]', { timeout: 3000 })
            await page.click('[data-testid="profile-button"]');
            await page.waitForNavigation({ waitUntil: 'networkidle0' })
            console.log("Statistics button pressed and profile page loaded.");
