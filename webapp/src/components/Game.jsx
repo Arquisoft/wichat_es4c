@@ -260,12 +260,19 @@ const Game = () => {
     );
   };
 
+
+
   const handlePlayAgain = () => {
+
     setCorrectCount(0);
     setWrongCount(0);
     setTotalTime(0);
     setQuestionCounter(0);
     setShowSummaryModal(false);
+    setAnswered(false);             
+    setPaused(false);               
+    setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000); 
+
     fetchQuestion();
   };
 
