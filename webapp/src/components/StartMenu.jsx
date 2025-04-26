@@ -130,6 +130,7 @@ const StartMenu = () => {
             Perfil
           </MenuItem>
           <MenuItem
+            data-testid="settings-button"
             onClick={handleOpenSettings}
             sx={{
               backgroundColor: "#6a11cb",
@@ -218,6 +219,7 @@ const StartMenu = () => {
             </Typography>
           </CardContent>
           <Button
+            testid="play-button"
             variant="contained"
             sx={{
               mt: 2,
