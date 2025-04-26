@@ -274,6 +274,7 @@ const handleConfirmExit = useCallback(() => {
                       {questionData.choices.map((option, index) => (
                         <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
                           <Button
+                            testid="answer-option"
                             variant="contained"
                             color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
                             fullWidth
@@ -476,7 +477,7 @@ const handleConfirmExit = useCallback(() => {
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-around', padding: '16px' }}>
           <Button onClick={handlePlayAgain} sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', borderColor: '#fff' }} variant="outlined">Volver a jugar</Button>
-          <Button onClick={handleConfirmExit} sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: 'primary', color: '#fff' }} variant="contained">Volver al menú</Button>
+          <Button testid="startMenu-button" onClick={handleConfirmExit} sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: 'primary', color: '#fff' }} variant="contained">Volver al menú</Button>
         </DialogActions>
       </Dialog>
     </>
