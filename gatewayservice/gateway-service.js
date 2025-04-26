@@ -206,7 +206,10 @@ app.post('/incrementGamesPlayed', async (req, res) => {
 // Obtener una pregunta
 app.get('/question', async (req, res) => {
   try {
-    const response = await axios.get(`${questionServiceUrl}/question`);
+
+    const response = await axios.get(`${questionServiceUrl}/question`, {
+      params: req.query,
+    });
     res.json(response.data);
   } catch (error) {
     res.status(error.response?.status || 500).json({ error: "Error al obtener pregunta" });
