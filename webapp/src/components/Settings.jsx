@@ -249,6 +249,7 @@ import { useState, useEffect } from "react";
             Volver
           </Button>
           <Button
+            data-testid="save-settings-button"
             onClick={handleSave}
             variant="contained"
             endIcon={<SaveIcon />}

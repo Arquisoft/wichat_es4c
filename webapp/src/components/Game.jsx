@@ -104,14 +104,28 @@ const Game = () => {
       setFeedback({});
       setAnswered(false);
 
-      const res = await axios.get(`${apiEndpoint}/question`);
+      const res = await axios.get(`${apiEndpoint}/question`, {
+      params: {
+        capital: settings.capitalQuestions?.toString() ?? 'true',
+        flag: settings.flagQuestions?.toString() ?? 'true',
+        monument: settings.monumentQuestions?.toString() ?? 'true',
+        food: settings.foodQuestions?.toString() ?? 'true',
+      }
+      });
       setQuestionData(res.data);
     } catch (err) {
       console.error("Error fetching question:", err);
     } finally {
       setLoadingQuestion(false);
     }
-  }, [loadingQuestion, apiEndpoint, settings.answerTime]);
+  }, [
+    loadingQuestion,
+    apiEndpoint,
+    settings.capitalQuestions,
+    settings.flagQuestions,
+    settings.monumentQuestions,
+    settings.foodQuestions
+  ]);
 
   useEffect(() => {
     if (settings.answerTime && !hasFetched.current) {
@@ -246,12 +260,19 @@ const Game = () => {
     );
   };
 
+
+
   const handlePlayAgain = () => {
+
     setCorrectCount(0);
     setWrongCount(0);
     setTotalTime(0);
     setQuestionCounter(0);
     setShowSummaryModal(false);
+    setAnswered(false);             
+    setPaused(false);               
+    setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000); 
+
     fetchQuestion();
   };
 
@@ -320,6 +341,7 @@ const Game = () => {
                       {questionData.choices.map((opt, i) => (
                         <Box key={i} display="flex" alignItems="center" sx={{ mb: 1 }}>
                           <Button
+                            testid="answer-option"
                             variant="contained"
                             color={answered
                               ? (opt === questionData.answer ? "success" : "error")
@@ -484,6 +506,7 @@ const Game = () => {
                   sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#4caf50', color: '#fff' }}>
             Volver al menú
           </Button>
+
         </DialogActions>
       </Dialog>
     </>

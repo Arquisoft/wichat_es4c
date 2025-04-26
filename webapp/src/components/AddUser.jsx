@@ -230,6 +230,7 @@ const AddUser = () => {
                 Register
               </Typography>
               <InputField
+                id="username"
                 fullWidth
                 placeholder="Username"
                 value={username}
@@ -246,6 +247,7 @@ const AddUser = () => {
                 }}
               />
               <InputField
+                id="password"
                 fullWidth
                 type="password"
                 placeholder="Password"
@@ -263,6 +265,7 @@ const AddUser = () => {
                 }}
               />
               <Button
+                data-testid="submit-button"
                 fullWidth
                 variant="contained"
                 color="secondary"
