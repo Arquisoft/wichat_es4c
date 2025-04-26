@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
  import SettingsIcon from '@mui/icons-material/Settings';
  import SaveIcon from '@mui/icons-material/Save';
  import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+ import "../assets/css/Settings.css";
 
  export default function SettingsCard() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -12,6 +13,7 @@ import { useState, useEffect } from "react";
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [allCategoriesDisabledSnackbar, setAllCategoriesDisabledSnackbar] = useState(false);
   const [settings, setSettings] = useState({
     answerTime: 10,
     questionAmount: 10,
@@ -75,7 +77,7 @@ import { useState, useEffect } from "react";
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "questionAmount" && parseInt(value) > 40) {
+    if (name === "questionAmount" && parseInt(value) > 30) {
       setWarningSnackbar(true);
       return;
     }
@@ -96,6 +98,17 @@ import { useState, useEffect } from "react";
 
   const handleSave = async () => {
     console.log("Guardando ajustes:", settings);
+
+    if (
+      !settings.capitalQuestions &&
+      !settings.flagQuestions &&
+      !settings.monumentQuestions &&
+      !settings.foodQuestions
+    ) {
+      setAllCategoriesDisabledSnackbar(true);
+      return;
+    }
+
     try {
       const response = await fetch(`http://localhost:8001/saveSettings/${username}`, {
         method: "POST",
@@ -137,21 +150,32 @@ import { useState, useEffect } from "react";
   }
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh"
-      sx={{
-        background: 'radial-gradient(circle, #3f51b5 0%, #1a237e 100%)',
-        padding: 4,
-      }}>
+    <Box className="start-menu-container" sx={{
+          width: "100vw",
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#ffffff",
+          padding: 4,
+          backgroundSize: "200% 200%",
+          animation: "floatBg 40s ease-in-out infinite",
+          '@keyframes floatBg': {
+            '0%': { backgroundPosition: '0% 0%' },
+            '50%': { backgroundPosition: '100% 100%' },
+            '100%': { backgroundPosition: '0% 0%' }
+          },
+        }}>
       <Card sx={{
-        maxWidth: 600,
-        p: 3,
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-        borderRadius: 4,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        backdropFilter: "blur(15px)",
-        color: "#ffffff",
-        width: "100%",
-      }}>
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              backdropFilter: "blur(15px)",
+              color: "#ffffff",
+              borderRadius: 4,
+              p: 4,
+              maxWidth: 600,
+              width: "100%",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+            }}>
         <CardContent>
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <SettingsIcon sx={{ color: "#64b5f6", mr: 1, fontSize: "2rem" }} />
@@ -252,7 +276,7 @@ import { useState, useEffect } from "react";
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert severity="warning" onClose={() => setWarningSnackbar(false)}>
-          El número máximo de preguntas es 40.
+          El número máximo de preguntas es 30.
         </Alert>
       </Snackbar>
 
@@ -279,6 +303,19 @@ import { useState, useEffect } from "react";
           {errorMessage}
         </Alert>
       </Snackbar>
+
+      {/* Error notification if all categories are disabled */}
+      <Snackbar
+        open={allCategoriesDisabledSnackbar}
+        autoHideDuration={4000}
+        onClose={() => setAllCategoriesDisabledSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="error" onClose={() => setAllCategoriesDisabledSnackbar(false)}>
+          ¡Debes activar al menos una categoría de preguntas!
+        </Alert>
+      </Snackbar>
+
     </Box>
   );
  }
