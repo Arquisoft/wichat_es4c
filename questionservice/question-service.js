@@ -19,6 +19,8 @@ const withTimeout = (promise, ms) => {
     return Promise.race([promise, timeout]);
 };
 
+app.use(express.json());
+
 app.use((req, res, next) => {
     next();
 });
