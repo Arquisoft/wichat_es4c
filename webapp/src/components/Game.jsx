@@ -35,7 +35,7 @@ const Game = () => {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
 
   const startTime = useRef(Date.now());
-  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
+  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8004";
   const username = localStorage.getItem("username");
   const hasFetched = useRef(false);
   const [user, setUser] = useState(null);
@@ -91,14 +91,21 @@ const Game = () => {
       
       setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
       
-      const response = await axios.get(`${apiEndpoint}/question`);
+      const response = await axios.get(`${apiEndpoint}/question`, {
+        params: {
+          capital: settings.capitalQuestions.toString(),
+          flag: settings.flagQuestions.toString(),
+          monument: settings.monumentQuestions.toString(),
+          food: settings.foodQuestions.toString(),
+        },
+      });
       setQuestionData(response.data);
     } catch (error) {
       console.error("Error fetching question:", error);
     } finally {
       setLoadingQuestion(false);
     }
-  }, [loadingQuestion, apiEndpoint, settings.answerTime]);
+  }, [loadingQuestion, apiEndpoint, settings.answerTime, settings.capitalQuestions, settings.flagQuestions, settings.monumentQuestions, settings.foodQuestions]);
   
   useEffect(() => { if (!hasFetched.current && settings.answerTime) { newGame(); fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
 

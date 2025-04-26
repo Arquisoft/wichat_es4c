@@ -24,14 +24,18 @@ async function getQuestionFromDatabase() {
     throw new Error('No hay preguntas disponibles en la base de datos');
   }
 
-  const randomIndex = Math.floor(Math.random() * count);
-  const question = await Question.findOne().skip(randomIndex);
+  let question;
+  do {
+    const randomIndex = Math.floor(Math.random() * count);
+    question = await Question.findOne().skip(randomIndex);
+  } while (! allowedTypes[question.type]);
+
   return question;
 }
 
-async function generateQuestion() {
+async function generateQuestion(allowedTypes) {
   try {
-    const question = await getQuestionFromDatabase();
+    const question = await getQuestionFromDatabase(allowedTypes);
     return question;
   } catch (error) {
     console.error('Error al obtener la pregunta:', error);
