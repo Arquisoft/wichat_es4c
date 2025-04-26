@@ -18,7 +18,7 @@ const questionTypes = {
 };
 
 
-async function getQuestionFromDatabase() {
+async function getQuestionFromDatabase(allowedTypes) {
   const count = await Question.countDocuments();
   if (count === 0) {
     throw new Error('No hay preguntas disponibles en la base de datos');
