@@ -38,6 +38,14 @@ const userSchema = new mongoose.Schema({
       timePlayed: { type: Number, default: 0 }  // 🔹 Tiempo jugado en esa partida (segundos)
     }
   ],
+
+  duelResult: {
+    opponent:  { type: String },
+    correct:   { type: Number, default: 0 },
+    time:      { type: Number, default: 0 },
+    completed: { type: Boolean, default: false }
+  },
+  
   challengeRequest: {
     from: { type: String },
     timestamp: { type: Date }

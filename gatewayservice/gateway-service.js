@@ -160,6 +160,28 @@ app.get('/checkChallengeStatus/:username', async (req, res) => {
   }
 });
 
+// Enviar resultado de duelo
+app.post('/submitDuelResult', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/submitDuelResult`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500)
+       .json({ error: error.response?.data?.error || "Error al enviar resultado de duelo" });
+  }
+});
+
+// Comprobar resultado de duelo
+app.post('/checkDuelResult', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/checkDuelResult`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500)
+       .json({ error: error.response?.data?.error || "Error al comprobar resultado de duelo" });
+  }
+});
+
 
 // Actualizar estadísticas del usuario
 app.post('/updateStats', async (req, res) => {

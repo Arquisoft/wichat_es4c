@@ -384,39 +384,52 @@ app.post('/submitDuelResult', async (req, res) => {
     res.status(500).json({ error: "Error al guardar resultado del duelo" });
   }
 });
+// user-service.js
+
+
+// user-service.js
+
+// Antes: borrabas duelResult aquí, lo que puede hacer que el segundo cliente
+// nunca vea completed=true simultáneamente.
+// user.duelResult = undefined;
+// rival.duelResult = undefined;
 
 app.post('/checkDuelResult', async (req, res) => {
   try {
     const { username, opponent } = req.body;
-
-    const user = await User.findOne({ username });
+    const user  = await User.findOne({ username });
     const rival = await User.findOne({ username: opponent });
-
-    if (!user || !rival) return res.status(404).json({ error: "Usuario o rival no encontrado" });
+    if (!user || !rival) 
+      return res.status(404).json({ error: "Usuario o rival no encontrado" });
 
     if (!user.duelResult?.completed || !rival.duelResult?.completed) {
       return res.json({ status: "waiting" });
     }
 
-    const uScore = user.duelResult.correct;
-    const rScore = rival.duelResult.correct;
+    // Ambos ya terminaron: extraemos stats
+    const uCorrect =  user.duelResult.correct;
+    const uTime    =  user.duelResult.time;
+    const rCorrect =  rival.duelResult.correct;
+    const rTime    =  rival.duelResult.time;
 
     let winner = "Empate";
-    if (uScore > rScore) winner = username;
-    else if (rScore > uScore) winner = opponent;
+    if (uCorrect > rCorrect)      winner = username;
+    else if (rCorrect > uCorrect) winner = opponent;
 
-    // Limpiar resultados para futuros duelos
-    user.duelResult = undefined;
-    rival.duelResult = undefined;
-    await user.save();
-    await rival.save();
-
-    res.json({ status: "done", winner });
+    // **¡OJO!** NO limpiar aquí. Así tanto el primer polling como el segundo
+    // van a recibir status:"done".
+    return res.json({
+      status: "done",
+      winner,
+      your:  { correct: uCorrect, time: uTime },
+      other: { correct: rCorrect, time: rTime }
+    });
   } catch (err) {
     console.error("Error en checkDuelResult:", err);
     res.status(500).json({ error: "Error al verificar duelo" });
   }
 });
+
 
 app.get('/checkChallengeStatus/:username', async (req, res) => {
   try {
