@@ -96,7 +96,11 @@ const Profile = () => {
             }}>
               {user.username.charAt(0).toUpperCase()}
             </Avatar>
-            <Typography variant="h5" sx={{ fontWeight: "bold", color: "#e91e63", mb: 0.5, fontFamily: "Roboto, sans-serif" }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: "bold", color: "#e91e63", mb: 0.5, fontFamily: "Roboto, sans-serif" }}
+              data-testid="profile-username"
+            >
               {user.username}
             </Typography>
             <Typography variant="subtitle1" sx={{ color: "#f5f5f599", fontFamily: "Roboto, sans-serif" }}>

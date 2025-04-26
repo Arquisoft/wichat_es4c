@@ -86,6 +86,7 @@ const StartMenu = () => {
           Ranking
         </Button>
         <Button
+          data-testid="account-button"
           variant="contained"
           onClick={handleOpenAccount}
           sx={{
@@ -117,6 +118,7 @@ const StartMenu = () => {
           }}
         >
           <MenuItem
+            data-testid="profile-button"
             onClick={handleOpenProfile}
             sx={{
               backgroundColor: "#6a11cb",
