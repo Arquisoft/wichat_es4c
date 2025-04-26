@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
   const [errorSnackbar, setErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const [allCategoriesDisabledSnackbar, setAllCategoriesDisabledSnackbar] = useState(false);
   const [settings, setSettings] = useState({
     answerTime: 10,
     questionAmount: 10,
@@ -78,7 +79,7 @@ import { useState, useEffect } from "react";
       return;
     }
   
-    if (name === "questionAmount" && parseInt(value) > 40) {
+    if (name === "questionAmount" && parseInt(value) > 30) {
       setWarningSnackbar(true);
       return;
     }
@@ -99,6 +100,18 @@ import { useState, useEffect } from "react";
 
   const handleSave = async () => {
     console.log("Guardando ajustes:", settings);
+
+    if (
+      !settings.capitalQuestions &&
+      !settings.flagQuestions &&
+      !settings.monumentQuestions &&
+      !settings.foodQuestions
+    ) {
+      setAllCategoriesDisabledSnackbar(true);
+      return;
+    }
+
+
     try {
       const response = await fetch(`http://localhost:8001/saveSettings/${username}`, {
         method: "POST",
@@ -272,7 +285,7 @@ import { useState, useEffect } from "react";
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert severity="warning" onClose={() => setWarningSnackbar(false)}>
-          El número máximo de preguntas es 40.
+          El número máximo de preguntas es 30.
         </Alert>
       </Snackbar>
 
@@ -299,6 +312,20 @@ import { useState, useEffect } from "react";
           {errorMessage}
         </Alert>
       </Snackbar>
+
+            {/* Error notification if all categories are disabled */}
+      <Snackbar
+        open={allCategoriesDisabledSnackbar}
+        autoHideDuration={4000}
+        onClose={() => setAllCategoriesDisabledSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="error" onClose={() => setAllCategoriesDisabledSnackbar(false)}>
+          ¡Debes activar al menos una categoría de preguntas!
+        </Alert>
+      </Snackbar>
+
+
     </Box>
   );
  }

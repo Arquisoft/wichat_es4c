@@ -22,7 +22,21 @@ const withTimeout = (promise, ms) => {
 
 app.get('/question', async (req, res) => {
     try {
-        const question = await withTimeout(generateQuestion(), 5000);
+        
+        //console.log("Raw query parameters:", req.query);
+
+        const toBool = (val) => val === 'true';
+
+        const allowedTypes = {
+            capital:  toBool(req.query.capital),
+            flag:     toBool(req.query.flag),
+            monument: toBool(req.query.monument),
+            food:     toBool(req.query.food),
+        };
+
+        //console.log("allowedTypes", allowedTypes);
+
+        const question = await withTimeout(generateQuestion(allowedTypes), 5000);
 
         // Transformar la estructura si es necesario
         const formattedQuestion = {
