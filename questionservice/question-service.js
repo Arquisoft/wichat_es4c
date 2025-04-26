@@ -10,7 +10,6 @@ const PORT = 8004;
 connectToDatabase();
 
 app.use(cors());
-app.use(express.json());
 
 
 const withTimeout = (promise, ms) => {
@@ -20,9 +19,27 @@ const withTimeout = (promise, ms) => {
     return Promise.race([promise, timeout]);
 };
 
+app.use((req, res, next) => {
+    next();
+});
+
 app.get('/question', async (req, res) => {
     try {
-        const question = await withTimeout(generateQuestion(), 5000);
+
+        //console.log("Raw query parameters:", req.query);
+
+        const toBool = (val) => val === 'true';
+
+        const allowedTypes = {
+            capital:  toBool(req.query.capital),
+            flag:     toBool(req.query.flag),
+            monument: toBool(req.query.monument),
+            food:     toBool(req.query.food),
+        };
+
+        //console.log("allowedTypes", allowedTypes);
+
+        const question = await withTimeout(generateQuestion(allowedTypes), 5000);
 
         // Transformar la estructura si es necesario
         const formattedQuestion = {
@@ -35,7 +52,7 @@ app.get('/question', async (req, res) => {
 
         res.json(formattedQuestion);
     } catch (error) {
-        console.error("Error fetching question:", error.message);
+        console.error("Error fetching question: nikla putero", error.message);
         res.status(500).json({ error: 'Failed to fetch question' });
     }
 });
