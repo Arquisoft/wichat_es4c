@@ -341,6 +341,7 @@ const Game = () => {
                       {questionData.choices.map((opt, i) => (
                         <Box key={i} display="flex" alignItems="center" sx={{ mb: 1 }}>
                           <Button
+                            testid="answer-option"
                             variant="contained"
                             color={answered
                               ? (opt === questionData.answer ? "success" : "error")
@@ -505,6 +506,7 @@ const Game = () => {
                   sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#4caf50', color: '#fff' }}>
             Volver al menú
           </Button>
+
         </DialogActions>
       </Dialog>
     </>
