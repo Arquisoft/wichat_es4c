@@ -24,7 +24,7 @@ describe('StartMenu Component', () => {
     );
 
     expect(screen.getByText(/¿Cómo jugar\?/i)).toBeInTheDocument();
-    expect(screen.getByText(/Pon a prueba tu conocimiento/i)).toBeInTheDocument();
+    expect(screen.getByText(/¡Pon a prueba tus conocimientos geográficos!/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Comenzar/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Ranking/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Cuenta/i })).toBeInTheDocument();

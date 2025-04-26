@@ -51,6 +51,11 @@ const userSchema = new mongoose.Schema({
     flagQuestions: { type: Boolean, default: true },    // 🔹 Preguntas de banderas activadas
     monumentQuestions: { type: Boolean, default: true }, // 🔹 Preguntas de monumentos activadas
     foodQuestions: { type: Boolean, default: true },     // 🔹 Preguntas de comida activadas
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
   },
   friends: [ // 🔹 Lista de amigos (referencias a otros usuarios)
     {

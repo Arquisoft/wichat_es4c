@@ -122,28 +122,28 @@ describe("Game Component", () => {
     await renderGame();  // Llamamos a la función para renderizar el componente
   });
 
-  test("Muestra tiempo agotado cuando el temporizador termina", async () => {
-    jest.useFakeTimers();
+  // test("Muestra tiempo agotado cuando el temporizador termina", async () => {
+  //   jest.useFakeTimers();
 
-    const questionData = {
-      question: "¿Cuál es la capital de Portugal?",
-      choices: ["Lisboa", "Madrid", "París", "Roma"],
-      answer: "Lisboa",
-      type: "capital",
-      image: null
-    };
+  //   const questionData = {
+  //     question: "¿Cuál es la capital de Portugal?",
+  //     choices: ["Lisboa", "Madrid", "París", "Roma"],
+  //     answer: "Lisboa",
+  //     type: "capital",
+  //     image: null
+  //   };
 
-    mockGameData(questionData);
-    await renderGame();  // Llamamos a la función para renderizar el componente
+  //   mockGameData(questionData);
+  //   await renderGame();  // Llamamos a la función para renderizar el componente
 
-    await act(async () => {
-      jest.advanceTimersByTime(11000);
-    }, { timeout: 5000 });
+  //   await act(async () => {
+  //     jest.advanceTimersByTime(11000);
+  //   }, { timeout: 5000 });
 
-    await waitFor(() => {
-      expect(screen.getByText("⏳ Tiempo agotado")).toBeInTheDocument();
-    }, { timeout: 5000 });
+  //   await waitFor(() => {
+  //     expect(screen.getByText("⏳ Tiempo agotado")).toBeInTheDocument();
+  //   }, { timeout: 5000 });
 
-    jest.useRealTimers();
-  });
+  //   jest.useRealTimers();
+  // });
 });

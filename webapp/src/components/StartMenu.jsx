@@ -40,7 +40,35 @@ const StartMenu = () => {
   return (
     <Box className="start-menu-container">
       {/* Contenido del menú */}
-      <Box sx={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 6 }}>
+
+      {localStorage.getItem("role") === "admin" && (
+        <Box 
+          sx={{ 
+            position: "absolute", 
+            top: 20, 
+            left: 25, 
+            display: "flex", 
+          }}
+        >
+          <Button
+            variant="contained"
+            onClick={() => navigate(`/adminPanel`)}
+            sx={{
+              backgroundColor: "#FF6584",
+              color: "#fff",
+              fontWeight: "bold",
+              boxShadow: 3,
+              scale: 1.15,
+              fontFamily: "Orbitron, sans-serif",
+              "&:hover": { bgcolor: "#f50057" },
+            }}
+          >
+            Admin
+          </Button>
+        </Box>
+      )}
+
+      <Box sx={{ position: "absolute", top: 20, right: 25, display: "flex", gap: 5 }}>
         <Button
           variant="contained"
           onClick={handleOpenRanking}
@@ -48,8 +76,9 @@ const StartMenu = () => {
             backgroundColor: "#FF6584",
             color: "#fff",
             fontWeight: "bold",
+            width: 130,
             boxShadow: 3,
-            scale: 1.25,
+            scale: 1.15,
             fontFamily: "Orbitron, sans-serif",
             "&:hover": { bgcolor: "#f50057" },
           }}
@@ -63,8 +92,10 @@ const StartMenu = () => {
             backgroundColor: "#FF6584",
             color: "#fff",
             fontWeight: "bold",
+            width: 130,
             boxShadow: 3,
-            scale: 1.25,
+            scale: 1.15,
+            borderRadius: 1,
             fontFamily: "Orbitron, sans-serif",
             "&:hover": { bgcolor: "#f50057" },
           }}
@@ -78,8 +109,10 @@ const StartMenu = () => {
           sx={{
             "& .MuiMenu-paper": {
               backgroundColor: "#6a11cb",
-              backdropFilter: "blur(10px)",
               boxShadow: 5,
+              width: 150,
+              borderRadius: 1,
+              transformOrigin: 'top right',
             },
           }}
         >
@@ -177,7 +210,7 @@ const StartMenu = () => {
               ¿CÓMO JUGAR?
             </Typography>
             <Typography variant="body1" sx={{ fontSize: "20px", fontWeight: "bold", color: "#FED43F", fontFamily: "Orbitron, sans-serif", marginTop: 8 }}>
-              Pon a prueba tu conocimiento! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 4 posibles
+            ¡Pon a prueba tus conocimientos geográficos! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 4 posibles
               respuestas. Cada pregunta debe ser respondida en un tiempo determinado. Se ofrece la posibilidad de obtener
               pistas mediante un chatbot.
             </Typography>

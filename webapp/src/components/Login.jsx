@@ -117,7 +117,9 @@ const Login = ({ onLoginSuccess }) => {
       setCreatedAt(response.data?.createdAt || '');
       setLoginSuccess(true);
       setOpenSnackbar(true);
+      localStorage.setItem("token", response.data.token);
       localStorage.setItem("username", username);
+      localStorage.setItem("role", response.data.role);
       onLoginSuccess();
       navigate('/startmenu');
     } catch (error) {
@@ -145,6 +147,10 @@ const Login = ({ onLoginSuccess }) => {
     }
   };
 
+  const handleGoBack = (e) => {
+    navigate('/');
+  };
+
   return (
     <Box sx={{
       height: '100vh',
@@ -156,6 +162,31 @@ const Login = ({ onLoginSuccess }) => {
       alignItems: 'center',
       background: '#000010',
     }}>
+    <Box
+      sx={{
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        zIndex: 10,
+      }}
+    >
+      <Button
+        variant="contained"
+        onClick={handleGoBack}
+        sx={{
+          textTransform: "none",
+          fontWeight: "bold",
+          fontFamily: "Orbitron, sans-serif",
+          backgroundColor:"#454c5a",
+          color: "#fff",
+          "&:hover": {
+            backgroundColor: "#3a404c",
+          },
+        }}
+      >
+        Volver atrás
+      </Button>
+    </Box>
       <Box
         sx={{
           position: 'absolute',

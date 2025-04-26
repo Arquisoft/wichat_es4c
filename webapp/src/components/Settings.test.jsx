@@ -50,7 +50,7 @@ describe('SettingsCard Component', () => {
 
     // Wait for the data to load
     await waitFor(() => {
-      expect(screen.getByText('Ajustes')).toBeInTheDocument();
+      expect(screen.getByText('Ajustes del Juego')).toBeInTheDocument();
     });
 
   });

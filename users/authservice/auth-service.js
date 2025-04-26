@@ -1,77 +1,122 @@
-// auth-service.js
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('./auth-model'); // Ensure this model matches the one used during registration
-const { check, validationResult } = require('express-validator');
+const User = require('./auth-model');
+const { check, matchedData, validationResult } = require('express-validator');
 const app = express();
-const port = 8002;
+const port = 8002; 
 
-// Middleware to parse JSON in the request body
+// Middleware to parse JSON in request body
 app.use(express.json());
 
 // Connect to MongoDB
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/userdb';
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch(err => console.error("Error connecting to MongoDB:", err));
+mongoose.connect(mongoUri);
 
-// Function to validate required fields in the request body
-function validateRequiredFields(req, requiredFields) {
-  for (const field of requiredFields) {
-    if (!(field in req.body)) {
-      throw new Error(`Missing required field: ${field}`);
-    }
+// Crear usuario admin al iniciar si no existe
+async function createAdminIfNotExists() {
+  const adminName = process.env.ADMIN_NAME;
+  const adminPswd = process.env.ADMIN_PSWD;
+
+  if (!adminName || !adminPswd) {
+    console.warn("ADMIN_NAME o ADMIN_PSWD no definido en .env");
+    return;
+  }
+
+  const existingAdmin = await User.findOne({ username: adminName });
+  if (!existingAdmin) {
+    const hashedPswd = await bcrypt.hash(adminPswd, 10);
+    await User.create({
+      username: adminName,
+      password: hashedPswd,
+      role: 'admin',
+      createdAt: new Date()
+    });
+    console.log(`Administrador ${adminName} creado`);
+  } else if (existingAdmin.role !== 'admin') {
+    existingAdmin.role = 'admin';
+    await existingAdmin.save();
   }
 }
 
-// Route for user login
-app.post('/login', [
+// Llama a la función una vez conectada la base de datos
+mongoose.connection.once('open', () => {
+  createAdminIfNotExists();
+});
+
+
+
+// Function to validate required fields in the request body
+function validateRequiredFields(req, requiredFields) {
+    for (const field of requiredFields) {
+      if (!(field in req.body)) {
+        throw new Error(`Missing required field: ${field}`);
+      }
+    }
+}
+
+
+// Endpoint: login
+app.post('/login',  [
   check('username').isLength({ min: 3 }).trim().escape(),
   check('password').isLength({ min: 3 }).trim().escape()
-], async (req, res) => {
+],async (req, res) => {
   try {
-    // Validate required fields
     validateRequiredFields(req, ['username', 'password']);
-
-    // Check for validation errors from express-validator
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().toString() });
+      return res.status(400).json({ error: errors.array().toString()});
     }
-
-    // Retrieve username and password from request
-    const username = req.body.username;
-    const password = req.body.password;
-
-    // Find the user by username
+    let username = req.body.username.toString();
+    let password = req.body.password.toString();
     const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    if (user && await bcrypt.compare(password, user.password)) {
+      // Incluimos el atributo role en el JWT
+      const token = jwt.sign(
+        { userId: user._id, role: user.role }, // Incluye el rol
+        'your-secret-key',
+        { expiresIn: '1h' }
+      );
+      res.json({ token: token, username: username, role: user.role, createdAt: user.createdAt });
+    } else {
+      res.status(401).json({ error: 'Invalid credentials' });
     }
-
-    // Compare the plaintext password with the hashed password stored in the database
-    const passwordMatches = await bcrypt.compare(password, user.password);
-    if (!passwordMatches) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Generate a JWT token if authentication is successful
-    const token = jwt.sign({ userId: user._id }, 'your-secret-key', { expiresIn: '1h' });
-    res.json({ token, username, createdAt: user.createdAt });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// Start the server
+app.get('/adminPanel', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'your-secret-key'); // Usa la misma clave que al firmar el token
+
+    // Verifica en la base de datos que el usuario sigue siendo admin
+    const user = await User.findById(decoded.userId);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Acceso denegado. Se requiere rol de administrador.' });
+    }
+
+    const users = await User.find({}, '-password');
+    res.json(users);
+  } catch (error) {
+    return res.status(401).json({ error: 'Token inválido o expirado' });
+  }
+});
+
+// Start server
 const server = app.listen(port, () => {
   console.log(`Auth Service listening at http://localhost:${port}`);
 });
 
 server.on('close', () => {
-  mongoose.connection.close();
+    mongoose.connection.close();
 });
 
 module.exports = server;

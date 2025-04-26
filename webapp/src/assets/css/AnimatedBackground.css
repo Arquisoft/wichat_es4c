@@ -8,7 +8,6 @@
     position: relative;
     background: transparent url('../images/world-bg.png');
     background-size: cover;
-    animation: zoomMap 20s ease-in-out infinite; 
     text-align: center;
   }
 

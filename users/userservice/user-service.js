@@ -2,6 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
 const app = express();
@@ -56,7 +57,8 @@ app.post('/adduser', async (req, res) => {
             correctAnswers: 0,
             wrongAnswers: 0,
             totalTimePlayed: 0,
-            gameHistory: []
+            gameHistory: [],
+            role: 'user'
         });
 
         await newUser.save();
@@ -478,6 +480,39 @@ app.get('/ranking', async (req, res) => {
         console.error("Error al obtener el ranking:", error);
         res.status(500).json({ error: "Error al obtener el ranking" });
     }
+});
+
+app.delete('/deleteUser/:username', async (req, res) => {
+  try {
+    // Verifica el token y el rol admin
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
+    let decoded;
+    try {
+      decoded = jwt.verify(token, 'your-secret-key'); // Usa la misma clave que en auth-service
+    } catch (err) {
+      return res.status(401).json({ error: 'Token inválido o expirado' });
+    }
+
+    if (!decoded || decoded.role !== 'admin') {
+      return res.status(403).json({ error: 'Acceso denegado. Se requiere rol de administrador.' });
+    }
+
+    const { username } = req.params;
+    const deletedUser = await User.findOneAndDelete({ username });
+
+    if (!deletedUser) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json({ message: `Usuario ${username} eliminado correctamente.` });
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+    res.status(500).json({ error: "Error al eliminar usuario" });
+  }
 });
 
 // Iniciar el servidor
