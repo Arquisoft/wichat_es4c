@@ -75,7 +75,7 @@ describe('User Service', () => {
     it('should update user stats on POST /updateStats', async () => {
         const user = new User({ username: 'statuser', password: 'hashedpassword', correctAnswers: 0, wrongAnswers: 0, totalTimePlayed: 0 });
         await user.save();
-        const response = await request(app).post('/updateStats').send({ username: 'statuser', isCorrect: true, timeTaken: 30 });
+        const response = await request(app).post('/updateStats').send({ username: 'statuser', correct: 1, wrong: 0, timeTaken: 30 });
         expect(response.status).toBe(200);
         const updatedUser = await User.findOne({ username: 'statuser' });
         expect(updatedUser.correctAnswers).toBe(1);
