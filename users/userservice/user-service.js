@@ -189,25 +189,33 @@ app.post('/saveSettings/:username', async (req, res) => {
 
 app.post('/friends', async (req, res) => {
   try {
-      const { username } = req.body;
+    const { username } = req.body;
 
-      if (!username) {
-          return res.status(400).json({ error: 'Falta el nombre de usuario' });
-      }
+    if (!username) {
+      return res.status(400).json({ error: 'Falta el nombre de usuario' });
+    }
 
-      const user = await User.findOne({ username }).populate('friends', 'username');
+    // Validación y sanitización
+    if (typeof username !== 'string') {
+      return res.status(400).json({ error: 'Nombre de usuario inválido' });
+    }
 
-      if (!user) {
-          return res.status(404).json({ error: 'Usuario no encontrado' });
-      }
+    const sanitizedUsername = sanitizeUsername(username);
 
-      const friendUsernames = user.friends.map(friend => friend.username);
-      res.json({ friends: friendUsernames });
+    const user = await User.findOne({ username: sanitizedUsername }).populate('friends', 'username');
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const friendUsernames = user.friends.map(friend => friend.username);
+    res.json({ friends: friendUsernames });
   } catch (error) {
-      console.error("Error al obtener amigos:", error.message);
-      res.status(500).json({ error: 'Error al obtener la lista de amigos' });
+    console.error("Error al obtener amigos:", error.message);
+    res.status(500).json({ error: 'Error al obtener la lista de amigos' });
   }
 });
+
 
 app.post('/addFriend', async (req, res) => {
   try {
@@ -262,14 +270,22 @@ app.post('/removeFriend', async (req, res) => {
       return res.status(400).json({ error: "Faltan userId o friendUsername" });
     }
 
-    const user = await User.findById(userId);
-    const friend = await User.findOne({ username: friendUsername });
+    // Validación y sanitización
+    if (typeof userId !== 'string' || typeof friendUsername !== 'string') {
+      return res.status(400).json({ error: "Datos inválidos" });
+    }
+
+    const sanitizedFriendUsername = sanitizeUsername(friendUsername);
+
+    // Buscar usuarios usando valores saneados
+    const user = await User.findById(userId); // userId es un ObjectId, validarlo si quieres más seguridad
+    const friend = await User.findOne({ username: sanitizedFriendUsername });
 
     if (!user || !friend) {
       return res.status(404).json({ error: "Usuario o amigo no encontrado" });
     }
 
-    // Filtrar para eliminar del array de amigos (en ambos sentidos)
+    // Filtrar para eliminar del array de amigos en ambos sentidos
     user.friends = user.friends.filter(id => id.toString() !== friend._id.toString());
     friend.friends = friend.friends.filter(id => id.toString() !== user._id.toString());
 
@@ -323,15 +339,25 @@ app.post('/acceptChallenge', async (req, res) => {
   try {
     const { username, from } = req.body;
 
-    const challenger = await User.findOne({ username: from });
-    const receiver = await User.findOne({ username });
+    // Validaciones de tipo
+    if (typeof username !== 'string' || typeof from !== 'string') {
+      return res.status(400).json({ error: "Datos inválidos" });
+    }
+
+    // Sanitización
+    const sanitizedUsername = sanitizeUsername(username);
+    const sanitizedFrom = sanitizeUsername(from);
+
+    // Consultas usando los valores saneados
+    const challenger = await User.findOne({ username: sanitizedFrom });
+    const receiver = await User.findOne({ username: sanitizedUsername });
 
     if (!challenger || !receiver) {
       return res.status(404).json({ error: "Usuarios no encontrados" });
     }
 
-    challenger.challengeAcceptedBy = username;
-    challenger.challengeRequest = undefined; // 🔹 limpiar si existía
+    challenger.challengeAcceptedBy = sanitizedUsername;
+    challenger.challengeRequest = undefined;
     await challenger.save();
 
     receiver.challengeRequest = undefined;
@@ -343,6 +369,8 @@ app.post('/acceptChallenge', async (req, res) => {
     res.status(500).json({ error: "Error al aceptar reto" });
   }
 });
+
+
 
 
 
@@ -397,8 +425,20 @@ app.post('/submitDuelResult', async (req, res) => {
 app.post('/checkDuelResult', async (req, res) => {
   try {
     const { username, opponent } = req.body;
-    const user  = await User.findOne({ username });
-    const rival = await User.findOne({ username: opponent });
+
+    // Validar que ambos existan y sean strings
+    if (typeof username !== 'string' || typeof opponent !== 'string') {
+      return res.status(400).json({ error: "Datos inválidos" });
+    }
+
+    // Sanea el contenido
+    const sanitizedUsername = sanitizeUsername(username);
+    const sanitizedOpponent = sanitizeUsername(opponent);
+
+    // Buscar usuarios usando los valores saneados
+    const user  = await User.findOne({ username: sanitizedUsername });
+    const rival = await User.findOne({ username: sanitizedOpponent });
+
     if (!user || !rival) 
       return res.status(404).json({ error: "Usuario o rival no encontrado" });
 
@@ -406,18 +446,15 @@ app.post('/checkDuelResult', async (req, res) => {
       return res.json({ status: "waiting" });
     }
 
-    // Ambos ya terminaron: extraemos stats
-    const uCorrect =  user.duelResult.correct;
-    const uTime    =  user.duelResult.time;
-    const rCorrect =  rival.duelResult.correct;
-    const rTime    =  rival.duelResult.time;
+    const uCorrect = user.duelResult.correct;
+    const uTime    = user.duelResult.time;
+    const rCorrect = rival.duelResult.correct;
+    const rTime    = rival.duelResult.time;
 
     let winner = "Empate";
-    if (uCorrect > rCorrect)      winner = username;
-    else if (rCorrect > uCorrect) winner = opponent;
+    if (uCorrect > rCorrect) winner = sanitizedUsername;
+    else if (rCorrect > uCorrect) winner = sanitizedOpponent;
 
-    // **¡OJO!** NO limpiar aquí. Así tanto el primer polling como el segundo
-    // van a recibir status:"done".
     return res.json({
       status: "done",
       winner,
@@ -429,6 +466,7 @@ app.post('/checkDuelResult', async (req, res) => {
     res.status(500).json({ error: "Error al verificar duelo" });
   }
 });
+
 
 
 app.get('/checkChallengeStatus/:username', async (req, res) => {
