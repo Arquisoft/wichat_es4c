@@ -11,10 +11,24 @@ describe("Game Component", () => {
   beforeEach(() => {
     mock.reset();
     localStorage.setItem("username", "testuser"); // Simulate a stored user
+
+    // Mock de fetch para que no fallen las peticiones reales
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          username: 'testuser',
+          correctAnswers: 0,
+          wrongAnswers: 0,
+          totalTimePlayed: 0,
+        }),
+      })
+    );
   });
 
   afterEach(() => {
     localStorage.clear(); // Clear localStorage after each test
+    jest.resetAllMocks(); // Resetear mocks para que no se acumulen
   });
 
   // Función para renderizar el componente Game con MemoryRouter
@@ -69,7 +83,7 @@ describe("Game Component", () => {
     };
 
     mockGameData(questionData);
-    await renderGame();  // Llamamos a la función para renderizar el componente
+    await renderGame();
   });
 
   test("Permite seleccionar una respuesta y muestra feedback correcto", async () => {
@@ -82,7 +96,7 @@ describe("Game Component", () => {
     };
 
     mockGameData(questionData);
-    await renderGame();  // Llamamos a la función para renderizar el componente
+    await renderGame();
   });
 
   test("Muestra la respuesta correcta si el usuario falla", async () => {
@@ -95,7 +109,7 @@ describe("Game Component", () => {
     };
 
     mockGameData(questionData);
-    await renderGame();  // Llamamos a la función para renderizar el componente
+    await renderGame();
   });
 
   test("Permite activar y desactivar sonido", async () => {
@@ -108,7 +122,7 @@ describe("Game Component", () => {
     };
 
     mockGameData(questionData);
-    await renderGame();  // Llamamos a la función para renderizar el componente
+    await renderGame();
 
     const toggleButton = screen.getByRole('button', { name: /Sonido Activado/i });
     expect(toggleButton).toBeInTheDocument();
@@ -119,9 +133,10 @@ describe("Game Component", () => {
   test("Muestra mensaje de error si falla obtener configuraciones", async () => {
     mock.onGet("http://localhost:8001/getSettings/testuser").reply(500);
 
-    await renderGame();  // Llamamos a la función para renderizar el componente
+    await renderGame();
   });
 
+  // Este test es opcional: controla el temporizador
   // test("Muestra tiempo agotado cuando el temporizador termina", async () => {
   //   jest.useFakeTimers();
 
@@ -134,11 +149,11 @@ describe("Game Component", () => {
   //   };
 
   //   mockGameData(questionData);
-  //   await renderGame();  // Llamamos a la función para renderizar el componente
+  //   await renderGame();
 
   //   await act(async () => {
   //     jest.advanceTimersByTime(11000);
-  //   }, { timeout: 5000 });
+  //   });
 
   //   await waitFor(() => {
   //     expect(screen.getByText("⏳ Tiempo agotado")).toBeInTheDocument();
@@ -146,4 +161,5 @@ describe("Game Component", () => {
 
   //   jest.useRealTimers();
   // });
+
 });
