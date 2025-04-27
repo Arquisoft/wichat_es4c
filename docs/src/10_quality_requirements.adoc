@@ -116,9 +116,24 @@ endif::arc42help[]
 | The chat module can be updated or replaced with enhanced capabilities without affecting core quiz functionality.
 | Medium
 
-| _Updating External Data Sources_
-| To incorporate more diverse or current geographical data.
-| The dedicated QuestionService can be extended to fetch data from additional external APIs or sources with minimal refactoring.
+| _Adding a ranking_
+| To give the user a more competitive view of the game.
+| The dedicated user service can be extended for it to save more information about users to represent it on the ranking.
+| Medium
+
+| _Multiplayer_
+| Competitive and extra fun with friends.
+| User service is extended for this, making possible to play against someone in a 1v1 match.
+| Low
+
+| _Adding an admin panel_
+| To give the admin a clear view of the users in the system and manage them.
+| User and auth services are extended for this, as the admin can delete users (work for user service) and to enter the admin panel the user has to be an admin (authorization is work for the auth service).
+| Medium
+
+| _Game Settings_
+| To give the user the chance of adjusting parameters to play the game (response time, number of questions, what type of questions does he wants).
+| Question service is adapted for this, as it is responsible for the questions and the game component is adapted to handle the new parameters.
 | Medium
 
 |===

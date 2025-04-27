@@ -98,12 +98,11 @@ Contained Building Blocks::
 | *_UserService_*
 | Manages user profiles, sessions, and stores and updates leaderboard data.
 
-
 | *_QuestionService_*
 | Retrieves and formats questions from WikiData.
 
 | *_MongoDB Database_*
-| Stores user information, rankings, and game data.
+| Stores user information, rankings, and game data in the user database and stores questions in the question database.
 
 |===
 

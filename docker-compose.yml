@@ -14,7 +14,11 @@ services:
     container_name: authservice-wichat_es4c
     image: ghcr.io/arquisoft/wichat_es4c/authservice:latest
     profiles: ["dev", "prod"]
-    build: ./users/authservice
+    build: 
+      context: ./users/authservice
+      args:
+        ADMIN_NAME: ${ADMIN_NAME}
+        ADMIN_PSWD: ${ADMIN_PSWD}
     depends_on:
       - mongodb
     ports:
