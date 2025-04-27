@@ -6,7 +6,7 @@
 // configure EN settings for asciidoc
 include::src/config.adoc[]
 
-= image:arc42-logo.png[arc42] WIChat_ES4C image:WIChat.png[WIChat, width=100, align="right"]
+= image:WIChat.png[WIChat, width=100] WIChat_ES4C System Architecture Documentation
 :revnumber: 8.2 EN
 :revdate: January 2023
 :revremark: (based upon AsciiDoc version)
