@@ -469,7 +469,7 @@ const Game = () => {
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-around', padding: '16px' }}>
           <Button onClick={handleCloseConfirmationModal} sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', borderColor: '#fff', '&:hover': { borderColor: '#fff' } }} variant="outlined">Cancelar</Button>
-          <Button onClick={handleConfirmExit} autoFocus sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#f44336', color: '#fff', '&:hover': { backgroundColor: '#d32f2f' } }} variant="contained">
+          <Button id="goMenu" onClick={handleConfirmExit} autoFocus sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#f44336', color: '#fff', '&:hover': { backgroundColor: '#d32f2f' } }} variant="contained">
             Salir
           </Button>
         </DialogActions>
