@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Box, Card, CardContent, Typography, CircularProgress, Grid, Button, Snackbar,
-  Avatar, Tooltip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
+  Avatar, Tooltip, IconButton,
   Divider, List, ListItem, ListItemText, Drawer
 } from "@mui/material";
 import PublicIcon from '@mui/icons-material/Public';
