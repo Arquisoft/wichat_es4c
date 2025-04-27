@@ -44,6 +44,8 @@ const Game = () => {
   const [wrongCount, setWrongCount]           = useState(0);
   const [totalTime, setTotalTime]             = useState(0);
   const [showSummaryModal, setShowSummaryModal]     = useState(false);
+  // Nuevo estado para almacenar las preguntas ya mostradas
+  const [usedQuestionIds, setUsedQuestionIds] = useState([]);
   const [resultDialogOpen, setResultDialogOpen]     = useState(false);
   const [waitingForOpponent, setWaitingForOpponent] = useState(false);
   const [snackbarOpen, setSnackbarOpen]             = useState(false);
@@ -77,11 +79,17 @@ const Game = () => {
   const handleSnackbarClose       = () => setSnackbarOpen(false);
   const handleOpenConfirmationModal  = () => setOpenConfirmationModal(true);
   const handleCloseConfirmationModal = () => setOpenConfirmationModal(false);
-  const handleConfirmExit = () => {
+
+  const handleConfirmExit = useCallback(() => {
     backgroundMusic.stop();
     setPaused(true);
     navigate("/startmenu");
-  };
+  }, [navigate]); 
+
+  const newGame = useCallback(async () => {
+    try { if (username) await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username }); }
+    catch (error) { console.error("Error incrementing game:", error); }
+  }, [username, apiEndpoint]);
 
   const fetchQuestion = useCallback(async () => {
     if (loadingQuestion) return;
@@ -93,29 +101,50 @@ const Game = () => {
       setSelectedAnswer("");
       setFeedback({});
       setAnswered(false);
-
-      const res = await axios.get(`${apiEndpoint}/question`, {
-      params: {
-        capital: settings.capitalQuestions?.toString() ?? 'true',
-        flag: settings.flagQuestions?.toString() ?? 'true',
-        monument: settings.monumentQuestions?.toString() ?? 'true',
-        food: settings.foodQuestions?.toString() ?? 'true',
+      setPaused(false);
+      startTime.current = Date.now();
+      
+      setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+      
+      let response;
+      let isNewQuestion = false;
+      let maxAttempts = 5; // Limitar intentos para evitar bucles infinitos
+      let attempts = 0;
+      
+      // Intentar obtener una pregunta que no se haya mostrado antes
+      do {
+        response = await axios.get(`${apiEndpoint}/question`, {
+          params: {
+            capital: settings.capitalQuestions.toString(),
+            flag: settings.flagQuestions.toString(),
+            monument: settings.monumentQuestions.toString(),
+            food: settings.foodQuestions.toString(),
+          },
+        });
+        
+        // Verificar si esta pregunta ya ha sido mostrada (usando la pregunta como identificador)
+        isNewQuestion = !usedQuestionIds.includes(response.data.question);
+        attempts++;
+        
+        // Si hemos intentado demasiadas veces o es una pregunta nueva, salimos del bucle
+        if (isNewQuestion || attempts >= maxAttempts) break;
+        
+      } while (!isNewQuestion);
+      
+      // Actualizar la lista de preguntas usadas
+      if (isNewQuestion) {
+        setUsedQuestionIds(prev => [...prev, response.data.question]);
       }
-      });
-      setQuestionData(res.data);
-    } catch (err) {
-      console.error("Error fetching question:", err);
+      
+      setQuestionData(response.data);
+    } catch (error) {
+      console.error("Error fetching question:", error);
     } finally {
       setLoadingQuestion(false);
     }
-  }, [
-    loadingQuestion,
-    apiEndpoint,
-    settings.capitalQuestions,
-    settings.flagQuestions,
-    settings.monumentQuestions,
-    settings.foodQuestions
-  ]);
+  }, [loadingQuestion, apiEndpoint, settings.answerTime, settings.capitalQuestions, settings.flagQuestions, settings.monumentQuestions, settings.foodQuestions, usedQuestionIds]);
+  
+  useEffect(() => { if (!hasFetched.current && settings.answerTime) { newGame(); fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
 
   useEffect(() => {
     if (settings.answerTime && !hasFetched.current) {
@@ -258,10 +287,11 @@ const Game = () => {
     setTotalTime(0);
     setQuestionCounter(0);
     setShowSummaryModal(false);
-    setAnswered(false);             
-    setPaused(false);               
-    setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000); 
-
+    setAnswered(false);
+    setPaused(false);
+    // Reiniciar el array de preguntas usadas
+    setUsedQuestionIds([]);
+    setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
     fetchQuestion();
   };
 
