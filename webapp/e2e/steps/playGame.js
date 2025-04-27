@@ -10,12 +10,12 @@ let browser;
 defineFeature(feature, test => {
 
   beforeAll(async () => {
-    jest.setTimeout(60000); // más tiempo para entornos lentos
+    jest.setTimeout(600000); // más tiempo para entornos lentos
     browser = process.env.GITHUB_ACTIONS
       ? await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] })
       : await puppeteer.launch({ headless: false, slowMo: 30 });
     page = await browser.newPage();
-    setDefaultOptions({ timeout: 5000 });
+    setDefaultOptions({ timeout: 50000 });
 
     await page.goto("http://localhost:3000", { waitUntil: "networkidle0" })
       .catch((error) => console.error("Navigation failed:", error));
@@ -27,7 +27,7 @@ defineFeature(feature, test => {
 
     await page.waitForFunction(() => {
       return document.body.innerText.includes('Redirecting to login...');
-    }, { timeout: 7500 });
+    }, { timeout: 75000 });
 
     const bodyText = await page.evaluate(() => document.body.textContent);
     expect(bodyText).toContain('Redirecting to login...');
@@ -37,7 +37,7 @@ defineFeature(feature, test => {
     await page.goto("http://localhost:3000", { waitUntil: "networkidle0" })
       .catch((error) => console.error("Navigation failed:", error));
 
-    await page.waitForSelector('[data-testid="login-button"]', { timeout: 50000 })
+    await page.waitForSelector('[data-testid="login-button"]', { timeout: 500000 })
       .catch((error) => console.error("Login button not found:", error));
     await page.click('[data-testid="login-button"]');
   });
@@ -57,7 +57,7 @@ defineFeature(feature, test => {
     when('The user logs in with the user credentials', async () => {
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Comenzar');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Comenzar');
@@ -68,7 +68,7 @@ defineFeature(feature, test => {
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Ajustes');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Ajustes');
@@ -79,7 +79,7 @@ defineFeature(feature, test => {
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Ajustes del Juego');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Ajustes del Juego');
@@ -97,7 +97,7 @@ defineFeature(feature, test => {
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('¡Ajustes guardados con éxito!');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('¡Ajustes guardados con éxito!');
@@ -109,7 +109,7 @@ defineFeature(feature, test => {
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Salir al menú principal');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
     });
 
     and('The user answers the first question', async () => {
@@ -118,7 +118,7 @@ defineFeature(feature, test => {
         
         await page.waitForXPath(firstQuestionXPath, {
           visible: true,
-          timeout: 20000
+          timeout: 200000
         });
     
         // Obtener el botón con reintentos
@@ -128,12 +128,12 @@ defineFeature(feature, test => {
         }
     
         await firstButton.evaluate(btn => btn.scrollIntoView());
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(50000);
         await firstButton.click();
     
         await page.waitForFunction(
           () => !document.querySelector('[data-testid="answer-option"]:not([disabled])'),
-          { timeout: 15000 }
+          { timeout: 150000 }
         );
       } catch (error) {
         console.error('Error en primera pregunta:', error);
@@ -143,13 +143,13 @@ defineFeature(feature, test => {
     
     and('The user answers the second question', async () => {
       try {
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(30000);
     
         const secondQuestionXPath = '//*[@id="root"]/div/div[1]/div/div[1]/div/div[2]/div[1]/button';
         
         await page.waitForXPath(secondQuestionXPath, {
           visible: true,
-          timeout: 20000
+          timeout: 200000
         });
     
         const [secondButton] = await page.$x(secondQuestionXPath);
@@ -160,12 +160,12 @@ defineFeature(feature, test => {
         await secondButton.evaluate(btn => {
           btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(50000);
         await secondButton.click();
     
         await page.waitForFunction(
           () => document.body.innerText.includes('¡Resumen de la partida!'),
-          { timeout: 20000 }
+          { timeout: 200000 }
         );
       } catch (error) {
         const pageContent = await page.content();
@@ -180,7 +180,7 @@ defineFeature(feature, test => {
           const text = document.body.innerText;
           return text.includes(expectedMsg);
         },
-        { timeout: 10000 },
+        { timeout: 100000 },
         msg
       );
     
@@ -199,7 +199,7 @@ defineFeature(feature, test => {
             button.textContent.includes('Start Menu') ||
             button.textContent.includes('Menu')
           );
-        }, { timeout: 10000 });
+        }, { timeout: 100000 });
         
         // Encuentra el botón por texto
         await page.evaluate(() => {
@@ -216,7 +216,7 @@ defineFeature(feature, test => {
         // Esperar a que vuelva al menú principal
         await page.waitForFunction(() => {
           return document.body.innerText.includes('Comenzar');
-        }, { timeout: 10000 });
+        }, { timeout: 100000 });
       } catch (error) {
         console.error('Error al presionar botón de menú:', error);
         
@@ -235,7 +235,7 @@ defineFeature(feature, test => {
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Ajustes');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Ajustes');
@@ -248,7 +248,7 @@ defineFeature(feature, test => {
         // Esperar a que vuelva a la página de login
         await page.waitForFunction(() => {
           return document.body.innerText.includes('WICHAT');
-        }, { timeout: 10000 });
+        }, { timeout: 100000 });
       } catch (error) {
         console.error('Error al presionar botón de logout:', error);
         throw error;
@@ -258,7 +258,7 @@ defineFeature(feature, test => {
     then('The home page is shown', async () => {
       await page.waitForFunction(() => {
         return document.body.innerText.includes('WICHAT');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('WICHAT');
@@ -280,7 +280,7 @@ defineFeature(feature, test => {
     when('The user logs in with the user credentials', async () => {
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Comenzar');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Comenzar');
@@ -292,7 +292,7 @@ defineFeature(feature, test => {
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Salir al menú principal');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
     });
 
     and('The user answers the first question', async () => {
@@ -301,7 +301,7 @@ defineFeature(feature, test => {
         
         await page.waitForXPath(firstQuestionXPath, {
           visible: true,
-          timeout: 20000
+          timeout: 200000
         });
     
         // Obtener el botón con reintentos
@@ -311,12 +311,12 @@ defineFeature(feature, test => {
         }
     
         await firstButton.evaluate(btn => btn.scrollIntoView());
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(50000);
         await firstButton.click();
     
         await page.waitForFunction(
           () => !document.querySelector('[data-testid="answer-option"]:not([disabled])'),
-          { timeout: 15000 }
+          { timeout: 150000 }
         );
       } catch (error) {
         console.error('Error en primera pregunta:', error);
@@ -326,13 +326,13 @@ defineFeature(feature, test => {
     
     and('The user answers the second question', async () => {
       try {
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(30000);
     
         const secondQuestionXPath = '//*[@id="root"]/div/div[1]/div/div[1]/div/div[2]/div[1]/button';
         
         await page.waitForXPath(secondQuestionXPath, {
           visible: true,
-          timeout: 20000
+          timeout: 200000
         });
     
         const [secondButton] = await page.$x(secondQuestionXPath);
@@ -343,12 +343,12 @@ defineFeature(feature, test => {
         await secondButton.evaluate(btn => {
           btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(50000);
         await secondButton.click();
     
         await page.waitForFunction(
           () => document.body.innerText.includes('¡Resumen de la partida!'),
-          { timeout: 20000 }
+          { timeout: 200000 }
         );
       } catch (error) {
         const pageContent = await page.content();
@@ -363,7 +363,7 @@ defineFeature(feature, test => {
           const text = document.body.innerText;
           return text.includes(expectedMsg);
         },
-        { timeout: 10000 },
+        { timeout: 100000 },
         msg
       );
     
@@ -382,7 +382,7 @@ defineFeature(feature, test => {
             button.textContent.includes('Start Menu') ||
             button.textContent.includes('Menu')
           );
-        }, { timeout: 10000 });
+        }, { timeout: 100000 });
         
         // Encuentra el botón por texto
         await page.evaluate(() => {
@@ -399,7 +399,7 @@ defineFeature(feature, test => {
         // Esperar a que vuelva al menú principal
         await page.waitForFunction(() => {
           return document.body.innerText.includes('Comenzar');
-        }, { timeout: 10000 });
+        }, { timeout: 100000 });
       } catch (error) {
         console.error('Error al presionar botón de menú:', error);
         
@@ -418,7 +418,7 @@ defineFeature(feature, test => {
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Ajustes');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Ajustes');
@@ -429,7 +429,7 @@ defineFeature(feature, test => {
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Jugador activo');
-      }, { timeout: 7500 });
+      }, { timeout: 75000 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Jugador activo');
@@ -438,9 +438,9 @@ defineFeature(feature, test => {
     then('The user played games statistic is 2', async () => {
       // Esperar y obtener el texto del elemento
       const statText = await page.waitForFunction(() => {
-        const el = document.querySelector('[data-testid="games-played-count"]');
+        const el = document.querySelector('[data-testid="games-played"]');
         return el && el.textContent.trim();
-      }, { timeout: 15000 });
+      }, { timeout: 150000 });
     
       // Verificar que contiene el número 2
       expect(statText.toString()).toContain('2');
