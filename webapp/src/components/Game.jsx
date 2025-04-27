@@ -62,12 +62,10 @@ const Game = () => {
   const correctSound = new Howl({ src: [correctSoundFile], volume: 0.2 });
   const wrongSound   = new Howl({ src: [wrongSoundFile],   volume: 0.2 });
 
-  // Pause when summary, duel result, or waiting
   useEffect(() => {
     setPaused(showSummaryModal || resultDialogOpen || waitingForOpponent);
   }, [showSummaryModal, resultDialogOpen, waitingForOpponent]);
 
-  // Background music
   useEffect(() => {
     if (soundEnabled) backgroundMusic.play();
     else              backgroundMusic.pause();
@@ -84,14 +82,6 @@ const Game = () => {
     setPaused(true);
     navigate("/startmenu");
   };
-
-  const newGame = useCallback(async () => {
-    try {
-      if (username) await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
-    } catch (err) {
-      console.error("Error incrementing game:", err);
-    }
-  }, [username, apiEndpoint]);
 
   const fetchQuestion = useCallback(async () => {
     if (loadingQuestion) return;
@@ -129,11 +119,10 @@ const Game = () => {
 
   useEffect(() => {
     if (settings.answerTime && !hasFetched.current) {
-      newGame();
       fetchQuestion();
       hasFetched.current = true;
     }
-  }, [settings.answerTime, newGame, fetchQuestion]);
+  }, [settings.answerTime, fetchQuestion]);
 
   useEffect(() => {
     if (!username) { handleConfirmExit(); return; }
@@ -165,61 +154,60 @@ const Game = () => {
 
   const handleAnswer = async answer => {
     if (!answer || loadingQuestion || answered) return;
+    
     const isCorrect = answer === questionData.answer;
     const timeTaken = Math.floor((Date.now() - startTime.current) / 1000);
-
+  
     setFeedback(f => ({ ...f, [answer]: isCorrect ? "✅" : "❌" }));
     setAnswered(true);
     playSound(isCorrect ? correctSound : wrongSound);
     setCorrectCount(c => c + (isCorrect ? 1 : 0));
     setWrongCount(w => w + (isCorrect ? 0 : 1));
     setTotalTime(t => t + timeTaken);
-
+  
     setTimeout(async () => {
       const next = questionCounter + 1;
       setQuestionCounter(next);
-
+  
       if (next >= settings.questionAmount) {
+        const finalCorrect = correctCount + (isCorrect ? 1 : 0);
+        const finalWrong   = wrongCount   + (isCorrect ? 0 : 1);
+        const finalTime    = totalTime    + timeTaken;
+  
         if (isDuel) {
-          const payload = {
-            username,
-            opponent,
-            correct: correctCount + (isCorrect ? 1 : 0),
-            time: totalTime + timeTaken
-          };
+          const payload = { username, opponent, correct: finalCorrect, time: finalTime };
           try {
             await axios.post(`${apiEndpoint}/submitDuelResult`, payload);
           } catch (err) {
             console.error("Error submitDuelResult:", err);
           }
+  
           setWaitingForOpponent(true);
+          
           const interval = setInterval(async () => {
             try {
-              const { data } = await axios.post(
-                `${apiEndpoint}/checkDuelResult`,
-                { username, opponent }
-              );
+              const { data } = await axios.post(`${apiEndpoint}/checkDuelResult`, { username, opponent });
               if (data.status === "done") {
                 clearInterval(interval);
                 setWaitingForOpponent(false);
                 setDuelStats(data);
                 setResultDialogOpen(true);
+                await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
               }
             } catch (err) {
               console.error("Polling error:", err);
             }
           }, 2000);
+  
         } else {
-          const finalCorrect   = correctCount + (isCorrect  ? 1 : 0);
-          const finalWrong     = wrongCount   + (isCorrect  ? 0 : 1);
-          const finalTimeTaken = totalTime    + timeTaken;
           try {
             await axios.post(`${apiEndpoint}/updateStats`, {
               username,
-              correct:   finalCorrect,
-              wrong:     finalWrong,
-              timeTaken: finalTimeTaken
+              correct: finalCorrect,
+              wrong: finalWrong,
+              timeTaken: finalTime
             });
+            await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username });
           } catch (err) {
             console.error("Error updateStats:", err);
           }
@@ -228,10 +216,11 @@ const Game = () => {
       } else {
         fetchQuestion();
       }
+  
       setAnswered(false);
     }, 1000);
   };
-
+  
   const renderer = ({ seconds, completed }) => {
     if (paused) {
       return <Typography variant="h4" color="textSecondary">Pausado...</Typography>;
@@ -420,44 +409,32 @@ const Game = () => {
       </Dialog>
 
       {/* Duel result */}
-      <Dialog open={resultDialogOpen}>
-        <DialogTitle>Resultado del Duelo</DialogTitle>
-        <DialogContent>
-          {duelStats && (
-            <>
-              <Box component="table" sx={{ width: '100%', textAlign: 'center', mb: 2 }}>
-                <Box component="thead">
-                  <Box component="tr">
-                    <Box component="th">Jugador</Box>
-                    <Box component="th">✅ Aciertos</Box>
-                    <Box component="th">⏱ Tiempo</Box>
-                  </Box>
-                </Box>
-                <Box component="tbody">
-                  <Box component="tr">
-                    <Box component="td">{username}</Box>
-                    <Box component="td">{duelStats.your.correct}</Box>
-                    <Box component="td">{duelStats.your.time}</Box>
-                  </Box>
-                  <Box component="tr">
-                    <Box component="td">{opponent}</Box>
-                    <Box component="td">{duelStats.other.correct}</Box>
-                    <Box component="td">{duelStats.other.time}</Box>
-                  </Box>
-                </Box>
-              </Box>
-              <Typography variant="h6" textAlign="center">
-                {duelStats.winner === "Empate"
-                  ? "¡Ha sido un empate!"
-                  : `🏆 ¡${duelStats.winner} ha ganado el duelo!`}
-              </Typography>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => navigate("/startmenu")}>Volver al menú</Button>
-        </DialogActions>
-      </Dialog>
+<Dialog open={resultDialogOpen}
+        sx={{ '& .MuiDialog-paper': { backgroundColor: '#0C2D48', color: '#fff', borderRadius: 2 } }}>
+  <DialogTitle sx={{ fontFamily: "Orbitron, sans-serif", fontWeight: 'bold', fontSize: '1.5rem' }}>
+    ¡Resultado del Duelo!
+  </DialogTitle>
+  <DialogContent>
+    {duelStats && (
+      <>
+        <DialogContentText sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff' }}>
+          <strong>{username}</strong>: {duelStats.your.correct} ✅, {duelStats.your.time} ⏱<br/>
+          <strong>{opponent}</strong>: {duelStats.other.correct} ✅, {duelStats.other.time} ⏱<br/><br/>
+          {duelStats.winner === "Empate"
+            ? "¡Ha sido un empate!"
+            : `🏆 ¡${duelStats.winner} ha ganado el duelo!`}
+        </DialogContentText>
+      </>
+    )}
+  </DialogContent>
+  <DialogActions sx={{ justifyContent: 'space-around', p: 2 }}>
+    <Button onClick={() => navigate("/startmenu")} variant="contained"
+            sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#4caf50', color: '#fff' }}>
+      Volver al menú
+    </Button>
+  </DialogActions>
+</Dialog>
+
 
       {/* Confirm Exit */}
       <Dialog open={openConfirmationModal} onClose={handleCloseConfirmationModal}
