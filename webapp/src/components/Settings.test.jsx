@@ -20,19 +20,17 @@ jest.mock('react-router-dom', () => {
 describe('SettingsCard Component', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
+    global.fetch.mockClear();
     mockedNavigate.mockClear();
     mockedUsername = 'testuser'; // Reset username antes de cada test
   });
 
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
-  const renderComponent = () => {
+  const renderComponent = (initialEntry = '/settings/testuser') => {
     return render(
-      <MemoryRouter initialEntries={['/settings/testuser']}>
+      <MemoryRouter initialEntries={[initialEntry]}>
         <Routes>
-          <Route path="/settings/:username" element={<SettingsCard />} />
+          <Route path="/settings/:username?" element={<SettingsCard />} />
+          <Route path="/startmenu" element={<div>Start Menu</div>} />
         </Routes>
       </MemoryRouter>
     );
@@ -108,7 +106,7 @@ describe('SettingsCard Component', () => {
         json: async () => ({})
       })
       .mockResolvedValueOnce({
-        status: 200,
+        ok: true,
         json: async () => ({ success: true })
       });
 
@@ -157,16 +155,10 @@ describe('SettingsCard Component', () => {
   });
 
   test('redirects to startmenu if username is not provided', async () => {
-    mockedUsername = ''; // Simula username vacío
+    mockedUsername = '';
 
     await act(async () => {
-      render(
-        <MemoryRouter initialEntries={['/settings']}>
-          <Routes>
-            <Route path="/settings/:username" element={<SettingsCard />} />
-          </Routes>
-        </MemoryRouter>
-      );
+      renderComponent('/settings');
     });
 
     expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
