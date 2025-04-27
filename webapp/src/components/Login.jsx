@@ -250,6 +250,10 @@ const Login = ({ onLoginSuccess }) => {
                     </InputAdornment>
                   ),
                 }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                label="Username"
               />
               <InputField
                 margin="normal"
@@ -268,6 +272,10 @@ const Login = ({ onLoginSuccess }) => {
                     </InputAdornment>
                   ),
                 }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                label="Password"
               />
               <Button
                 fullWidth
