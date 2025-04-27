@@ -438,7 +438,7 @@ defineFeature(feature, test => {
     then('The user played games statistic is 2', async () => {
       // Esperar y obtener el texto del elemento
       const statText = await page.waitForFunction(() => {
-        const el = document.querySelector('[data-testid="games-played-count"]');
+        const el = document.querySelector('[data-testid="games-played"]');
         return el && el.textContent.trim();
       }, { timeout: 15000 });
     
