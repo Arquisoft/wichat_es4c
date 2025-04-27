@@ -144,7 +144,7 @@ const Game = () => {
     }
   }, [loadingQuestion, apiEndpoint, settings.answerTime, settings.capitalQuestions, settings.flagQuestions, settings.monumentQuestions, settings.foodQuestions, usedQuestionIds]);
   
-  useEffect(() => { if (!hasFetched.current && settings.answerTime) { newGame(); fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
+  useEffect(() => { if (!hasFetched.current && settings.answerTime) {  fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
 
   useEffect(() => {
     if (settings.answerTime && !hasFetched.current) {
