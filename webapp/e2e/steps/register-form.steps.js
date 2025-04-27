@@ -19,7 +19,7 @@ defineFeature(feature, test => {
   // Función auxiliar para navegar a la página principal
   const navigateToHomePage = async () => {
     try {
-      await page.goto("http://localhost:3000", {
+      await page.goto("http://localhost:3000/", {
         waitUntil: "networkidle0",
       });
     } catch (error) {
@@ -43,7 +43,7 @@ defineFeature(feature, test => {
 
   beforeEach(async () => {
     // Antes de cada escenario, navega a la página principal
-    await page.goto("http://localhost:3000", {
+    await page.goto("http://localhost:3000/", {
       waitUntil: "networkidle0",
     });
   });

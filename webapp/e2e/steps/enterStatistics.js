@@ -16,7 +16,7 @@ defineFeature(feature, test => {
     page = await browser.newPage();
     setDefaultOptions({ timeout: 5000 });
 
-    await page.goto("http://localhost:3000", { waitUntil: "networkidle0" })
+    await page.goto("http://localhost:3000/", { waitUntil: "networkidle0" })
       .catch((error) => console.error("Navigation failed:", error));
 
     await page.click('[data-testid="register-button"]');
@@ -34,7 +34,7 @@ defineFeature(feature, test => {
   }, 60000);
 
   beforeEach(async () => {
-    await page.goto("http://localhost:3000", { waitUntil: "networkidle0" })
+    await page.goto("http://localhost:3000/", { waitUntil: "networkidle0" })
       .catch((error) => console.error("Navigation failed:", error));
 
     await page.waitForSelector('[data-testid="login-button"]', { timeout: 50000 })
