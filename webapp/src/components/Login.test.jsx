@@ -40,8 +40,8 @@ describe('Login Component', () => {
       </Router>
     );
 
-    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/username/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
     expect(screen.getByTestId('mocked-globe')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /volver atrás/i })).toBeInTheDocument(); // Verifica el botón "Volver atrás"
@@ -56,8 +56,8 @@ describe('Login Component', () => {
       </Router>
     );
 
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'testpass' } });
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'testpass' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
@@ -80,8 +80,8 @@ describe('Login Component', () => {
       </Router>
     );
 
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'wronguser' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'wrongpass' } });
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'wronguser' } });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'wrongpass' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
@@ -101,8 +101,8 @@ describe('Login Component', () => {
       </Router>
     );
 
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: '' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: '' } });
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: '' } });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
@@ -122,8 +122,8 @@ describe('Login Component', () => {
       </Router>
     );
 
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'test' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'test' } });
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'test' } });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'test' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
@@ -143,8 +143,8 @@ describe('Login Component', () => {
       </Router>
     );
 
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'user' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'wrong' } });
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'user' } });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'wrong' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
@@ -166,7 +166,6 @@ describe('Login Component', () => {
     expect(mockedNavigate).toHaveBeenCalledWith('/');
   });
 
-  // Para cubrir el useEffect del resize (líneas 95-96), puedes simular un resize de la ventana
   it('should handle window resize', () => {
     render(
       <Router>
@@ -180,16 +179,5 @@ describe('Login Component', () => {
     window.innerWidth = initialWidth + 100;
     window.innerHeight = initialHeight + 50;
     fireEvent(window, new Event('resize'));
-
-    // No hay una forma directa de verificar el estado interno de los useEffects
-    // pero si no hay errores, y los otros tests pasan, es una buena indicación
-    // de que el useEffect se ejecutó sin problemas.
-    // Para una cobertura más completa, podrías considerar refactorizar
-    // la lógica del resize a una función que puedas testear directamente.
   });
-
-  // El useEffect para los controles del globo (líneas 104-110) debería cubrirse
-  // con la renderización del componente y el mock de react-globe.gl.
-  // No necesitas un test específico a menos que quieras probar la lógica interna
-  // de la configuración de los controles (lo cual está dentro de la librería mockeada).
 });

@@ -142,6 +142,7 @@ const StartMenu = () => {
             Ajustes
           </MenuItem>
           <MenuItem
+            data-testid="logout-button"
             onClick={() => {
               handleLogout();
               handleClose();

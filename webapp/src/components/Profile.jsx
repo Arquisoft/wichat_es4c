@@ -114,7 +114,7 @@ const Profile = () => {
                 <PublicIcon sx={{ color: "#64b5f6", mr: 1, fontSize: "1.5rem" }} />
                 <Typography variant="subtitle1" sx={{ fontWeight: "bold", fontFamily: "Roboto, sans-serif" }}>Juegos Jugados</Typography>
               </Box>
-              <Typography variant="h6" sx={{ fontFamily: "Roboto, sans-serif" }}>{user.gamesPlayed}</Typography>
+              <Typography data-testid="games-played-count" variant="h6" sx={{ fontFamily: "Roboto, sans-serif" }}>{user.gamesPlayed}</Typography>
             </Grid>
             <Grid item xs={12} md={6}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
