@@ -9,12 +9,12 @@ let browser;
 defineFeature(feature, test => {
 
   beforeAll(async () => {
-    jest.setTimeout(500000);
+    jest.setTimeout(5000);
     browser = process.env.GITHUB_ACTIONS
       ? await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] })
       : await puppeteer.launch({ headless: false, slowMo: 30 });
     page = await browser.newPage();
-    setDefaultOptions({ timeout: 500000 });
+    setDefaultOptions({ timeout: 5000 });
 
     await page.goto("http://localhost:3000", { waitUntil: "networkidle0" })
       .catch((error) => console.error("Navigation failed:", error));
@@ -26,18 +26,18 @@ defineFeature(feature, test => {
     
     await page.waitForFunction(() => {
       return document.body.innerText.includes('Redirecting to login...');
-    }, { timeout: 750000 });
+    }, { timeout: 7500 });
 
     const bodyText = await page.evaluate(() => document.body.textContent);
     expect(bodyText).toContain('Redirecting to login...');
 
-  }, 600000);
+  }, 60000);
 
   beforeEach(async () => {
     await page.goto("http://localhost:3000", { waitUntil: "networkidle0" })
       .catch((error) => console.error("Navigation failed:", error));
 
-    await page.waitForSelector('[data-testid="login-button"]', { timeout: 500000 })
+    await page.waitForSelector('[data-testid="login-button"]', { timeout: 50000 })
       .catch((error) => console.error("Login button not found:", error));
     await page.click('[data-testid="login-button"]');
   });
@@ -58,16 +58,16 @@ defineFeature(feature, test => {
     when('I log in with the user credentials', async () => {
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Comenzar');
-      }, { timeout: 75000 });
+      }, { timeout: 7500 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Comenzar');
 
-      await page.click('[data-testid="account-button"]', { timeout: 20000 });
+      await page.click('[data-testid="account-button"]', { timeout: 2000 });
 
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Perfil');
-      }, { timeout: 75000 });
+      }, { timeout: 7500 });
 
       const bodyText2 = await page.evaluate(() => document.body.textContent);
       expect(bodyText2).toContain('Perfil');
@@ -78,7 +78,7 @@ defineFeature(feature, test => {
       try {
         await Promise.all([
           page.waitForNavigation({ waitUntil: 'networkidle0' }),
-          page.click('[data-testid="profile-button"]', { timeout: 30000 }),
+          page.click('[data-testid="profile-button"]', { timeout: 3000 }),
         ]);
         console.log("Statistics button pressed and profile page loaded.");
       } catch (error) {
@@ -91,7 +91,7 @@ defineFeature(feature, test => {
     then(/^I should see the profile page for "(.*)"$/, async (user) => {
       try {
         console.log('Waiting for profile username...');
-        await page.waitForSelector('[data-testid="profile-username"]', { timeout: 200000 });
+        await page.waitForSelector('[data-testid="profile-username"]', { timeout: 20000 });
         const profileUsername = await page.$eval('[data-testid="profile-username"]', el => el.textContent.trim());
         expect(profileUsername).toBe(user);
         console.log("Nombre de usuario en el perfil verificado:", profileUsername);
