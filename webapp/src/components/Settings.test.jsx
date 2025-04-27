@@ -4,18 +4,24 @@ import '@testing-library/jest-dom';
 import SettingsCard from './Settings';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
-// Mock modules
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
-  useParams: () => ({ username: 'testuser' }),
-}));
+// Mock useNavigate y useParams
+const mockedNavigate = jest.fn();
+let mockedUsername = 'testuser';
 
-const mockedNavigate = require('react-router-dom').useNavigate;
+jest.mock('react-router-dom', () => {
+  const originalModule = jest.requireActual('react-router-dom');
+  return {
+    ...originalModule,
+    useNavigate: () => mockedNavigate,
+    useParams: () => ({ username: mockedUsername }),
+  };
+});
 
 describe('SettingsCard Component', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
+    mockedNavigate.mockClear();
+    mockedUsername = 'testuser'; // Reset username antes de cada test
   });
 
   afterEach(() => {
@@ -75,7 +81,7 @@ describe('SettingsCard Component', () => {
       renderComponent();
     });
 
-    const answerTimeInput = await screen.findByLabelText(/Tiempo por pregunta/i);
+    const answerTimeInput = await screen.findByLabelText(/Tiempo de respuesta/i);
     fireEvent.change(answerTimeInput, { target: { value: 25 } });
     expect(answerTimeInput.value).toBe("25");
   });
@@ -90,7 +96,7 @@ describe('SettingsCard Component', () => {
       renderComponent();
     });
 
-    const questionAmountInput = await screen.findByLabelText(/Número de preguntas/i);
+    const questionAmountInput = await screen.findByLabelText(/Cantidad de preguntas/i);
     fireEvent.change(questionAmountInput, { target: { value: 50 } });
     expect(questionAmountInput.value).not.toBe("50");
   });
@@ -151,10 +157,16 @@ describe('SettingsCard Component', () => {
   });
 
   test('redirects to startmenu if username is not provided', async () => {
-    jest.spyOn(require('react-router-dom'), 'useParams').mockImplementationOnce(() => ({ username: '' }));
+    mockedUsername = ''; // Simula username vacío
 
     await act(async () => {
-      renderComponent();
+      render(
+        <MemoryRouter initialEntries={['/settings']}>
+          <Routes>
+            <Route path="/settings/:username" element={<SettingsCard />} />
+          </Routes>
+        </MemoryRouter>
+      );
     });
 
     expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
