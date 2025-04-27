@@ -208,6 +208,7 @@ const Profile = () => {
               <Typography
                 variant="h5"
                 sx={{ fontWeight: "bold", color: "#e91e63", mb: 0.5, fontFamily: "Roboto, sans-serif" }}
+                data-testid="profile-username"
               >
                 {user.username}
               </Typography>
@@ -222,7 +223,7 @@ const Profile = () => {
                   <PublicIcon sx={{ color: "#64b5f6", mr: 1, fontSize: "1.5rem" }} />
                   <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Juegos Jugados</Typography>
                 </Box>
-                <Typography variant="h6">{user.gamesPlayed}</Typography>
+                <Typography variant="h6" data-testid="games-played">{user.gamesPlayed}</Typography>
               </Grid>
 
               <Grid item xs={12} md={6}>
@@ -230,7 +231,7 @@ const Profile = () => {
                   <CheckCircleOutlineIcon sx={{ color: "#4caf50", mr: 1, fontSize: "1.5rem" }} />
                   <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Respuestas Correctas</Typography>
                 </Box>
-                <Typography variant="h6">{user.correctAnswers}</Typography>
+                <Typography variant="h6" data-testid="correct-answers">{user.correctAnswers}</Typography>
               </Grid>
 
               <Grid item xs={12} md={6}>
@@ -238,7 +239,7 @@ const Profile = () => {
                   <CancelOutlinedIcon sx={{ color: "#f44336", mr: 1, fontSize: "1.5rem" }} />
                   <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Respuestas Incorrectas</Typography>
                 </Box>
-                <Typography variant="h6">{user.wrongAnswers}</Typography>
+                <Typography variant="h6" data-testid="wrong-answers">{user.wrongAnswers}</Typography>
               </Grid>
 
               <Grid item xs={12} md={6}>
@@ -246,7 +247,7 @@ const Profile = () => {
                   <TimerOutlinedIcon sx={{ color: "#ffc107", mr: 1, fontSize: "1.5rem" }} />
                   <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Tiempo Jugado</Typography>
                 </Box>
-                <Typography variant="h6">{user.totalTimePlayed} seg</Typography>
+                <Typography variant="h6" data-testid="total-time">{user.totalTimePlayed} seg</Typography>
               </Grid>
             </Grid>
 

@@ -95,44 +95,54 @@ app.get('/profile/:username', async (req, res) => {
 
 // **Actualizar estadísticas del usuario** 
 app.post('/updateStats', async (req, res) => {
-    try {
-      const { username, correct, wrong, timeTaken } = req.body;
-  
+  try {
+      const { username } = req.body;
       if (!username) {
-        return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+          return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
       }
 
-      // Sanitize inputs
+      // Determinar aciertos/fallos a partir de isCorrect o de campos explícitos
+      let deltaCorrect = 0;
+      let deltaWrong   = 0;
+      if (typeof req.body.isCorrect === 'boolean') {
+          if (req.body.isCorrect) deltaCorrect = 1;
+          else                    deltaWrong   = 1;
+      } else {
+          // por compatibilidad, si pasaran correct/wrong numéricos:
+          deltaCorrect = sanitizeNumber(req.body.correct);
+          deltaWrong   = sanitizeNumber(req.body.wrong);
+      }
+
+      // Tiempo jugado
+      const deltaTime = sanitizeNumber(req.body.timeTaken);
+
       const sanitizedUsername = sanitizeUsername(username);
-      const sanitizedCorrect = sanitizeNumber(correct);
-      const sanitizedWrong = sanitizeNumber(wrong);
-      const sanitizedTimeTaken = sanitizeNumber(timeTaken);
-  
-      // Use sanitizedUsername in the query
       const user = await User.findOne({ username: sanitizedUsername });
       if (!user) {
-        return res.status(404).json({ error: "Usuario no encontrado" });
+          return res.status(404).json({ error: "Usuario no encontrado" });
       }
-  
-      user.correctAnswers += sanitizedCorrect;
-      user.wrongAnswers += sanitizedWrong;
-      user.totalTimePlayed += sanitizedTimeTaken;
-  
-      // Agrega una única entrada al historial
+
+      // Aplicar los incrementos
+      user.correctAnswers  += deltaCorrect;
+      user.wrongAnswers    += deltaWrong;
+      user.totalTimePlayed += deltaTime;
+
+      // Registrar en el historial
       user.gameHistory.push({
-        date: new Date(),
-        correct: sanitizedCorrect,
-        wrong: sanitizedWrong,
-        timePlayed: sanitizedTimeTaken
+          date:       new Date(),
+          correct:    deltaCorrect,
+          wrong:      deltaWrong,
+          timePlayed: deltaTime
       });
-  
+
       await user.save();
       res.json({ message: "Estadísticas actualizadas", user });
-    } catch (error) {
+  } catch (error) {
       console.error("Error al actualizar estadísticas:", error);
       res.status(500).json({ error: "Error al actualizar estadísticas" });
-    }
+  }
 });
+
   
 // **Registrar partidas jugadas** 
 app.post('/incrementGamesPlayed', async (req, res) => {
