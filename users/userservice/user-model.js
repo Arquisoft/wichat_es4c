@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema({
         timePlayed: { type: Number, default: 0 } // 🔹 Tiempo jugado en esa partida (segundos)
       }
     ],
+    friends: [ // 🔹 Lista de amigos (referencias a otros usuarios)
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
     settings: 
     {
       answerTime: { type: Number, default: 10 }, // 🔹 Tiempo de respuesta por pregunta (en segundos)
@@ -51,7 +57,8 @@ const userSchema = new mongoose.Schema({
       type: String,
       enum: ["user", "admin"],
       default: "user",
-    }
+    },
+    
     
 });
 

@@ -8,11 +8,6 @@ const cors = require('cors');
 const app = express();
 const User = require('./user-model'); // Importar el modelo de usuario
 
-// Función para sanear el nombre de usuario
-function sanitizeUsername(username) {
-  return username.trim().toLowerCase();
-}
-
 const port = 8001;
 
 // Middleware para parsear JSON en el cuerpo de las peticiones
@@ -34,12 +29,25 @@ function validateRequiredFields(req, requiredFields) {
     }
 }
 
+// Pequeña función para sanear el username
+function sanitizeUsername(username) {
+    if (typeof username !== 'string') {
+        throw new Error('Invalid username');
+    }
+    return username.trim();
+}
+
+// Función para sanear valores numéricos
+function sanitizeNumber(value) {
+    const num = Number(value);
+    return isNaN(num) ? 0 : num;
+}
+
 // **Crear un usuario**
 app.post('/adduser', async (req, res) => {
     try {
         validateRequiredFields(req, ['username', 'password']);
 
-        // Encriptar la contraseña antes de guardarla
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
         const newUser = new User({
@@ -69,13 +77,14 @@ app.get('/profile/:username', async (req, res) => {
     }
 
     res.json({
-      _id: user._id,   
+      _id: user._id,
       username: user.username,
       gamesPlayed: user.gamesPlayed,
       correctAnswers: user.correctAnswers,
       wrongAnswers: user.wrongAnswers,
       totalTimePlayed: user.totalTimePlayed,
-      gameHistory: user.gameHistory
+      gameHistory: user.gameHistory,
+      challengeRequest: user.challengeRequest || null 
     });
   } catch (error) {
     console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error);
@@ -84,6 +93,99 @@ app.get('/profile/:username', async (req, res) => {
 });
 
 
+// **Actualizar estadísticas del usuario** 
+app.post('/updateStats', async (req, res) => {
+    try {
+      const { username, correct, wrong, timeTaken } = req.body;
+  
+      if (!username) {
+        return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+      }
+
+      // Sanitize inputs
+      const sanitizedUsername = sanitizeUsername(username);
+      const sanitizedCorrect = sanitizeNumber(correct);
+      const sanitizedWrong = sanitizeNumber(wrong);
+      const sanitizedTimeTaken = sanitizeNumber(timeTaken);
+  
+      // Use sanitizedUsername in the query
+      const user = await User.findOne({ username: sanitizedUsername });
+      if (!user) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+  
+      user.correctAnswers += sanitizedCorrect;
+      user.wrongAnswers += sanitizedWrong;
+      user.totalTimePlayed += sanitizedTimeTaken;
+  
+      // Agrega una única entrada al historial
+      user.gameHistory.push({
+        date: new Date(),
+        correct: sanitizedCorrect,
+        wrong: sanitizedWrong,
+        timePlayed: sanitizedTimeTaken
+      });
+  
+      await user.save();
+      res.json({ message: "Estadísticas actualizadas", user });
+    } catch (error) {
+      console.error("Error al actualizar estadísticas:", error);
+      res.status(500).json({ error: "Error al actualizar estadísticas" });
+    }
+});
+  
+// **Registrar partidas jugadas** 
+app.post('/incrementGamesPlayed', async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        if (!username) {
+            return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
+        }
+
+        const sanitizedUsername = sanitizeUsername(username);
+        const user = await User.findOne({ username: sanitizedUsername });
+        if (!user) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        user.gamesPlayed += 1;
+
+        await user.save();
+        res.json({ message: "Partida registrada", gamesPlayed: user.gamesPlayed });
+    } catch (error) {
+        console.error("Error al registrar la partida:", error);
+        res.status(500).json({ error: "Error al registrar la partida" });
+    }
+});
+
+app.post('/saveSettings/:username', async (req, res) => {
+  try {
+    const username = req.params.username; // Corrige cómo se obtiene el username
+    const settings = req.body; // Obtén los ajustes desde req.body
+
+    if (!username) {
+      return res.status(400).json({ error: "El nombre de usuario es obligatorios" });
+    }
+
+    if (!settings) {
+      return res.status(400).json({ error: "Los ajustes son obligatorios" });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Actualizar los ajustes del usuario
+    user.settings = settings;
+    await user.save();
+    res.json({ message: "Ajustes guardados", settings });
+  } catch (error) {
+    console.error("Error al guardar los ajustes:", error);
+    res.status(500).json({ error: "Error al guardar los ajustes" });
+  }
+});
 
 app.post('/friends', async (req, res) => {
   try {
@@ -197,94 +299,8 @@ app.post('/removeFriend', async (req, res) => {
   }
 });
 
-// **Actualizar estadísticas del usuario**
-app.post('/updateStats', async (req, res) => {
-    try {
-        const { username, isCorrect, timeTaken } = req.body;
 
-        if (!username) {
-            return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
-        }
 
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(404).json({ error: "Usuario no encontrado" });
-        }
-
-        if (isCorrect) {
-            user.correctAnswers += 1;
-        } else {
-            user.wrongAnswers += 1;
-        }
-
-        user.totalTimePlayed += timeTaken;
-
-        user.gameHistory.push({
-            date: new Date(),
-            correct: isCorrect ? 1 : 0,
-            wrong: isCorrect ? 0 : 1,
-            timePlayed: timeTaken
-        });
-
-        await user.save();
-        res.json({ message: "Estadísticas actualizadas", user });
-    } catch (error) {
-        console.error("Error al actualizar estadísticas:", error);
-        res.status(500).json({ error: "Error al actualizar estadísticas" });
-    }
-});
-
-// **Registrar partidas jugadas**
-app.post('/incrementGamesPlayed', async (req, res) => {
-    try {
-        const { username } = req.body;
-
-        if (!username) {
-            return res.status(400).json({ error: "El nombre de usuario es obligatorio" });
-        }
-
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(404).json({ error: "Usuario no encontrado" });
-        }
-
-        user.gamesPlayed += 1;
-
-        await user.save();
-        res.json({ message: "Partida registrada", gamesPlayed: user.gamesPlayed });
-    } catch (error) {
-        console.error("Error al registrar la partida:", error);
-        res.status(500).json({ error: "Error al registrar la partida" });
-    }
-});
-
-app.post('/saveSettings/:username', async (req, res) => {
-  try {
-    const username = req.params.username; // Corrige cómo se obtiene el username
-    const settings = req.body; // Obtén los ajustes desde req.body
-
-    if (!username) {
-      return res.status(400).json({ error: "El nombre de usuario es obligatorios" });
-    }
-
-    if (!settings) {
-      return res.status(400).json({ error: "Los ajustes son obligatorios" });
-    }
-
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    // Actualizar los ajustes del usuario
-    user.settings = settings;
-    await user.save();
-    res.json({ message: "Ajustes guardados", settings });
-  } catch (error) {
-    console.error("Error al guardar los ajustes:", error);
-    res.status(500).json({ error: "Error al guardar los ajustes" });
-  }
-});
 
 app.get('/getSettings/:username', async (req, res) => {
   try {
