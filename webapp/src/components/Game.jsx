@@ -92,7 +92,7 @@ const Game = () => {
       
       let response;
       let isNewQuestion = false;
-      let maxAttempts = 5; // Limitar intentos para evitar bucles infinitos
+      let maxAttempts = 10; // Limitar intentos para evitar bucles infinitos
       let attempts = 0;
       
       // Intentar obtener una pregunta que no se haya mostrado antes
