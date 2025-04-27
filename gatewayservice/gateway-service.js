@@ -66,6 +66,43 @@ app.get('/profile/:username', async (req, res) => {
   }
 });
 
+// Obtener lista de amigos
+app.post('/friends', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/friends`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al obtener la lista de amigos"
+    });
+  }
+});
+
+// Añadir un amigo
+app.post('/addFriend', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/addFriend`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al añadir amigo"
+    });
+  }
+});
+
+// Borrar un amigo
+app.post('/removeFriend', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/removeFriend`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error || "Error al borrar amigo"
+    });
+  }
+});
+
+
 // Obtener ranking de jugadores
 app.get('/ranking', async (req, res) => {
   try {
