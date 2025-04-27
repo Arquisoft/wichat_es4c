@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<title>wichat_es4c</title>
+<title>WIChat_ES4C</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,7 +436,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1><span class="image"><img src="./images/arc42-logo.png" alt="arc42"></span> wichat_es4c</h1>
+<h1><span class="image"><img src="./images/arc42-logo.png" alt="arc42"></span> WIChat_ES4C <span class="image"><img src="./images/WIChat.png" alt="WIChat" width="100"></span></h1>
 <div class="details">
 <span id="revnumber">version 8.2 EN,</span>
 <span id="revdate">January 2023</span>
@@ -1138,6 +1138,11 @@ on the code, so it only answers game-related questions.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Query results or confirmation of insertions.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question Database</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fully generated questions from question service</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The questions when the game needs them.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Prometheus</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Gateway metrics</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Metrics stored in its database.</p></td>
@@ -1250,6 +1255,9 @@ Refer to details in the following sections.</p>
 </li>
 <li>
 <p><strong>Auth Service</strong> – The auth service will manage user authentication processes, ensuring secure login and session handling.</p>
+</li>
+<li>
+<p><strong>Question Service</strong> – This service will gather information from Wikidata to construct questions and store them in the database, saving them for later use in the game.</p>
 </li>
 </ul>
 </div>
@@ -1525,7 +1533,7 @@ To ensure availability, the following actions are being planned:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong><em>MongoDB Database</em></strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Stores user information, rankings, and game data.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stores user information, rankings, and game data in the user database and stores questions in the question database.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1832,7 +1840,7 @@ The QuestionService accesses Wikidata to fetch additional data for quiz question
 <p>Security is a critical component of WIChat, ensuring safe interactions and data integrity.</p>
 </div>
 <div class="paragraph">
-<p>Authentication and Authorization: User authentication through secure protocols.</p>
+<p>Authentication and Authorization: User authentication through secure protocols and token validation to access protected resources.</p>
 </div>
 <div class="paragraph">
 <p>Input Validation: Preventing injection attacks and ensuring data integrity.</p>
@@ -1901,19 +1909,19 @@ The QuestionService accesses Wikidata to fetch additional data for quiz question
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-01-(JavaScript" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-01-(JavaScript</a>) &#8594; JavaScript</p>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-01-(JavaScript)">ADR 01</a> &#8594; JavaScript</p>
 </li>
 <li>
-<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-02-(React" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-02-(React</a>) &#8594; React</p>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-02-(React)">ADR 02</a> &#8594; React</p>
 </li>
 <li>
-<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-03-(Docker" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-03-(Docker</a>) &#8594; Docker</p>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-03-(Docker)">ADR 03</a> &#8594; Docker</p>
 </li>
 <li>
-<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-04-(React%E2%80%90router%E2%80%90dom" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-04-(React%E2%80%90router%E2%80%90dom</a>) &#8594; React Router Dom</p>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-04-(React%E2%80%90router%E2%80%90dom)">ADR 04</a> &#8594; React Router Dom</p>
 </li>
 <li>
-<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-05-(MongoDB" class="bare">https://github.com/Arquisoft/wichat_es4c/wiki/ADR-05-(MongoDB</a>) &#8594; MongoDB</p>
+<p><a href="https://github.com/Arquisoft/wichat_es4c/wiki/ADR-05-(MongoDB)">ADR 05</a> &#8594; MongoDB</p>
 </li>
 </ul>
 </div>
@@ -1991,9 +1999,33 @@ concrete and measurable.</p>
 </div>
 <div class="sect2">
 <h3 id="_quality_tree">10.1. Quality Tree</h3>
-<div class="imageblock">
+<div class="sidebarblock arc42help">
 <div class="content">
-<img src="./images/quality_tree.png" alt="Quality Tree&quot;">
+<div class="paragraph">
+<div class="title">Content</div>
+<p>The quality tree (as defined in ATAM – Architecture Tradeoff Analysis Method) with quality/evaluation scenarios as leafs.</p>
+</div>
+<div class="paragraph">
+<div class="title">Motivation</div>
+<p>The tree structure with priorities provides an overview for a sometimes large number of quality requirements.</p>
+</div>
+<div class="paragraph">
+<div class="title">Form</div>
+<p>The quality tree is a high-level overview of the quality goals and requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>tree-like refinement of the term "quality". Use "quality" or "usefulness" as a root</p>
+</li>
+<li>
+<p>a mind map with quality categories as main branches</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In any case the tree should include links to the scenarios of the following section.</p>
+</div>
 </div>
 </div>
 </div>
@@ -2131,9 +2163,27 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Updating External Data Sources</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To incorporate more diverse or current geographical data.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The dedicated QuestionService can be extended to fetch data from additional external APIs or sources with minimal refactoring.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Adding a ranking</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To give the user a more competitive view of the game.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The dedicated user service can be extended for it to save more information about users to represent it on the ranking.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Multiplayer</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Competitive and extra fun with friends.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User service is extended for this, making possible to play against someone in a 1v1 match.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Low</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Adding an admin panel</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To give the admin a clear view of the users in the system and manage them.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User and auth services are extended for this, as the admin can delete users (work for user service) and to enter the admin panel the user has to be an admin (authorization is work for the auth service).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Game Settings</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To give the user the chance of adjusting parameters to play the game (response time, number of questions, what type of questions does he wants).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question service is adapted for this, as it is responsible for the questions and the game component is adapted to handle the new parameters.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
 </tr>
 </tbody>
@@ -2385,7 +2435,7 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <div id="footer">
 <div id="footer-text">
 Version 8.2 EN<br>
-Last updated 2025-03-07 19:59:22 +0100
+Last updated 2025-04-27 14:11:44 +0200
 </div>
 </div>
 </body>
