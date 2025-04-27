@@ -108,12 +108,11 @@ describe('Gateway Service API', () => {
 
       test('GET /question should return a question', async () => {
         const mockResponse = { question: 'What is 2 + 2?', answer: '4' };
-        // Asumiendo questionServiceUrl
         const questionServiceUrl = process.env.QUESTION_SERVICE_URL || 'http://localhost:8004';
         mockAxiosSuccess('get', mockResponse);
 
         await testEndpoint('get', '/question', null, 200, mockResponse);
-        expect(axios.get).toHaveBeenCalledWith(`${questionServiceUrl}/question`);
+        expect(axios.get).toHaveBeenCalledWith(`${questionServiceUrl}/question`, { params: {} });
       });
 
       test('GET /question should handle service errors', async () => {

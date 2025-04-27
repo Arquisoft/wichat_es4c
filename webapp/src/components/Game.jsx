@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Container, Typography, Box, Button, Grid,
-  RadioGroup, Paper, CircularProgress, Snackbar, Alert,
+  RadioGroup, Paper, CircularProgress,
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
 import Countdown from 'react-countdown';
@@ -40,9 +40,6 @@ const Game = () => {
   const hasFetched = useRef(false);
   const [user, setUser] = useState(null);
   const [settings, setSettings] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
@@ -62,16 +59,26 @@ const Game = () => {
   const playSound = (sound) => { if (soundEnabled) sound.play(); };
 
   useEffect(() => { soundEnabled ? backgroundMusic.play() : backgroundMusic.pause(); }, [soundEnabled]);
-  useEffect(() => { if (soundEnabled) backgroundMusic.play(); return () => backgroundMusic.stop(); }, []);
+  useEffect(() => { if (soundEnabled) backgroundMusic.play(); return () => backgroundMusic.stop(); }, [soundEnabled]);
 
   const handleOpenConfirmationModal = () => setOpenConfirmationModal(true);
   const handleCloseConfirmationModal = () => setOpenConfirmationModal(false);
-  const handleConfirmExit = () => { 
-    backgroundMusic.stop(); 
-    setPaused(true);
-    navigate("/startmenu"); 
-  };
-  const handleSnackbarClose = () => setSnackbarOpen(false);
+
+// Antes:
+// const handleConfirmExit = () => {
+//   backgroundMusic.stop();
+//   setPaused(true);
+//   navigate("/startmenu");
+// };
+
+// Después (envuelto en useCallback):
+const handleConfirmExit = useCallback(() => {
+  backgroundMusic.stop();
+
+  setPaused(true);
+
+  navigate("/startmenu");
+}, [navigate]); 
 
   const newGame = useCallback(async () => {
     try { if (username) await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username }); }
@@ -91,19 +98,29 @@ const Game = () => {
       
       setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
       
-      const response = await axios.get(`${apiEndpoint}/question`);
+      const response = await axios.get(`${apiEndpoint}/question`, {
+        params: {
+          capital: settings.capitalQuestions.toString(),
+          flag: settings.flagQuestions.toString(),
+          monument: settings.monumentQuestions.toString(),
+          food: settings.foodQuestions.toString(),
+        },
+      });
       setQuestionData(response.data);
     } catch (error) {
       console.error("Error fetching question:", error);
     } finally {
       setLoadingQuestion(false);
     }
-  }, [loadingQuestion, apiEndpoint, settings.answerTime]);
+  }, [loadingQuestion, apiEndpoint, settings.answerTime, settings.capitalQuestions, settings.flagQuestions, settings.monumentQuestions, settings.foodQuestions]);
   
   useEffect(() => { if (!hasFetched.current && settings.answerTime) { newGame(); fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
 
   useEffect(() => {
-    if (!username) { handleConfirmExit(); return; }
+    if (!username) {
+      handleConfirmExit();
+      return;
+    }
     const fetchUserSettings = async () => {
       try {
         const response = await fetch(`http://localhost:8001/getSettings/${username}`);
@@ -111,13 +128,11 @@ const Game = () => {
         const data = await response.json();
         setUser(data);
       } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+        console.log(error.message);
       }
     };
     fetchUserSettings();
-  }, [username, navigate]);
+  }, [username, navigate, handleConfirmExit]);
 
   useEffect(() => {
     if (user) {
@@ -174,7 +189,6 @@ const Game = () => {
   const renderer = ({ seconds, completed }) => {
     if (paused || showSummaryModal) return <Typography variant="h4" color="textSecondary">Pausado...</Typography>;
     if (completed) {
-      setTimeout(() => { setSnackbarOpen(true); }, 0);
       return <Typography variant="h4" color="#fff">⏳ Tiempo agotado</Typography>;
     }
     return (
@@ -260,6 +274,7 @@ const Game = () => {
                       {questionData.choices.map((option, index) => (
                         <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
                           <Button
+                            testid="answer-option"
                             variant="contained"
                             color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
                             fullWidth
@@ -462,7 +477,7 @@ const Game = () => {
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-around', padding: '16px' }}>
           <Button onClick={handlePlayAgain} sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', borderColor: '#fff' }} variant="outlined">Volver a jugar</Button>
-          <Button onClick={handleConfirmExit} sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: 'primary', color: '#fff' }} variant="contained">Volver al menú</Button>
+          <Button testid="startMenu-button" onClick={handleConfirmExit} sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: 'primary', color: '#fff' }} variant="contained">Volver al menú</Button>
         </DialogActions>
       </Dialog>
     </>
