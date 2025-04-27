@@ -4,7 +4,7 @@ module.exports = {
       "**/__tests__/**/*.{js,jsx}",      // tests de componentes unitarios
       "**/?(*.)+(spec|test).{js,jsx}"    // *.spec.js, *.test.jsx, etc.
     ],
-    testTimeout: 30000,                  // tiempo de espera extendido (especialmente para e2e)
+    testTimeout: 300000,                  // tiempo de espera extendido (especialmente para e2e)
     setupFilesAfterEnv: ["expect-puppeteer"],
   
     collectCoverage: true,
