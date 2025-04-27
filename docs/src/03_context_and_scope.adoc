@@ -128,6 +128,7 @@ The LLM we are using for hints.
 | WikiData API | Request for question information | Response with the requested information.
 | Question Service | A request from the game when it needs a question | Question and answers generated using the information retrieved from Wikidata API.  
 | User Database | SQL instructions for queries or insertions | Query results or confirmation of insertions.  
+| Question Database | Fully generated questions from question service | The questions when the game needs them.
 | Prometheus | Gateway metrics | Metrics stored in its database.  
 | Grafana | Metrics organized in Prometheus | Visualization of metrics.  
 |===

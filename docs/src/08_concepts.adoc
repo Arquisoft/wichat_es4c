@@ -31,7 +31,7 @@ Gamification Elements: Leaderboards and achievements to boost user engagement.
 
 Security is a critical component of WIChat, ensuring safe interactions and data integrity.
 
-Authentication and Authorization: User authentication through secure protocols.
+Authentication and Authorization: User authentication through secure protocols and token validation to access protected resources.
 
 Input Validation: Preventing injection attacks and ensuring data integrity.
 

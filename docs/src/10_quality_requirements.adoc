@@ -77,3 +77,85 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 Tabular or free form text.
 ****
 endif::arc42help[]
+
+==== Usage Scenarios
+
+[options="header",cols="1,3,3,1"]
+|===
+| Quality Goal | Motivation | Usage Scenario | Priority
+
+| _Usability_
+| The application must be intuitive and easy to navigate, especially for new users.
+| A new user can register, understand the rules, and start a quiz without external guidance.
+| High
+
+| _Interactivity_
+| To engage users with real-time feedback during the quiz.
+| Upon selecting an answer, the system immediately displays whether the answer is correct and then seamlessly transitions to the next question.
+| High
+
+| _Availability_
+| The app must be accessible at any time to ensure users can play the quiz whenever desired.
+| The system maintains enabled most of the time.
+| High
+
+| _Scalability_
+| The system should accommodate a growing number of concurrent users without performance degradation.
+| The application supports multiple concurrent users .
+| Medium
+
+| _Performance_
+| To ensure a smooth and responsive quiz experience.
+| When a user submits an answer, the system processes the response and updates the UI as quickly as possible.
+| Medium
+
+| _Reliability_
+| To deliver consistent and accurate quiz results.
+| The system accurately records user answers, scores, and game statistics in every quiz session.
+| High
+
+| _Testability_
+| The design should allow for efficient automated testing.
+| Developers can run unit and integration tests to verify quiz logic and API endpoints with minimal configuration.
+| Medium
+
+
+|===
+
+==== Change Scenarios
+
+[options="header",cols="1,3,3,1"]
+|===
+| Change Scenario | Motivation | Expected Response | Priority
+
+| _Adding New Quiz Categories_
+| To expand content and keep the quiz engaging.
+| New categories can be integrated into the system without impacting existing functionality.
+| Medium
+
+| _Enhancing Chat Assistance_
+| To improve user support by leveraging upgrades in the Gemini LLM.
+| The chat module can be updated or replaced with enhanced capabilities without affecting core quiz functionality.
+| Medium
+
+| _Adding a ranking_
+| To give the user a more competitive view of the game.
+| The dedicated user service can be extended for it to save more information about users to represent it on the ranking.
+| Medium
+
+| _Multiplayer_
+| Competitive and extra fun with friends.
+| User service is extended for this, making possible to play against someone in a 1v1 match.
+| Low
+
+| _Adding an admin panel_
+| To give the admin a clear view of the users in the system and manage them.
+| User and auth services are extended for this, as the admin can delete users (work for user service) and to enter the admin panel the user has to be an admin (authorization is work for the auth service).
+| Medium
+
+| _Game Settings_
+| To give the user the chance of adjusting parameters to play the game (response time, number of questions, what type of questions does he wants).
+| Question service is adapted for this, as it is responsible for the questions and the game component is adapted to handle the new parameters.
+| Medium
+
+|===
