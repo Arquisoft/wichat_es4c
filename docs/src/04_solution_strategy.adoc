@@ -58,6 +58,9 @@ The system will consist of the following microservices, each designed to handle 
 * **WebApp Service** – This is the frontend web application, which will interact with the gateway service to provide essential functionalities like user authentication.  
 
 * **Auth Service** – The auth service will manage user authentication processes, ensuring secure login and session handling.  
+ 
+* **Question Service** – This service will gather information from Wikidata to construct questions and store them in the database, saving them for later use in the game.  
+
 
 These decisions are being made with the goal of setting up a solid foundation for the development, ensuring that once work begins, the system will be modular and capable of scaling as needed.
 
