@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import SettingsCard from './Settings';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
@@ -7,17 +7,17 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 // Mock modules
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+  useNavigate: jest.fn(),
   useParams: () => ({ username: 'testuser' }),
 }));
 
+const mockedNavigate = require('react-router-dom').useNavigate;
+
 describe('SettingsCard Component', () => {
-  // Mock the global fetch function before each test
   beforeEach(() => {
     global.fetch = jest.fn();
   });
 
-  // Reset all mocks after each test
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -33,7 +33,6 @@ describe('SettingsCard Component', () => {
   };
 
   test('renders the settings form correctly', async () => {
-    // Mock the fetch response for settings
     global.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -42,168 +41,122 @@ describe('SettingsCard Component', () => {
         capitalQuestions: true,
         flagQuestions: true,
         monumentQuestions: false,
-        foodQuestions: true
+        foodQuestions: true,
       })
     });
 
-    renderComponent();
-
-    // Wait for the data to load
-    await waitFor(() => {
-      expect(screen.getByText('Ajustes del Juego')).toBeInTheDocument();
+    await act(async () => {
+      renderComponent();
     });
 
+    expect(await screen.findByText('Ajustes del Juego')).toBeInTheDocument();
   });
 
   test('loads user settings on mount', async () => {
-    // Mock the fetch response for settings
     global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({
-        answerTime: 15,
-        questionAmount: 20,
-        capitalQuestions: true,
-        flagQuestions: true,
-        monumentQuestions: false,
-        foodQuestions: true
-      })
+      json: async () => ({})
     });
 
-    renderComponent();
-
-    // Wait for the data to load and verify fetch was called correctly
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8001/getSettings/testuser');
+    await act(async () => {
+      renderComponent();
     });
 
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8001/getSettings/testuser');
   });
 
   test('handles form input changes', async () => {
-    // Mock the fetch response for settings
     global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({
-        answerTime: 15,
-        questionAmount: 20,
-        capitalQuestions: true,
-        flagQuestions: true,
-        monumentQuestions: false,
-        foodQuestions: true
-      })
+      json: async () => ({})
     });
 
-    renderComponent();
+    await act(async () => {
+      renderComponent();
+    });
 
+    const answerTimeInput = await screen.findByLabelText(/Tiempo por pregunta/i);
+    fireEvent.change(answerTimeInput, { target: { value: 25 } });
+    expect(answerTimeInput.value).toBe("25");
   });
 
   test('prevents setting questionAmount > 40', async () => {
-    // Mock the fetch response for settings
     global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({
-        answerTime: 15,
-        questionAmount: 20,
-        capitalQuestions: true,
-        flagQuestions: true,
-        monumentQuestions: false,
-        foodQuestions: true
-      })
+      json: async () => ({})
     });
 
-    renderComponent();
+    await act(async () => {
+      renderComponent();
+    });
+
+    const questionAmountInput = await screen.findByLabelText(/Número de preguntas/i);
+    fireEvent.change(questionAmountInput, { target: { value: 50 } });
+    expect(questionAmountInput.value).not.toBe("50");
   });
 
   test('saves settings when Save button is clicked', async () => {
-    // Mock the fetch responses for both API calls
     global.fetch
-      // First call to getSettings
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          answerTime: 15,
-          questionAmount: 20,
-          capitalQuestions: true,
-          flagQuestions: true,
-          monumentQuestions: false,
-          foodQuestions: true
-        })
+        json: async () => ({})
       })
-      // Second call to saveSettings
       .mockResolvedValueOnce({
         status: 200,
         json: async () => ({ success: true })
       });
 
-    renderComponent();
-
-    // Wait for the data to load
-    await waitFor(() => {
-      expect(screen.getByText('Guardar')).toBeInTheDocument();
+    await act(async () => {
+      renderComponent();
     });
-    
 
+    fireEvent.click(screen.getByText('Guardar'));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
   });
 
-
   test('navigates back when "Volver" button is clicked', async () => {
-    // Mock the fetch response for settings
     global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({
-        answerTime: 15,
-        questionAmount: 20,
-        capitalQuestions: true,
-        flagQuestions: true,
-        monumentQuestions: false,
-        foodQuestions: true
-      })
+      json: async () => ({})
     });
 
-    const navigateMock = jest.fn();
-    jest.spyOn(require('react-router-dom'), 'useNavigate').mockImplementation(() => navigateMock);
-
-    renderComponent();
-
-    // Wait for the data to load
-    await waitFor(() => {
-      expect(screen.getByText('Volver')).toBeInTheDocument();
+    await act(async () => {
+      renderComponent();
     });
 
-    // Click back button
     fireEvent.click(screen.getByText('Volver'));
 
-    // Check that navigate was called with correct path
-    expect(navigateMock).toHaveBeenCalledWith('/startmenu');
+    expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
   });
 
   test('handles failed API response (non-OK status)', async () => {
-    // Mock failed API response with non-OK status
     global.fetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
       statusText: 'Not Found'
     });
 
-    console.error = jest.fn(); // Mock console.error
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    renderComponent();
-
-    // Check that error state is handled
-    await waitFor(() => {
-      expect(console.error).toHaveBeenCalled();
+    await act(async () => {
+      renderComponent();
     });
+
+    expect(consoleErrorSpy).toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
   });
 
   test('redirects to startmenu if username is not provided', async () => {
-    // Mock empty username
     jest.spyOn(require('react-router-dom'), 'useParams').mockImplementationOnce(() => ({ username: '' }));
-    
-    const navigateMock = jest.fn();
-    jest.spyOn(require('react-router-dom'), 'useNavigate').mockImplementation(() => navigateMock);
 
-    renderComponent();
+    await act(async () => {
+      renderComponent();
+    });
 
-    // Should redirect immediately
-    expect(navigateMock).toHaveBeenCalledWith('/startmenu');
+    expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
   });
 });
