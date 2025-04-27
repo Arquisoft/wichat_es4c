@@ -8,6 +8,11 @@ const cors = require('cors');
 const app = express();
 const User = require('./user-model'); // Importar el modelo de usuario
 
+// Función para sanear el nombre de usuario
+function sanitizeUsername(username) {
+  return username.trim().toLowerCase();
+}
+
 const port = 8001;
 
 // Middleware para parsear JSON en el cuerpo de las peticiones
@@ -55,27 +60,141 @@ app.post('/adduser', async (req, res) => {
     }
 });
 
-// **Obtener el perfil de un usuario**
 app.get('/profile/:username', async (req, res) => {
-    try {
-        const user = await User.findOne({ username: req.params.username });
+  try {
+    const user = await User.findOne({ username: req.params.username });
 
-        if (!user) {
-            return res.status(404).json({ error: "Usuario no encontrado" });
-        }
-
-        res.json({
-            username: user.username,
-            gamesPlayed: user.gamesPlayed,
-            correctAnswers: user.correctAnswers,
-            wrongAnswers: user.wrongAnswers,
-            totalTimePlayed: user.totalTimePlayed,
-            gameHistory: user.gameHistory
-        });
-    } catch (error) {
-        console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error);
-        res.status(500).json({ error: `Error al obtener el perfil del usuario ${req.params.username}` });
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
+
+    res.json({
+      _id: user._id,   
+      username: user.username,
+      gamesPlayed: user.gamesPlayed,
+      correctAnswers: user.correctAnswers,
+      wrongAnswers: user.wrongAnswers,
+      totalTimePlayed: user.totalTimePlayed,
+      gameHistory: user.gameHistory
+    });
+  } catch (error) {
+    console.error(`Error al obtener el perfil del usuario ${req.params.username}:`, error);
+    res.status(500).json({ error: `Error al obtener el perfil del usuario ${req.params.username}` });
+  }
+});
+
+
+
+app.post('/friends', async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ error: 'Falta el nombre de usuario' });
+    }
+
+    // Validación y sanitización
+    if (typeof username !== 'string') {
+      return res.status(400).json({ error: 'Nombre de usuario inválido' });
+    }
+
+    const sanitizedUsername = sanitizeUsername(username);
+
+    const user = await User.findOne({ username: sanitizedUsername }).populate('friends', 'username');
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const friendUsernames = user.friends.map(friend => friend.username);
+    res.json({ friends: friendUsernames });
+  } catch (error) {
+    console.error("Error al obtener amigos:", error.message);
+    res.status(500).json({ error: 'Error al obtener la lista de amigos' });
+  }
+});
+
+
+app.post('/addFriend', async (req, res) => {
+  try {
+    const { userId, friendId } = req.body;
+
+    if (!userId || !friendId) {
+      return res.status(400).json({ error: "Faltan userId o friendId" });
+    }
+
+    if (userId === friendId) {
+      return res.status(400).json({ error: "No puedes agregarte a ti mismo como amigo" });
+    }
+
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
+
+    if (!user || !friend) {
+      return res.status(404).json({ error: "Usuario o amigo no encontrado" });
+    }
+
+    // Verificar si ya son amigos (en cualquiera de las direcciones)
+    const alreadyFriends = user.friends.some(id => id.toString() === friendId);
+    const alreadyMutual = friend.friends.some(id => id.toString() === userId);
+
+    if (alreadyFriends && alreadyMutual) {
+      return res.status(409).json({ message: "Ya está en tu lista de amigos" });
+    }
+
+    if (!alreadyFriends) {
+      user.friends.push(friend._id);
+    }
+
+    if (!alreadyMutual) {
+      friend.friends.push(user._id);
+    }
+
+    await user.save();
+    await friend.save();
+
+    res.json({ message: "Amistad creada correctamente", friendUsername: friend.username });
+  } catch (error) {
+    console.error("Error al añadir amigo:", error);
+    res.status(500).json({ error: "Error al añadir amigo" });
+  }
+});
+
+app.post('/removeFriend', async (req, res) => {
+  try {
+    const { userId, friendUsername } = req.body;
+
+    if (!userId || !friendUsername) {
+      return res.status(400).json({ error: "Faltan userId o friendUsername" });
+    }
+
+    // Validación y sanitización
+    if (typeof userId !== 'string' || typeof friendUsername !== 'string') {
+      return res.status(400).json({ error: "Datos inválidos" });
+    }
+
+    const sanitizedFriendUsername = sanitizeUsername(friendUsername);
+
+    // Buscar usuarios usando valores saneados
+    const user = await User.findById(userId); // userId es un ObjectId, validarlo si quieres más seguridad
+    const friend = await User.findOne({ username: sanitizedFriendUsername });
+
+    if (!user || !friend) {
+      return res.status(404).json({ error: "Usuario o amigo no encontrado" });
+    }
+
+    // Filtrar para eliminar del array de amigos en ambos sentidos
+    user.friends = user.friends.filter(id => id.toString() !== friend._id.toString());
+    friend.friends = friend.friends.filter(id => id.toString() !== user._id.toString());
+
+    await user.save();
+    await friend.save();
+
+    res.json({ message: "Amigo eliminado correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar amigo:", error);
+    res.status(500).json({ error: "Error al eliminar amigo" });
+  }
 });
 
 // **Actualizar estadísticas del usuario**
