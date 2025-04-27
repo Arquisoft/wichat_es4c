@@ -1,13 +1,29 @@
-Feature: Changing game values and play a game as a user
+Feature: Playing the game
  
-Scenario: The user wants to play a game with his own game values
+Scenario: The user plays a game with his own game values and logs out
     Given A user with name "test" and password "test"
-    When I log in with the user credentials
-    And I press the account button
-    And I press the settings button
-    And I change the value number of questions to 2
-    And I save the changes
-    And I press the play button
-    And I answer the first question
-    And I answer the second question
-    Then The game ends and the message "¡Resumen de la partida!" is shown
+    When The user logs in with the user credentials
+    And The user presses the account button
+    And The user presses the settings button
+    And The user changes the value number of questions to 2
+    And The user saves the changes
+    And The user presses the play button
+    And The user answers the first question
+    And The user answers the second question
+    And The game ends and the message "¡Resumen de la partida!" is shown
+    And The user presses the go menu button
+    And The user presses the account button
+    And The user presses the logout button
+    Then The home page is shown
+
+Scenario: The user plays a game and the statistics are saved
+    Given A user with name "test" and password "test"
+    When The user logs in with the user credentials
+    And The user presses the play button
+    And The user answers the first question
+    And The user answers the second question
+    And The game ends and the message "¡Resumen de la partida!" is shown
+    And The user presses the go menu button
+    And The user presses the account button
+    And The user presses the profile button
+    Then The user played games statistic is 2
