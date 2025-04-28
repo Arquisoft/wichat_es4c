@@ -138,7 +138,12 @@ app.get('/question', async (req, res) => {
   try {
 
     const response = await axios.get(`${questionServiceUrl}/question`, {
-      params: req.query,
+      params: {
+        capital: req.query.capital,
+        flag: req.query.flag,
+        monument: req.query.monument,
+        food: req.query.food,
+      },
     });
     res.json(response.data);
   } catch (error) {
