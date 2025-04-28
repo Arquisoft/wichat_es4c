@@ -146,6 +146,27 @@ app.get('/question', async (req, res) => {
   }
 });
 
+
+// Ajustes de usuario
+
+app.get('/getSettings/:username', async (req, res) => {
+  try {
+    const response = await axios.get(`${userServiceUrl}/getSettings/${req.params.username}`);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({ error: error.response?.data?.error || "Error al obtener ajustes" });
+  }
+});
+
+app.post('/saveSettings/:username', async (req, res) => {
+  try {
+    const response = await axios.post(`${userServiceUrl}/saveSettings/${req.params.username}`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({ error: error.response?.data?.error || "Error al guardar ajustes" });
+  }
+});
+
 app.get('/adminPanel', async (req, res) => {
   try {
     const authHeader = req.headers.authorization; 

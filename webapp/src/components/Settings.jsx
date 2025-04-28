@@ -40,7 +40,7 @@ import { useState, useEffect } from "react";
     const fetchUserSettings = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8001/getSettings/${username}`);
+        const response = await fetch(`http://localhost:8000/getSettings/${username}`);
 
         if (!response.ok) {
           const errorData = await response.text();
@@ -113,7 +113,7 @@ import { useState, useEffect } from "react";
 
 
     try {
-      const response = await fetch(`http://localhost:8001/saveSettings/${username}`, {
+      const response = await fetch(`http://localhost:8000/saveSettings/${username}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
