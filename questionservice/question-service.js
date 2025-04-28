@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { generateQuestion} = require('./question-gen');
 const connectToDatabase = require('./connection');
+const Question = require('./question-model');
 
 const app = express();
 const PORT = 8004;
