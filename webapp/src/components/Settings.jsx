@@ -72,7 +72,7 @@ import { useState, useEffect } from "react";
     };
 
     fetchUserSettings();
-  }, [username, navigate]);
+  }, [username, navigate, apiEndpoint]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

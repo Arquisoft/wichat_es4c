@@ -146,7 +146,7 @@ const Game = () => {
       }
     };
     fetchUserSettings();
-  }, [username, navigate, handleConfirmExit]);
+  }, [username, navigate, handleConfirmExit, apiEndpoint]);
 
   useEffect(() => {
     if (user) {
