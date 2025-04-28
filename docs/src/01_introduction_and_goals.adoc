@@ -133,7 +133,6 @@ endif::arc42help[]
 
 | _Development Team_ | 
 Carballo Pérez, Andrés (UO287983@uniovi.es) +
-García Santamarina, Sergio (UO294636@uniovi.es) +
 Gutiérrez García, Miguel (UO295650@uniovi.es) +
 Mahía Loredo, Adrián (UO289390@uniovi.es) +
 Pérez Cuervo, Bruno (UO295445@uniovi.es) | Well-documented architecture and a system that is easy to maintain and extend
