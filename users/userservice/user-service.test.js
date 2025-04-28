@@ -403,5 +403,476 @@ describe('User Service', () => {
         expect(response.body.error).toMatch(/Error al obtener los ajustes/);
     });
 
+    it('should get list of friends on POST /friends', async () => {
+        // Create two users
+        const user1 = new User({ 
+          username: 'user1', 
+          password: 'hashedpassword', 
+          friends: [] 
+        });
+        const user2 = new User({ 
+          username: 'user2', 
+          password: 'hashedpassword' 
+        });
+        await user2.save();
+        
+        // Add user2's ID to user1's friends
+        user1.friends.push(user2._id);
+        await user1.save();
+        
+        const response = await request(app)
+          .post('/friends')
+          .send({ username: 'user1' });
+        
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('friends');
+        expect(response.body.friends).toContain('user2');
+      });
+      
+      it('should return 400 for missing username on POST /friends', async () => {
+        const response = await request(app)
+          .post('/friends')
+          .send({});  // No username sent
+        
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Falta el nombre de usuario');
+      });
+      
+      it('should return 400 for invalid username on POST /friends', async () => {
+        const response = await request(app)
+          .post('/friends')
+          .send({ username: 123 });  // Non-string username
+        
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Nombre de usuario inválido');
+      });
+      
+      it('should return 404 for non-existent user on POST /friends', async () => {
+        const response = await request(app)
+          .post('/friends')
+          .send({ username: 'nonexistentuser' });
+        
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty('error', 'Usuario no encontrado');
+      });
+      
+      it('should return 500 if database error occurs on POST /friends', async () => {
+        // Create a user first
+        await User.create({ username: 'erroruser', password: 'hashedpassword' });
+        
+        // Mock the findOne method to throw an error
+        jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
+          throw new Error('Database error');
+        });
+        
+        const response = await request(app)
+          .post('/friends')
+          .send({ username: 'erroruser' });
+        
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty('error', 'Error al obtener la lista de amigos');
+      });
+      
+      // Tests for /addFriend endpoint
+      it('should add friend successfully on POST /addFriend', async () => {
+        // Create two users
+        const user1 = await User.create({ 
+          username: 'addfrienduser1', 
+          password: 'hashedpassword',
+          friends: []
+        });
+        const user2 = await User.create({ 
+          username: 'addfrienduser2',
+          password: 'hashedpassword',
+          friends: []
+        });
+        
+        const response = await request(app)
+          .post('/addFriend')
+          .send({ 
+            userId: user1._id.toString(), 
+            friendId: user2._id.toString() 
+          });
+        
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('message', 'Amistad creada correctamente');
+        expect(response.body).toHaveProperty('friendUsername', 'addfrienduser2');
+        
+        // Verify both users have each other as friends
+        const updatedUser1 = await User.findById(user1._id);
+        const updatedUser2 = await User.findById(user2._id);
+        
+        expect(updatedUser1.friends.some(id => id.toString() === user2._id.toString())).toBe(true);
+        expect(updatedUser2.friends.some(id => id.toString() === user1._id.toString())).toBe(true);
+      });
+      
+      it('should return 400 if trying to add self as friend on POST /addFriend', async () => {
+        const user = await User.create({ 
+          username: 'selffriendinvalid', 
+          password: 'hashedpassword' 
+        });
+        
+        const response = await request(app)
+          .post('/addFriend')
+          .send({ 
+            userId: user._id.toString(), 
+            friendId: user._id.toString() 
+          });
+        
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'No puedes agregarte a ti mismo como amigo');
+      });
+      
+      it('should return 400 for missing userId or friendId on POST /addFriend', async () => {
+        // Test missing userId
+        let response = await request(app)
+          .post('/addFriend')
+          .send({ friendId: 'someId' });
+        
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Faltan userId o friendId');
+        
+        // Test missing friendId
+        response = await request(app)
+          .post('/addFriend')
+          .send({ userId: 'someId' });
+        
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Faltan userId o friendId');
+      });
+      
+      it('should return 404 if user or friend not found on POST /addFriend', async () => {
+        const validUser = await User.create({ 
+          username: 'validuserfriend', 
+          password: 'hashedpassword' 
+        });
+        const invalidId = '60c72b2f247b1e001c1e5f7a'; // Valid format but doesn't exist
+        
+        // Test invalid userId
+        let response = await request(app)
+          .post('/addFriend')
+          .send({ 
+            userId: invalidId, 
+            friendId: validUser._id.toString() 
+          });
+        
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty('error', 'Usuario o amigo no encontrado');
+        
+        // Test invalid friendId
+        response = await request(app)
+          .post('/addFriend')
+          .send({ 
+            userId: validUser._id.toString(), 
+            friendId: invalidId 
+          });
+        
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty('error', 'Usuario o amigo no encontrado');
+      });
+      
+      it('should return 409 if users are already friends on POST /addFriend', async () => {
+        // Create two users who are already friends
+        const user1 = await User.create({ 
+          username: 'alreadyfriend1', 
+          password: 'hashedpassword'
+        });
+        const user2 = await User.create({ 
+          username: 'alreadyfriend2', 
+          password: 'hashedpassword'
+        });
+        
+        // Make them friends
+        user1.friends.push(user2._id);
+        user2.friends.push(user1._id);
+        await user1.save();
+        await user2.save();
+        
+        // Try to add them as friends again
+        const response = await request(app)
+          .post('/addFriend')
+          .send({ 
+            userId: user1._id.toString(), 
+            friendId: user2._id.toString() 
+          });
+        
+        expect(response.status).toBe(409);
+        expect(response.body).toHaveProperty('message', 'Ya está en tu lista de amigos');
+      });
+      
+      it('should return 500 if database error occurs on POST /addFriend', async () => {
+        // Create two users
+        const user1 = await User.create({ 
+          username: 'erroruser1', 
+          password: 'hashedpassword' 
+        });
+        const user2 = await User.create({ 
+          username: 'erroruser2', 
+          password: 'hashedpassword' 
+        });
+        
+        // Mock User.prototype.save to throw error
+        jest.spyOn(User.prototype, 'save').mockRejectedValueOnce(new Error('Database error'));
+        
+        const response = await request(app)
+          .post('/addFriend')
+          .send({ 
+            userId: user1._id.toString(), 
+            friendId: user2._id.toString() 
+          });
+        
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty('error', 'Error al añadir amigo');
+      });
+      
+      // Tests for /removeFriend endpoint
+      it('should remove friend successfully on POST /removeFriend', async () => {
+        // Create two users who are friends
+        const user1 = await User.create({ 
+          username: 'removefriend1', 
+          password: 'hashedpassword'
+        });
+        const user2 = await User.create({ 
+          username: 'removefriend2', 
+          password: 'hashedpassword'
+        });
+        
+        // Make them friends
+        user1.friends.push(user2._id);
+        user2.friends.push(user1._id);
+        await user1.save();
+        await user2.save();
+        
+        // Remove friendship
+        const response = await request(app)
+          .post('/removeFriend')
+          .send({ 
+            userId: user1._id.toString(), 
+            friendUsername: 'removefriend2' 
+          });
+        
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('message', 'Amigo eliminado correctamente');
+        
+        // Verify both users don't have each other as friends anymore
+        const updatedUser1 = await User.findById(user1._id);
+        const updatedUser2 = await User.findById(user2._id);
+        
+        expect(updatedUser1.friends.some(id => id.toString() === user2._id.toString())).toBe(false);
+        expect(updatedUser2.friends.some(id => id.toString() === user1._id.toString())).toBe(false);
+      });
+      
+      it('should return 400 for missing userId or friendUsername on POST /removeFriend', async () => {
+        // Test missing userId
+        let response = await request(app)
+          .post('/removeFriend')
+          .send({ friendUsername: 'someFriend' });
+        
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Faltan userId o friendUsername');
+        
+        // Test missing friendUsername
+        response = await request(app)
+          .post('/removeFriend')
+          .send({ userId: 'someId' });
+        
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Faltan userId o friendUsername');
+      });
+      
+      it('should return 400 for invalid data types on POST /removeFriend', async () => {
+        const response = await request(app)
+          .post('/removeFriend')
+          .send({ userId: 123, friendUsername: 456 }); // Invalid types
+        
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Datos inválidos');
+      });
+      
+      it('should return 404 if user or friend not found on POST /removeFriend', async () => {
+        const validUser = await User.create({ 
+          username: 'validuserremove', 
+          password: 'hashedpassword' 
+        });
+        
+        // Test invalid userId
+        let response = await request(app)
+          .post('/removeFriend')
+          .send({ 
+            userId: '60c72b2f247b1e001c1e5f7a', // Valid format but doesn't exist
+            friendUsername: validUser.username 
+          });
+        
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty('error', 'Usuario o amigo no encontrado');
+        
+        // Test invalid friendUsername
+        response = await request(app)
+          .post('/removeFriend')
+          .send({ 
+            userId: validUser._id.toString(), 
+            friendUsername: 'nonexistentfriend' 
+          });
+        
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty('error', 'Usuario o amigo no encontrado');
+      });
+      
+      it('should return 500 if database error occurs on POST /removeFriend', async () => {
+        // Create two users who are friends
+        const user1 = await User.create({ 
+          username: 'erroruserremove1', 
+          password: 'hashedpassword' 
+        });
+        const user2 = await User.create({ 
+          username: 'erroruserremove2', 
+          password: 'hashedpassword' 
+        });
+        user1.friends.push(user2._id);
+        user2.friends.push(user1._id);
+        await user1.save();
+        await user2.save();
+        
+        // Mock User.prototype.save to throw error
+        jest.spyOn(User.prototype, 'save').mockRejectedValueOnce(new Error('Database error'));
+        
+        const response = await request(app)
+          .post('/removeFriend')
+          .send({ 
+            userId: user1._id.toString(), 
+            friendUsername: 'erroruserremove2' 
+          });
+        
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty('error', 'Error al eliminar amigo');
+      });
+      
+      // Additional edge cases for existing endpoints
+      it('should handle boolean values in updateStats with isCorrect parameter', async () => {
+        const user = await User.create({ 
+          username: 'updatestatsbool', 
+          password: 'hashedpassword',
+          correctAnswers: 0,
+          wrongAnswers: 0
+        });
+        
+        // Test with isCorrect: true
+        let response = await request(app)
+          .post('/updateStats')
+          .send({ username: 'updatestatsbool', isCorrect: true });
+        
+        expect(response.status).toBe(200);
+        let updatedUser = await User.findOne({ username: 'updatestatsbool' });
+        expect(updatedUser.correctAnswers).toBe(1);
+        expect(updatedUser.wrongAnswers).toBe(0);
+        
+        // Test with isCorrect: false
+        response = await request(app)
+          .post('/updateStats')
+          .send({ username: 'updatestatsbool', isCorrect: false });
+        
+        expect(response.status).toBe(200);
+        updatedUser = await User.findOne({ username: 'updatestatsbool' });
+        expect(updatedUser.correctAnswers).toBe(1);
+        expect(updatedUser.wrongAnswers).toBe(1);
+      });
+      
+      it('should handle numeric values in updateStats with correct/wrong parameters', async () => {
+        const user = await User.create({ 
+          username: 'updatestatsnum', 
+          password: 'hashedpassword',
+          correctAnswers: 5,
+          wrongAnswers: 3
+        });
+        
+        const response = await request(app)
+          .post('/updateStats')
+          .send({ 
+            username: 'updatestatsnum', 
+            correct: 2,
+            wrong: 1
+          });
+        
+        expect(response.status).toBe(200);
+        const updatedUser = await User.findOne({ username: 'updatestatsnum' });
+        expect(updatedUser.correctAnswers).toBe(7); // 5 + 2
+        expect(updatedUser.wrongAnswers).toBe(4);   // 3 + 1
+      });
+      
+      it('should sanitize non-numeric values in updateStats', async () => {
+        const user = await User.create({ 
+          username: 'sanitizeuser', 
+          password: 'hashedpassword',
+          correctAnswers: 10,
+          wrongAnswers: 5,
+          totalTimePlayed: 100
+        });
+        
+        const response = await request(app)
+          .post('/updateStats')
+          .send({ 
+            username: 'sanitizeuser', 
+            correct: "invalid",
+            wrong: "invalid",
+            timeTaken: "invalid" 
+          });
+        
+        expect(response.status).toBe(200);
+        const updatedUser = await User.findOne({ username: 'sanitizeuser' });
+        // Should convert non-numeric values to 0
+        expect(updatedUser.correctAnswers).toBe(10);  // Unchanged because correct=0
+        expect(updatedUser.wrongAnswers).toBe(5);     // Unchanged because wrong=0
+        expect(updatedUser.totalTimePlayed).toBe(100); // Unchanged because timeTaken=0
+      });
+      
+      it('should sanitize username in updateStats', async () => {
+        const user = await User.create({ 
+          username: 'trimmedusername', 
+          password: 'hashedpassword',
+          correctAnswers: 0
+        });
+        
+        const response = await request(app)
+          .post('/updateStats')
+          .send({ 
+            username: '  trimmedusername  ', // With spaces to be trimmed
+            isCorrect: true 
+          });
+        
+        expect(response.status).toBe(200);
+        const updatedUser = await User.findOne({ username: 'trimmedusername' });
+        expect(updatedUser.correctAnswers).toBe(1);
+      });
+      
+      it('should return 500 if username is not a string in updateStats', async () => {
+        const response = await request(app)
+          .post('/updateStats')
+          .send({ 
+            username: 123, // Not a string
+            isCorrect: true 
+          });
+        
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty('error', 'Error al actualizar estadísticas');
+      });
+      
+      it('should handle updating partial settings without overwriting existing ones', async () => {
+        const initialSettings = { theme: 'light', language: 'en', notifications: true };
+        const user = await User.create({ 
+          username: 'partialsettingsuser', 
+          password: 'hashedpassword',
+          settings: initialSettings 
+        });
+        
+        const partialUpdate = { theme: 'dark' };
+        const response = await request(app)
+          .post('/saveSettings/partialsettingsuser')
+          .send(partialUpdate);
+        
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('message', 'Ajustes guardados');
+
+      });
+
 
 });

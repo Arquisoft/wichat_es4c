@@ -137,7 +137,7 @@ const Game = () => {
     }
     const fetchUserSettings = async () => {
       try {
-        const response = await fetch(`http://localhost:8001/getSettings/${username}`);
+        const response = await fetch(`http://localhost:8000/getSettings/${username}`);
         if (!response.ok) throw new Error("No se pudo obtener la información del perfil");
         const data = await response.json();
         setUser(data);
