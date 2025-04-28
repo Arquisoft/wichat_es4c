@@ -69,7 +69,7 @@ describe('SettingsCard Component', () => {
       renderComponent();
     });
 
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000w/getSettings/testuser');
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/getSettings/testuser');
   });
 
   test('should update state when form inputs change', async () => {
