@@ -8,7 +8,7 @@ const port = 8003;
 app.use(express.json());
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: '*',
 }));
 
 const llmConfigs = {
