@@ -174,30 +174,30 @@ jobs:
         registry: ghcr.io
         workdir: gatewayservice
   deploy:
-  name: Deploy over SSH
-  runs-on: ubuntu-latest
-  needs: [docker-push-userservice,docker-push-authservice,docker-push-llmservice, docker-push-questionservice, docker-push-gatewayservice,docker-push-webapp]
-  steps:
-    - name: Deploy over SSH
-      uses: fifsky/ssh-action@master
-      env:
-        LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-        ADMIN_NAME: ${{ secrets.ADMIN_NAME }}
-        ADMIN_PSWD: ${{ secrets.ADMIN_PSWD }}
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        user: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.DEPLOY_KEY }}
-        command: |
-          # Crear archivo .env en la raíz con todas las variables
-          cat <<EOT > .env
-          LLM_API_KEY=${{ secrets.LLM_API_KEY }}
-          ADMIN_NAME=${{ secrets.ADMIN_NAME }}
-          ADMIN_PSWD=${{ secrets.ADMIN_PSWD }}
-          MONGODB_URI=mongodb://mongodb:27017/userdb
-          EOT
-          chmod 600 .env
+    name: Deploy over SSH
+    runs-on: ubuntu-latest
+    needs: [docker-push-userservice,docker-push-authservice,docker-push-llmservice, docker-push-questionservice, docker-push-gatewayservice,docker-push-webapp]
+    steps:
+      - name: Deploy over SSH
+        uses: fifsky/ssh-action@master
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          ADMIN_NAME: ${{ secrets.ADMIN_NAME }}
+          ADMIN_PSWD: ${{ secrets.ADMIN_PSWD }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          user: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          command: |
+            # Crear archivo .env en la raíz con todas las variables
+            cat <<EOT > .env
+            LLM_API_KEY=${{ secrets.LLM_API_KEY }}
+            ADMIN_NAME=${{ secrets.ADMIN_NAME }}
+            ADMIN_PSWD=${{ secrets.ADMIN_PSWD }}
+            MONGODB_URI=mongodb://mongodb:27017/userdb
+            EOT
+            chmod 600 .env
 
-          wget https://raw.githubusercontent.com/arquisoft/wichat_es4c/master/docker-compose.yml -O docker-compose.yml
-          docker compose --profile prod down
-          docker compose --profile prod up -d --pull always
+            wget https://raw.githubusercontent.com/arquisoft/wichat_es4c/master/docker-compose.yml -O docker-compose.yml
+            docker compose --profile prod down
+            docker compose --profile prod up -d --pull always
