@@ -7,12 +7,13 @@ let page;
 let browser;
 
 defineFeature(feature, test => {
+
   beforeAll(async () => {
     browser = process.env.GITHUB_ACTIONS
       ? await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] })
       : await puppeteer.launch({ headless: false, slowMo: 30 });
     page = await browser.newPage();
-    setDefaultOptions({ timeout: 100000 });
+    setDefaultOptions({ timeout: 10000 });
   });
 
   // Función auxiliar para navegar a la página principal
@@ -31,9 +32,9 @@ defineFeature(feature, test => {
   const navigateToRegisterPage = async () => {
     try {
       await navigateToHomePage();
-      await page.waitForSelector('[data-testid="register-button"]', { visible: true, timeout: 500000 });
+      await page.waitForSelector('[data-testid="register-button"]', { visible: true, timeout: 5000 });
       await page.click('[data-testid="register-button"]');
-      await page.waitForSelector('input[id="username"]', { visible: true, timeout: 50000 });
+      await page.waitForSelector('input[id="username"]', { visible: true, timeout: 5000 });
     } catch (error) {
       console.error("Error navigating to register page:", error);
       throw error;
@@ -66,7 +67,7 @@ defineFeature(feature, test => {
     then(/^The confirmation message "(.*)" should be shown in the screen$/, async (msg) => {
       await page.waitForFunction(() => {
         return document.body.innerText.includes('Redirecting to login...');
-      }, { timeout: 750000 });
+      }, { timeout: 7500 });
 
       const bodyText = await page.evaluate(() => document.body.textContent);
       expect(bodyText).toContain('Redirecting to login...');
@@ -97,7 +98,7 @@ defineFeature(feature, test => {
           const helperTexts = Array.from(document.querySelectorAll('.MuiFormHelperText-root'));
           return helperTexts.some(element => element.textContent.includes(expectedMessage));
         },
-        { timeout: 500000 },
+        { timeout: 5000 },
         msg
       );
       
@@ -135,7 +136,7 @@ defineFeature(feature, test => {
           const helperTexts = Array.from(document.querySelectorAll('.MuiFormHelperText-root'));
           return helperTexts.some(element => element.textContent.includes(expectedMessage));
         },
-        { timeout: 500000 },
+        { timeout: 5000 },
         msg
       );
       
@@ -178,7 +179,7 @@ defineFeature(feature, test => {
           // Si no encontramos el mensaje en los Snackbars, buscar en todo el cuerpo
           return document.body.innerText.includes(expectedMessage);
         },
-        { timeout: 500000 },
+        { timeout: 5000 },
         msg
       );
       

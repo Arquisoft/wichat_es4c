@@ -57,10 +57,14 @@ services:
     image: ghcr.io/arquisoft/wichat_es4c/questionservice:latest
     profiles: ["dev", "prod"]
     build: ./questionservice
+    depends_on:
+      - mongodb
     ports:
       - "8004:8004"
     networks:
       - mynetwork
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/questiondb
     
 
   gatewayservice:

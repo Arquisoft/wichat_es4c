@@ -24,6 +24,8 @@ import { useState, useEffect } from "react";
   const [loading, setLoading] = useState(true);
   const [timeWarningSnackbar, setTimeWarningSnackbar] = useState(false);
 
+  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || "http://localhost:8000";
+
   const paramAliases = {
     answerTime: "Tiempo de respuesta (s)",
     questionAmount: "Cantidad de preguntas",
@@ -40,7 +42,7 @@ import { useState, useEffect } from "react";
     const fetchUserSettings = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8001/getSettings/${username}`);
+        const response = await fetch(`${apiEndpoint}/getSettings/${username}`);
 
         if (!response.ok) {
           const errorData = await response.text();
@@ -70,7 +72,7 @@ import { useState, useEffect } from "react";
     };
 
     fetchUserSettings();
-  }, [username, navigate]);
+  }, [username, navigate, apiEndpoint]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -113,7 +115,7 @@ import { useState, useEffect } from "react";
 
 
     try {
-      const response = await fetch(`http://localhost:8001/saveSettings/${username}`, {
+      const response = await fetch(`${apiEndpoint}/saveSettings/${username}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

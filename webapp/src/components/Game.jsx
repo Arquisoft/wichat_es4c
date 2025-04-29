@@ -137,7 +137,7 @@ const Game = () => {
     }
     const fetchUserSettings = async () => {
       try {
-        const response = await fetch(`http://localhost:8001/getSettings/${username}`);
+        const response = await fetch(`${apiEndpoint}/getSettings/${username}`);
         if (!response.ok) throw new Error("No se pudo obtener la información del perfil");
         const data = await response.json();
         setUser(data);
@@ -146,7 +146,7 @@ const Game = () => {
       }
     };
     fetchUserSettings();
-  }, [username, navigate, handleConfirmExit]);
+  }, [username, navigate, handleConfirmExit, apiEndpoint]);
 
   useEffect(() => {
     if (user) {
@@ -469,7 +469,7 @@ const Game = () => {
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-around', padding: '16px' }}>
           <Button onClick={handleCloseConfirmationModal} sx={{ fontFamily: "Orbitron, sans-serif", color: '#fff', borderColor: '#fff', '&:hover': { borderColor: '#fff' } }} variant="outlined">Cancelar</Button>
-          <Button onClick={handleConfirmExit} autoFocus sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#f44336', color: '#fff', '&:hover': { backgroundColor: '#d32f2f' } }} variant="contained">
+          <Button id="goMenu" onClick={handleConfirmExit} autoFocus sx={{ fontFamily: "Orbitron, sans-serif", backgroundColor: '#f44336', color: '#fff', '&:hover': { backgroundColor: '#d32f2f' } }} variant="contained">
             Salir
           </Button>
         </DialogActions>

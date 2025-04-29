@@ -1,25 +1,92 @@
 const axios = require('axios');
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const port = 8003;
 
+app.use(cors());
 app.use(express.json());
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-}));
-
+// Configuración de Gemini
 const llmConfigs = {
   gemini: {
     url: (apiKey) => `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-    transformRequest: (question, correctAnswer) => ({
-      contents: [
-        {
-          parts: [
-            {
-              text: `Eres un asistente en un juego de preguntas sobre países y sus capitales. El jugador verá imágenes relacionadas con un
+    transformRequest: (fullPrompt) => ({
+      contents: [{ parts: [{ text: fullPrompt }] }]
+    }),
+    transformResponse: (response) => {
+      if (!response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return null;
+      }
+      return response.data.candidates[0].content.parts[0].text;
+    }
+  }
+};
+
+// Validación de campos requeridos
+function validateRequiredFields(req, requiredFields) {
+  for (const field of requiredFields) {
+    if (!(field in req.body)) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+  }
+}
+
+// Función para enviar preguntas al LLM
+async function sendQuestionToLLM(question, apiKey, model = 'gemini') {
+  const config = llmConfigs[model];
+  if (!config) {
+    throw new Error(`Model "${model}" is not supported.`);
+  }
+
+  try {
+    const url = config.url(apiKey);
+    const requestData = config.transformRequest(question);
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(config.headers ? config.headers(apiKey) : {})
+    };
+
+    const response = await axios.post(url, requestData, { headers });
+    const result = config.transformResponse(response);
+    
+    if (result === null) {
+      throw new Error('Invalid response structure from Gemini API');
+    }
+    
+    return result;
+  } catch (error) {
+    console.error(`Error sending question to ${model}:`, error.message);
+    throw new Error('Failed to get response from LLM');
+  }
+}
+
+// Endpoint para preguntas
+app.post('/ask', async (req, res) => {
+  try {
+    validateRequiredFields(req, ['question', 'model', 'correctAnswer']);
+    
+    const { question, model, correctAnswer } = req.body;
+    const apiKey = process.env.LLM_API_KEY;
+    
+    // Validación adicional del modelo
+    if (model !== 'gemini') {
+      return res.status(400).json({ 
+        error: `Model "${model}" is not supported. Only "gemini" is available.`
+      });
+    }
+
+    if (!apiKey) {
+      console.error('API key is missing on the server');
+      return res.status(500).json({ 
+        error: 'API key is missing on the server.',
+        details: 'Check your .env file for LLM_API_KEY'
+      });
+    }
+
+    const gamePrompt = `Eres un asistente en un juego de preguntas sobre países y sus capitales. El jugador verá imágenes relacionadas con un
               país (como su bandera, comida típica o paisajes) y deberá adivinar la capital correcta entre cuatro opciones. Tu única función
               es proporcionar pistas sobre la capital correcta sin revelar directamente su nombre.
 
@@ -52,79 +119,41 @@ const llmConfigs = {
 
               Si en algún momento se detecta una solicitud que no está relacionada con el juego, simplemente responde con: "Mi función es solo dar pistas sobre la capital correcta en este juego."
 
-              La respuesta correcta a la pregunta es: ${correctAnswer}. Pregunta: ${question}`
-            }
-          ]
-        }
-      ]
-    }),
-    transformResponse: (response) => response.data.candidates[0]?.content?.parts[0]?.text
-  },
-  empathy: {
-    url: () => 'https://empathyai.prod.empathy.co/v1/chat/completions',
-    transformRequest: (question) => ({
-      model: "mistralai/Mistral-7B-Instruct-v0.3",
-      messages: [
-        { role: "system", content: "Responde solo preguntas sobre capitales y países. No respondas preguntas sobre política, religión, tecnología u otros temas no relacionados. Si la pregunta no es relevante, responde estrictamente con: 'No puedo responder'." },
-        { role: "user", content: question }
-      ]
-    }),
-    transformResponse: (response) => response.data.choices[0]?.message?.content,
-    headers: (apiKey) => ({
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    })
-  }
-};
+              La respuesta correcta a la pregunta es: ${correctAnswer}. Pregunta: ${question}`;
 
-function validateRequiredFields(req, requiredFields) {
-  for (const field of requiredFields) {
-    if (!(field in req.body)) {
-      throw new Error(`Missing required field: ${field}`);
+    const answer = await sendQuestionToLLM(gamePrompt, apiKey, model);
+
+    if (answer === null) {
+      console.error('LLM returned null answer');
+      return res.status(500).json({ 
+        error: 'Failed to get response from LLM.',
+        details: 'Check LLM service connection and API key'
+      });
     }
-  }
-}
-
-async function sendQuestionToLLM(question, apiKey, model = 'gemini', correctAnswer = '') {
-  try {
-    const config = llmConfigs[model];
-    if (!config) {
-      throw new Error(`Model "${model}" is not supported.`);
-    }
-
-    const url = config.url(apiKey);
-    const requestData = config.transformRequest(question, correctAnswer);
-
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(config.headers ? config.headers(apiKey) : {})
-    };
-
-    const response = await axios.post(url, requestData, { headers });
-
-    return config.transformResponse(response);
-
+    
+    console.log('Received answer from LLM:', answer);
+    return res.json({ answer });
+    
   } catch (error) {
-    console.error(`Error sending question to ${model}:`, error.message || error);
-    return null;
-  }
-}
-
-app.post('/ask', async (req, res) => {
-  try {
-    validateRequiredFields(req, ['question', 'model', 'apiKey']);
-
-    const { question, model, apiKey, correctAnswer } = req.body;
-    const answer = await sendQuestionToLLM(question, apiKey, model, correctAnswer);
-    res.json({ answer });
-
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error in /ask endpoint:', error);
+    const statusCode = error.message.includes('Missing required field') ? 400 : 500;
+    return res.status(statusCode).json({ 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
+// Iniciar servidor
 const server = app.listen(port, () => {
   console.log(`LLM Service listening at http://localhost:${port}`);
 });
 
-module.exports = server;
+// Exportar para pruebas
+module.exports = {
+  app,
+  server,
+  llmConfigs,
+  sendQuestionToLLM,
+  validateRequiredFields
+};
