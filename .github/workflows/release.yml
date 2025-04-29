@@ -191,27 +191,20 @@ jobs:
           user: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           command: |
-            mkdir -p llmservice users/authservice
+            export LLM_API_KEY=${{ secrets.LLM_API_KEY }}
+            export ADMIN_NAME=${{ secrets.ADMIN_NAME }} 
+            export ADMIN_PSWD=${{ secrets.ADMIN_PSWD }} 
+
+            mkdir -p llmservice users/authservice 
 
             cat <<EOT > users/authservice/.env
-            ADMIN_NAME=$ADMIN_NAME
-            ADMIN_PSWD=$ADMIN_PSWD
-            MONGODB_URI=mongodb://mongodb:27017/userdb
+            ADMIN_NAME=$ADMIN_NAME # Usa las variables exportadas
+            ADMIN_PSWD=$ADMIN_PSWD # Usa las variables exportadas
+            MONGODB_URI=mongodb://mongodb:27017/userdb # Mantén esta si es fija
             EOT
             chmod 600 users/authservice/.env
 
-            cat <<EOT > llmservice/.env
-            LLM_API_KEY=$LLM_API_KEY
-            EOT
-            chmod 600 llmservice/.env
-
-            cat <<EOT > .env
-            LLM_API_KEY=$LLM_API_KEY
-            ADMIN_NAME=$ADMIN_NAME
-            ADMIN_PSWD=$ADMIN_PSWD
-            EOT
-            chmod 600 .env
-
             wget https://raw.githubusercontent.com/arquisoft/wichat_es4c/master/docker-compose.yml -O docker-compose.yml
             docker compose --profile prod down
+
             docker compose --profile prod up -d --pull always

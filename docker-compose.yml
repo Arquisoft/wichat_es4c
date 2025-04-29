@@ -16,8 +16,6 @@ services:
     profiles: ["dev", "prod"]
     build: 
       context: ./users/authservice
-    env_file:
-      - ./users/authservice/.env
     depends_on:
       - mongodb
     ports:
@@ -44,8 +42,6 @@ services:
     image: ghcr.io/arquisoft/wichat_es4c/llmservice:latest
     profiles: ["dev", "prod"]
     build: ./llmservice
-    env_file:
-      - ./llmservice/.env
     ports:
       - "8003:8003"
     networks:
