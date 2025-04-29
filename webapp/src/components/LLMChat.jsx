@@ -6,7 +6,7 @@ const LLMChat = ({ correctAnswer }) => {
   const [question, setQuestion] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-  const apiEndpoint = "http://localhost:8003";
+  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:8000';
   const inputRef = useRef(null); // Referencia al cuadro de texto
   const chatBoxRef = useRef(null); // Referencia al contenedor del historial de chat
 
@@ -29,10 +29,9 @@ const LLMChat = ({ correctAnswer }) => {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${apiEndpoint}/ask`, {
+      const res = await axios.post(`${apiEndpoint}/askllm`, {
         question,
-        model: "gemini", // Cambia según el modelo deseado
-        apiKey: process.env.REACT_APP_LLM_API_KEY,
+        model: "gemini",
         correctAnswer: correctAnswer,
       });
 
