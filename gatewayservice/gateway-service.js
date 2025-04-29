@@ -14,7 +14,17 @@ const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:8002';
 const userServiceUrl = process.env.USER_SERVICE_URL || 'http://localhost:8001';
 const questionServiceUrl = process.env.QUESTION_SERVICE_URL || 'http://localhost:8004';
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://172.211.110.192:3000',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true,
+  exposedHeaders: ['Content-Length', 'X-Request-ID'],
+  maxAge: 600
+}));
 app.use(express.json());
 
 // Prometheus configuration
@@ -49,10 +59,20 @@ app.post('/adduser', async (req, res) => {
 // Forward ask LLM request
 app.post('/askllm', async (req, res) => {
   try {
+    console.log('Received askllm request:', req.body);
     const llmResponse = await axios.post(`${llmServiceUrl}/ask`, req.body);
     res.json(llmResponse.data);
   } catch (error) {
-    res.status(error.response?.status || 500).json({ error: error.response?.data?.error || "Internal Server Error" });
+    console.error('Gateway error:', {
+      message: error.message,
+      response: error.response?.data,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      error: "Internal Server Error",
+      details: error.response?.data || error.message,
+      service: "llm"
+    });
   }
 });
 
