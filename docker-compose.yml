@@ -46,8 +46,6 @@ services:
     image: ghcr.io/arquisoft/wichat_es4c/llmservice:latest
     profiles: ["dev", "prod"]
     build: ./llmservice
-    env_file:
-      - ./llmservice/.env
     ports:
       - "8003:8003"
     networks:
