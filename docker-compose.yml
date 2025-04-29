@@ -17,7 +17,7 @@ services:
     build: 
       context: ./users/authservice
     env_file:
-      - ./users/authservice/.env
+      - .env
     depends_on:
       - mongodb
     ports:
@@ -47,13 +47,11 @@ services:
     profiles: ["dev", "prod"]
     build: ./llmservice
     env_file:
-      - ./llmservice/.env
+      - .env
     ports:
       - "8003:8003"
     networks:
       - mynetwork
-    environment:
-      LLM_API_KEY: ${LLM_API_KEY}
 
   questionservice:
     container_name: questionservice-wichat_es4c

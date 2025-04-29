@@ -3,6 +3,9 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+console.log('LLM Service starting...');
+console.log('LLM_API_KEY present:', !!process.env.LLM_API_KEY);
+
 const app = express();
 const port = 8003;
 
