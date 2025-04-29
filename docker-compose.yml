@@ -26,6 +26,8 @@ services:
       - mynetwork
     environment:
       MONGODB_URI: mongodb://mongodb:27017/userdb
+      ADMIN_NAME: ${ADMIN_NAME}
+      ADMIN_PSWD: ${ADMIN_PSWD}
 
   userservice:
     container_name: userservice-wichat_es4c
