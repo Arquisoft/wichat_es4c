@@ -181,6 +181,8 @@ jobs:
     steps:
     - name: Deploy over SSH
       uses: fifsky/ssh-action@master
+      env:
+        LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
       with:
          host: ${{ secrets.DEPLOY_HOST }}
          user: ${{ secrets.DEPLOY_USER }}
