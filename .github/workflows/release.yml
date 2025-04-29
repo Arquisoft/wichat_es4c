@@ -135,7 +135,6 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: ghcr.io
         workdir: llmservice
-        buildargs: LLM_API_KEY
 
   docker-push-questionservice:
     name: Push question service Docker Image to GitHub Packages

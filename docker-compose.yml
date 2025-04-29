@@ -50,6 +50,8 @@ services:
       - "8003:8003"
     networks:
       - mynetwork
+    environment:
+      LLM_API_KEY: ${LLM_API_KEY}
 
   questionservice:
     container_name: questionservice-wichat_es4c
