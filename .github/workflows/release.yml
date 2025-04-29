@@ -180,16 +180,33 @@ jobs:
     runs-on: ubuntu-latest
     needs: [docker-push-userservice,docker-push-authservice,docker-push-llmservice, docker-push-questionservice, docker-push-gatewayservice,docker-push-webapp]
     steps:
-    - name: Deploy over SSH
-      uses: fifsky/ssh-action@master
-      env:
-        LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-      with:
-         host: ${{ secrets.DEPLOY_HOST }}
-         user: ${{ secrets.DEPLOY_USER }}
-         key: ${{ secrets.DEPLOY_KEY }}
-         command: |
-           wget https://raw.githubusercontent.com/arquisoft/wichat_es4c/master/docker-compose.yml -O docker-compose.yml
-           docker compose --profile prod down
-           echo "LLM_API_KEY=${{ secrets.LLM_API_KEY }}" > .env
-           docker compose --profile prod up -d --pull always
+      - name: Deploy over SSH
+        uses: fifsky/ssh-action@master
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          ADMIN_NAME: ${{ secrets.ADMIN_NAME }}
+          ADMIN_PSWD: ${{ secrets.ADMIN_PSWD }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          user: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          command: |
+            mkdir -p llmservice users/authservice
+            
+            echo "LLM_API_KEY=$LLM_API_KEY" > llmservice/.env
+            chmod 600 llmservice/.env
+            
+            cat <<EOT > users/authservice/.env
+            ADMIN_NAME=$ADMIN_NAME
+            ADMIN_PSWD=$ADMIN_PSWD
+            MONGODB_URI=mongodb://mongodb:27017/userdb
+            EOT
+            chmod 600 users/authservice/.env
+            
+            wget https://raw.githubusercontent.com/arquisoft/wichat_es4c/master/docker-compose.yml -O docker-compose.yml
+            docker compose --profile prod down
+            
+            echo "LLM_API_KEY=$LLM_API_KEY" > .env
+            
+            docker compose --profile prod up -d --pull always
+          
