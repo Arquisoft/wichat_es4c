@@ -176,6 +176,12 @@ const Game = () => {
     }
   }, [user]);
 
+  const finishGame = useCallback(async () => {
+    await newGame();
+    await updateStatsFinal();
+  }, [newGame, updateStatsFinal]);
+  
+
   const handleAnswer = async (answer) => {
     if (!answer || loadingQuestion || answered) return;
     const isCorrect = answer === questionData.answer;
@@ -199,8 +205,7 @@ const Game = () => {
     setTimeout(() => {
       const next = questionCounter + 1;
       if (next >= settings.questionAmount) {
-        newGame();
-        updateStatsFinal();
+        finishGame();
         setShowSummaryModal(true);
         
       } else {
@@ -384,7 +389,9 @@ const Game = () => {
                       setTimeout(() => {
                         const next = questionCounter + 1;
                         if (next >= settings.questionAmount) {
+                          finishGame();
                           setShowSummaryModal(true);
+                          
                         } else {
                           setQuestionCounter(next);
                           setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
