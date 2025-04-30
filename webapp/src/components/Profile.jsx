@@ -251,6 +251,57 @@ const Profile = () => {
               </Grid>
             </Grid>
 
+            {user.gameHistory?.length > 0 && (
+              <Box sx={{ mt: 4 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ mb: 1, textAlign: "center", color: "#ffffff" }}
+                >
+                  Historial de Partidas
+                </Typography>
+                <Box
+                  sx={{
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    borderRadius: 2,
+                    p: 2,
+                  }}
+                >
+                  {user.gameHistory
+                    .slice()
+                    .reverse()
+                    .map((game, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 1,
+                          borderBottom: "1px solid #ffffff33",
+                          pb: 1,
+                        }}
+                      >
+                        <Typography variant="body2" color="#ccc">
+                          {new Date(game.date).toLocaleString()}
+                        </Typography>
+                        <Box display="flex" gap={1}>
+                          <Typography variant="body2" sx={{ color: "lightgreen" }}>
+                            ✅ {game.correct}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "red" }}>
+                            ❌ {game.wrong}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#ffffffcc" }}>
+                            ⏱ {game.timePlayed}s
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                </Box>
+              </Box>
+            )}
+
             <Box sx={{ mt: 4, display: "flex", justifyContent: "space-between" }}>
               <Button
                 variant="contained"
