@@ -176,10 +176,20 @@ const Game = () => {
     }
   }, [user]);
 
-  const finishGame = useCallback(async () => {
+  const finishGame = useCallback(async (correctExtra = 0, wrongExtra = 0, timeExtra = 0) => {
+    const finalCorrect = correctCount + correctExtra;
+    const finalWrong = wrongCount + wrongExtra;
+    const finalTime = timeCount + timeExtra;
+  
     await newGame();
-    await updateStatsFinal();
-  }, [newGame, updateStatsFinal]);
+    await axios.post(`${apiEndpoint}/updateStats`, {
+      username,
+      correct: finalCorrect,
+      wrong: finalWrong,
+      timeTaken: finalTime
+    });
+  }, [correctCount, wrongCount, timeCount, newGame, username, apiEndpoint]);
+  
   
 
   const handleAnswer = async (answer) => {
@@ -205,7 +215,7 @@ const Game = () => {
     setTimeout(() => {
       const next = questionCounter + 1;
       if (next >= settings.questionAmount) {
-        finishGame();
+        finishGame(isCorrect ? 1 : 0, isCorrect ? 0 : 1, timeTaken);
         setShowSummaryModal(true);
         
       } else {
@@ -389,7 +399,7 @@ const Game = () => {
                       setTimeout(() => {
                         const next = questionCounter + 1;
                         if (next >= settings.questionAmount) {
-                          finishGame();
+                          finishGame(0, 1, settings.answerTime);
                           setShowSummaryModal(true);
                           
                         } else {
