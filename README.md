@@ -10,6 +10,8 @@
 [![Actions Status](https://github.com/arquisoft/wichat_es4c/workflows/CI%20for%20wichat_es4c/badge.svg)](https://github.com/arquisoft/wichat_es4c/actions)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_wichat_es4c&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Arquisoft_wichat_es4c)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_wichat_es4c&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Arquisoft_wichat_es4c)
+[![CodeScene Average Code Health](https://codescene.io/projects/65544/status-badges/average-code-health)](https://codescene.io/projects/65544)
+[![CodeScene System Mastery](https://codescene.io/projects/65544/status-badges/system-mastery)](https://codescene.io/projects/65544)
 
 <p float="left">
   <img src="https://blog.wildix.com/wp-content/uploads/2020/06/react-logo.jpg" height="100">
