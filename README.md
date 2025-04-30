@@ -12,6 +12,7 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_wichat_es4c&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Arquisoft_wichat_es4c)
 [![CodeScene Average Code Health](https://codescene.io/projects/65544/status-badges/average-code-health)](https://codescene.io/projects/65544)
 [![CodeScene System Mastery](https://codescene.io/projects/65544/status-badges/system-mastery)](https://codescene.io/projects/65544)
+[![CodeScene Hotspot Code Health](https://codescene.io/projects/65544/status-badges/hotspot-code-health)](https://codescene.io/projects/65544)
 
 <p float="left">
   <img src="https://blog.wildix.com/wp-content/uploads/2020/06/react-logo.jpg" height="100">
@@ -30,11 +31,12 @@
 
 Meet the amazing team behind WiChat:
 
-
-- **Adrián Mahía**     
-- **Andrés Carballo**  
-- **Bruno Pérez**
-- **Miguel Gutiérrez**
+| Contributor | Profile |
+| ------------- | ------------- |
+| Adrián Mahía | <a href="https://github.com/adrianmahialoredo"><img src="https://img.shields.io/badge/adrianmahialoredo-Adrián Mahía-red"></a>  |
+| Andrés Carballo  | <a href="https://github.com/uo287983"><img src="https://img.shields.io/badge/uo287983-Andrés Carballo-purple"></a>  |
+| Bruno Pérez  | <a href="https://github.com/BrunoPrzCu"><img src="https://img.shields.io/badge/BrunoPrzCu-Bruno Pérez-green"></a>  |
+| Miguel Gutiérrez  | <a href="https://github.com/miguelgutierrezg"><img src="https://img.shields.io/badge/miguelgutierrezg-Miguel Gutiérrez-blue"></a>  |
 
 ---
 
