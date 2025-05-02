@@ -88,7 +88,7 @@ const Game = () => {
       setPaused(false);
       startTime.current = Date.now();
       
-      setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+      setTimerEndTime(Date.now() + (settings.answerTime || 60) * 1000);
       
       let response;
       let isNewQuestion = false;
@@ -151,7 +151,7 @@ const Game = () => {
   useEffect(() => {
     if (user) {
       setSettings({
-        answerTime: user.answerTime || 10,
+        answerTime: user.answerTime || 60,
         questionAmount: user.questionAmount || 10,
         capitalQuestions: user.capitalQuestions ?? true,
         flagQuestions: user.flagQuestions ?? true,
@@ -192,7 +192,7 @@ const Game = () => {
         setShowSummaryModal(true);
       } else {
         setQuestionCounter(next);
-        setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+        setTimerEndTime(Date.now() + (settings.answerTime || 60) * 1000);
         fetchQuestion();
       }
       setAnswered(false);
@@ -230,7 +230,7 @@ const Game = () => {
     setPaused(false);
     // Reiniciar el array de preguntas usadas
     setUsedQuestionIds([]);
-    setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+    setTimerEndTime(Date.now() + (settings.answerTime || 60) * 1000);
     fetchQuestion();
   };   
 
@@ -373,7 +373,7 @@ const Game = () => {
                           setShowSummaryModal(true);
                         } else {
                           setQuestionCounter(next);
-                          setTimerEndTime(Date.now() + (settings.answerTime || 10) * 1000);
+                          setTimerEndTime(Date.now() + (settings.answerTime || 60) * 1000);
                           fetchQuestion();
                         }
                         setAnswered(false);
