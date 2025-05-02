@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
     ],
     settings: 
     {
-      answerTime: { type: Number, default: 10 }, // 🔹 Tiempo de respuesta por pregunta (en segundos)
+      answerTime: { type: Number, default: 60 }, // 🔹 Tiempo de respuesta por pregunta (en segundos)
       questionAmount: { type: Number, default: 10 }, // 🔹 Número de preguntas por partida
       capitalQuestions: { type: Boolean, default: true }, // 🔹 Preguntas de capitales activadas
       flagQuestions: { type: Boolean, default: true }, // 🔹 Preguntas de banderas activadas
