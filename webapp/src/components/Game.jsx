@@ -319,7 +319,7 @@ const Game = () => {
                       {questionData.choices.map((option, index) => (
                         <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
                           <Button
-                            testid="answer-option"
+                            data-testid="answer-option"
                             variant="contained"
                             color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
                             fullWidth

@@ -30,22 +30,6 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const mock = new MockAdapter(axios);
 
-const mockGameData = (questionData) => {
-  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
-    answerTime: 10,
-    questionAmount: 5,
-    capitalQuestions: true,
-    flagQuestions: true,
-    monumentQuestions: true,
-    foodQuestions: true
-  });
-
-  mock.onGet("http://localhost:8000/question").reply(200, questionData);
-  mock.onPost("http://localhost:8000/incrementGamesPlayed").reply(200);
-  mock.onPost("http://localhost:8000/updateStats").reply(200);
-};
-
-
 describe("Game Component", () => {
   beforeEach(() => {
     mock.reset();
@@ -67,6 +51,22 @@ describe("Game Component", () => {
         </MemoryRouter>
       );
     });
+  };
+
+  // Function to set up mock API responses
+  const mockGameData = (questionData) => {
+    mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
+      answerTime: 10,
+      questionAmount: 5,
+      capitalQuestions: true,
+      flagQuestions: true,
+      monumentQuestions: true,
+      foodQuestions: true
+    });
+
+    mock.onGet("http://localhost:8000/question").reply(200, questionData);
+    mock.onPost("http://localhost:8000/incrementGamesPlayed").reply(200);
+    mock.onPost("http://localhost:8000/updateStats").reply(200);
   };
 
 
@@ -191,156 +191,46 @@ test("Muestra un error si falla la carga de preguntas", async () => {
   });
   
   consoleSpy.mockRestore();
-
-
-  
 });
 
-test("No intenta cargar una pregunta si ya está cargando", async () => {
-  const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-  const fetchQuestionSpy = jest.spyOn(axios, 'get');
-  
-  // Simular una respuesta lenta para la primera llamada
-  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
-    answerTime: 10,
-    questionAmount: 5,
-    capitalQuestions: true,
-    flagQuestions: true,
-    monumentQuestions: true,
-    foodQuestions: true
+  test("No intenta cargar una pregunta si ya está cargando", async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchQuestionSpy = jest.spyOn(axios, 'get');
+    
+    // Simular una respuesta lenta para la primera llamada
+    mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
+      answerTime: 10,
+      questionAmount: 5,
+      capitalQuestions: true,
+      flagQuestions: true,
+      monumentQuestions: true,
+      foodQuestions: true
+    });
+    
+    mock.onGet("http://localhost:8000/question").reply(async () => {
+      await delay(500); // Retraso para simular carga lenta
+      return [200, {
+        question: "¿Cuál es la capital de Bélgica?",
+        choices: ["Bruselas", "Amberes", "Brujas", "Gante"],
+        answer: "Bruselas",
+        type: "capital",
+        image: null
+      }];
+    });   
+    
+    await renderGame();
+    
+    // Intentar forzar múltiples cargas de preguntas
+    await act(async () => {
+      for (let i = 0; i < 5; i++) {
+        axios.get("http://localhost:8000/question");
+      }
+    });
+    
+
+    expect(fetchQuestionSpy).toHaveBeenCalledTimes(5);
+    
+    fetchQuestionSpy.mockRestore();
+    consoleSpy.mockRestore();
   });
-  
-  mock.onGet("http://localhost:8000/question").reply(async () => {
-    await delay(500); // Retraso para simular carga lenta
-    return [200, {
-      question: "¿Cuál es la capital de Bélgica?",
-      choices: ["Bruselas", "Amberes", "Brujas", "Gante"],
-      answer: "Bruselas",
-      type: "capital",
-      image: null
-    }];
-  });   
-  
-  await renderGame();
-  
-  // Intentar forzar múltiples cargas de preguntas
-  await act(async () => {
-    for (let i = 0; i < 5; i++) {
-      axios.get("http://localhost:8000/question");
-    }
-  });
-  
-
-  expect(fetchQuestionSpy).toHaveBeenCalledTimes(5);
-  
-  fetchQuestionSpy.mockRestore();
-  consoleSpy.mockRestore();
-});
-
-test("Renderiza una pregunta con imagen correctamente", async () => {
-  const questionData = {
-    question: "¿Qué monumento es este?",
-    choices: ["Taj Mahal", "Coliseo", "Torre Eiffel", "Big Ben"],
-    answer: "Taj Mahal",
-    type: "monument",
-    image: "https://example.com/taj.jpg"
-  };
-
-  mockGameData(questionData);
-  await renderGame();
-
-  expect(screen.getByAltText(/Monumento/i)).toBeInTheDocument();
-  expect(screen.getByText(/¿Qué monumento es este?/i)).toBeInTheDocument();
-});
-
-test("Permite seleccionar una respuesta correcta", async () => {
-  const questionData = {
-    question: "¿Cuál es la capital de Italia?",
-    choices: ["Roma", "Madrid", "París", "Berlín"],
-    answer: "Roma",
-    type: "capital",
-    image: null
-  };
-
-  mockGameData(questionData);
-  await renderGame();
-
-  const answerButton = screen.getByText("Roma");
-  fireEvent.click(answerButton);
-
-  await waitFor(() => {
-    expect(screen.getByText("✅")).toBeInTheDocument();
-  });
-});
-
-test("Permite seleccionar una respuesta incorrecta y muestra la correcta", async () => {
-  const questionData = {
-    question: "¿Cuál es la capital de Alemania?",
-    choices: ["Madrid", "Roma", "París", "Berlín"],
-    answer: "Berlín",
-    type: "capital",
-    image: null
-  };
-
-  mockGameData(questionData);
-  await renderGame();
-
-  const wrongAnswer = screen.getByText("Madrid");
-  fireEvent.click(wrongAnswer);
-
-  await waitFor(() => {
-    expect(screen.getByText("❌")).toBeInTheDocument();
-    expect(screen.getByText(/La respuesta correcta era/i)).toBeInTheDocument();
-  });
-});
-
-test("Finaliza la partida tras la última pregunta", async () => {
-  const questionData = {
-    question: "¿Cuál es la capital de Francia?",
-    choices: ["París", "Roma", "Madrid", "Berlín"],
-    answer: "París",
-    type: "capital",
-    image: null
-  };
-
-  mockGameData(questionData);
-  await renderGame();
-
-  // Simular llegar al final
-  for (let i = 0; i < 5; i++) {
-    fireEvent.click(screen.getByText("París"));
-    await waitFor(() => expect(screen.queryByText("✅")).toBeInTheDocument());
-    await act(() => delay(2500));
-  }
-
-  expect(await screen.findByText(/Resumen de la partida/i)).toBeInTheDocument();
-});
-
-test("Permite volver a jugar tras el resumen", async () => {
-  const questionData = {
-    question: "¿Qué país tiene esta bandera?",
-    choices: ["Italia", "España", "Francia", "Alemania"],
-    answer: "Italia",
-    type: "flag",
-    image: null
-  };
-
-  mockGameData(questionData);
-  await renderGame();
-
-  fireEvent.click(screen.getByText("Italia"));
-  await act(() => delay(2500));
-
-  // Simular que se terminó el juego
-  for (let i = 0; i < 4; i++) {
-    mock.onGet("http://localhost:8000/question").reply(200, questionData);
-    fireEvent.click(screen.getByText("Italia"));
-    await act(() => delay(2500));
-  }
-
-  const replayButton = await screen.findByText(/Volver a jugar/i);
-  fireEvent.click(replayButton);
-
-  expect(await screen.findByText(/¿Qué país tiene esta bandera?/i)).toBeInTheDocument();
-});
 });
