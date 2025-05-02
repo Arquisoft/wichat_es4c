@@ -14,7 +14,7 @@ import { useState, useEffect } from "react";
   const navigate = useNavigate();
   const [allCategoriesDisabledSnackbar, setAllCategoriesDisabledSnackbar] = useState(false);
   const [settings, setSettings] = useState({
-    answerTime: 10,
+    answerTime: 60,
     questionAmount: 10,
     capitalQuestions: true,
     flagQuestions: true,
@@ -55,7 +55,7 @@ import { useState, useEffect } from "react";
 
         // Initialize settings with received data or defaults
         setSettings({
-          answerTime: data.answerTime || 10,
+          answerTime: data.answerTime || 60,
           questionAmount: data.questionAmount || 10,
           capitalQuestions: data.capitalQuestions ?? true,
           flagQuestions: data.flagQuestions ?? true,

@@ -1,7 +1,20 @@
 const request = require('supertest');
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
-const { app, server, llmConfigs, sendQuestionToLLM } = require('./llm-service');
+const fs = require('fs');
+const path = require('path');
+const { 
+  app, 
+  server, 
+  llmConfigs, 
+  sendQuestionToLLM,
+  validateRequiredFields,
+  renderTemplate,
+  prompts 
+} = require('./llm-service');
+
+// Mock fs module para simular la carga del archivo de prompts
+jest.mock('fs');
 
 describe('LLM Service API (Gemini only)', () => {
   let mockAxios;
@@ -10,6 +23,11 @@ describe('LLM Service API (Gemini only)', () => {
   beforeAll(() => {
     mockAxios = new MockAdapter(axios);
     process.env.LLM_API_KEY = 'test-api-key';
+    
+    // Simular un archivo de prompts válido
+    fs.readFileSync.mockReturnValue(JSON.stringify({
+      gamePrompt: "Test prompt with {{correctAnswer}} and {{question}}"
+    }));
   });
 
   afterEach(() => {
@@ -97,6 +115,24 @@ describe('LLM Service API (Gemini only)', () => {
       expect(response.status).toBe(500);
       expect(response.body.error).toContain('Failed to get response from LLM');
     });
+    
+    it('should handle null response from LLM', async () => {
+      // Mock a response that will result in null after transformation
+      const mockResponse = { candidates: [] }; // Empty candidates will result in null
+      
+      mockAxios.onPost(/generativelanguage.googleapis.com/).reply(200, mockResponse);
+      
+      const response = await request(app)
+        .post('/ask')
+        .send({
+          question: 'Dame una pista',
+          model: 'gemini',
+          correctAnswer: 'Madrid'
+        });
+      
+      expect(response.status).toBe(500);
+      expect(response.body.error).toContain('Failed to get response from LLM');
+    });
   });
 
   describe('Gemini Configuration', () => {
@@ -143,6 +179,47 @@ describe('LLM Service API (Gemini only)', () => {
         expect(port).toBeGreaterThan(0);
         testServer.close(done);
       });
+    });
+  });
+  
+  // Tests para las nuevas funciones
+  describe('renderTemplate function', () => {
+    it('should replace template variables with provided values', () => {
+      const template = 'Hello {{name}}, welcome to {{city}}!';
+      const variables = { name: 'John', city: 'Madrid' };
+      
+      const result = renderTemplate(template, variables);
+      
+      expect(result).toBe('Hello John, welcome to Madrid!');
+    });
+  });
+  
+  describe('validateRequiredFields function', () => {
+    it('should not throw error when all required fields are present', () => {
+      const req = { 
+        body: { 
+          question: 'Test', 
+          model: 'gemini', 
+          correctAnswer: 'Madrid' 
+        } 
+      };
+      const requiredFields = ['question', 'model', 'correctAnswer'];
+      
+      expect(() => validateRequiredFields(req, requiredFields)).not.toThrow();
+    });
+    
+    it('should throw error when a required field is missing', () => {
+      const req = { 
+        body: { 
+          question: 'Test', 
+          model: 'gemini'
+          // correctAnswer is missing
+        } 
+      };
+      const requiredFields = ['question', 'model', 'correctAnswer'];
+      
+      expect(() => validateRequiredFields(req, requiredFields))
+        .toThrow('Missing required field: correctAnswer');
     });
   });
 });

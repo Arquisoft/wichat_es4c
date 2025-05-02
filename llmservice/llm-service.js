@@ -1,10 +1,25 @@
 const axios = require('axios');
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 console.log('LLM Service starting...');
 console.log('LLM_API_KEY present:', !!process.env.LLM_API_KEY);
+
+// Cargar prompts desde archivo JSON
+let prompts;
+try {
+  const promptsPath = path.join(__dirname, 'prompts.json');
+  prompts = JSON.parse(fs.readFileSync(promptsPath, 'utf8'));
+  console.log('Prompts loaded successfully');
+} catch (error) {
+  console.error('Error loading prompts.json:', error.message);
+
+  prompts = { gamePrompt: "Default game prompt" };
+  console.log('Using default prompts');
+}
 
 const app = express();
 const port = 8003;
@@ -35,6 +50,13 @@ function validateRequiredFields(req, requiredFields) {
       throw new Error(`Missing required field: ${field}`);
     }
   }
+}
+
+// Función para sustituir variables en un template
+function renderTemplate(template, variables) {
+  return Object.entries(variables).reduce((text, [key, value]) => {
+    return text.replace(new RegExp(`{{${key}}}`, 'g'), value);
+  }, template);
 }
 
 // Función para enviar preguntas al LLM
@@ -89,40 +111,11 @@ app.post('/ask', async (req, res) => {
       });
     }
 
-    const gamePrompt = `Eres un asistente en un juego de preguntas sobre países y sus capitales. El jugador verá imágenes relacionadas con un
-              país (como su bandera, comida típica o paisajes) y deberá adivinar la capital correcta entre cuatro opciones. Tu única función
-              es proporcionar pistas sobre la capital correcta sin revelar directamente su nombre.
-
-              Reglas estrictas de comportamiento:
-
-              NO debes decir directamente el nombre de la capital ni de su país.
-
-              Solo puedes dar pistas generales sobre la capital, como:
-
-              Información histórica o cultural.
-
-              Monumentos o lugares emblemáticos.
-
-              Datos sobre su clima, idioma o población.
-
-              Curiosidades sobre la ciudad o eventos importantes que han ocurrido allí.
-
-              Si el jugador pide la respuesta directamente, responde con algo como: "No puedo decirte la respuesta, pero aquí tienes una pista: ..."
-
-              Mantén las respuestas breves y relevantes al contexto del juego.
-
-              No respondas preguntas fuera del ámbito del juego. Si el jugador pregunta algo irrelevante, dile: "Solo puedo darte pistas sobre la capital en esta ronda del juego."
-
-              Ejemplo de interacción correcta:
-              Jugador: Dame una pista.
-              IA: "Esta ciudad es famosa por su torre de televisión, una de las más altas del mundo."
-
-              Jugador: ¿Cuál es la capital de Alemania?
-              IA: "No puedo decirte la respuesta, pero aquí tienes una pista: en esta ciudad se encuentra la icónica Puerta de Brandeburgo."
-
-              Si en algún momento se detecta una solicitud que no está relacionada con el juego, simplemente responde con: "Mi función es solo dar pistas sobre la capital correcta en este juego."
-
-              La respuesta correcta a la pregunta es: ${correctAnswer}. Pregunta: ${question}`;
+    // Renderizar el prompt con los valores dinámicos
+    const gamePrompt = renderTemplate(prompts.gamePrompt, {
+      question,
+      correctAnswer
+    });
 
     const answer = await sendQuestionToLLM(gamePrompt, apiKey, model);
 
@@ -134,7 +127,6 @@ app.post('/ask', async (req, res) => {
       });
     }
     
-    console.log('Received answer from LLM:', answer);
     return res.json({ answer });
     
   } catch (error) {
@@ -158,5 +150,7 @@ module.exports = {
   server,
   llmConfigs,
   sendQuestionToLLM,
-  validateRequiredFields
+  validateRequiredFields,
+  renderTemplate,
+  prompts
 };
