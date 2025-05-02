@@ -78,19 +78,6 @@ const Game = () => {
     catch (error) { console.error("Error incrementing game:", error); }
   }, [username, apiEndpoint]);
 
-  const updateStatsFinal = useCallback(async () => {
-    try {
-      if (!username) return;
-      await axios.post(`${apiEndpoint}/updateStats`, {
-        username,
-        correct: correctCount,
-        wrong:   wrongCount,
-        timeTaken: timeCount
-      });
-    } catch (error) {
-      console.error("Error actualizando estadísticas al final:", error);
-    }
-  }, [username, correctCount, wrongCount, timeCount, apiEndpoint]);
 
   const fetchQuestion = useCallback(async () => {
     if (loadingQuestion) return;
@@ -319,7 +306,7 @@ const Game = () => {
                       {questionData.choices.map((option, index) => (
                         <Box key={index} display="flex" alignItems="center" sx={{ mb: 1 }}>
                           <Button
-                            data-testid="answer-option"
+                            testid="answer-option"
                             variant="contained"
                             color={answered ? (option === questionData.answer ? "success" : "error") : "primary"}
                             fullWidth
