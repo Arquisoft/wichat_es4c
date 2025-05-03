@@ -1,0 +1,142 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-testing-report]]
+== Testing Report
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+.Contents
+This section provides a detailed report of the tests conducted on the WIChat system, including unit tests, acceptance tests (end-to-end tests), code coverage and load tests. It outlines the methodologies, scenarios, and results.
+
+.Motivation
+To ensure the reliability and proper functionality of the system, comprehensive testing was conducted. This report serves to document the process and outcomes.
+
+.Form
+The section is divided into subsections for unit testing and acceptance testing, with details about scenarios and expected results.
+
+.Further Information
+See the testing guidelines in the arc42 documentation for more information.
+****
+endif::arc42help[]
+
+=== Unit Tests
+
+Unit tests were conducted across all microservices and the WebApp frontend to ensure the correct behavior of individual components and services. The primary goals were:
+
+* Validate the functionality of individual methods, classes, and components.
+* Detect bugs early in the development process.
+* Maintain a high standard of code quality.
+
+[cols="e,2e" options="header"]
+|===
+| Component | Summary of Tests
+
+| User Manager 
+| Tests cover user information, score tracking, and leaderboard updates.
+
+| AuthService 
+| Tests include login validation, token generation, and security checks.
+
+| LLMService 
+| Covers scenarios for hint generation and integration with the Gemini AI API.
+
+| QuestionService 
+| Tests check the information retrieved from WikiData and generated questions to meet standards.
+
+| GatewayService 
+| Tests for the endpoints, makes sure all work as they are meant to.
+
+| WebApp (Frontend)
+| Component-level testing for React components, including dynamic rendering and user interaction.
+
+|===
+
+=== Acceptance Tests (End-to-End)
+
+End-to-end (e2e) tests were conducted to validate the system's behavior under real-world scenarios. These tests covered the following features:
+
+==== Feature: Accessing User Statistics as User
+
+[cols="e,2e" options="header"]
+|===
+| Scenario | Steps
+
+| The user wants to access their statistics
+| 
+Given: A user with name "testuser" and password "testuser"
+When: I log in with the user credentials
+And: I press the statistics button
+Then: I should see the profile page for "testuser"
+
+|===
+
+==== Feature: Playing the Game
+
+[cols="e,2e" options="header"]
+|===
+| Scenario | Steps
+
+| The user plays a game with their own game values and logs out
+| 
+Given: A user with name "test" and password "test"
+When: The user logs in with the user credentials
+And: The user presses the account button
+And: The user presses the settings button
+And: The user changes the value number of questions to 2
+And: The user saves the changes
+And: The user presses the play button
+And: The user answers the first question
+And: The user answers the second question
+And: The game ends and the message "¡Resumen de la partida!" is shown
+And: The user presses the go menu button
+And: The user presses the account button
+And: The user presses the logout button
+Then: The home page is shown
+
+| The user plays a game and the statistics are saved
+| 
+Given: A user with name "test" and password "test"
+When: The user logs in with the user credentials
+And: The user presses the play button
+And: The user answers the first question
+And: The user answers the second question
+And: The game ends and the message "¡Resumen de la partida!" is shown
+And: The user presses the go menu button
+And: The user presses the account button
+And: The user presses the profile button
+Then: The user played games statistic is 2
+
+|===
+
+==== Feature: Registering a New User
+
+[cols="e,2e" options="header"]
+|===
+| Scenario | Steps
+
+| The user is not registered on the site
+| 
+Given: A user with name "admin3" and password "admin3"
+When: The user fills the data in the form and presses submit
+Then: The confirmation message "Redirecting to login..." should be shown on the screen
+
+| The user is not registered but the username is not valid
+| 
+Given: A user with name "a" and password "admin3"
+When: The user fills the data in the form and presses submit
+Then: The message "Username must be at least 3 characters long" should be shown on the screen
+
+| The user is not registered but the password is not valid
+| 
+Given: A user with name "admin4" and password "a"
+When: The user fills the data in the form and presses submit
+Then: The message "Password must be at least 3 characters long" should be shown on the screen
+
+| The user is not registered but the username is already taken
+| 
+Given: A user with name "admin3" and password "admin3"
+When: The user fills the data in the form and presses submit
+Then: The message "duplicate key error" should be shown on the screen
+
+|===
