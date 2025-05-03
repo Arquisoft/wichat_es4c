@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 const { defineFeature, loadFeature } = require('jest-cucumber');
-const { setDefaultOptions } = require('expect-puppeteer');
+const setDefaultOptions = require('expect-puppeteer').setDefaultOptions;
 const feature = loadFeature('./features/register-form.feature');
 
 let page;
