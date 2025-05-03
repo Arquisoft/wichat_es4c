@@ -4,7 +4,7 @@ module.exports = {
     "**/__tests__/**/*.{js,jsx}",     
     "**/?(*.)+(spec|test).{js,jsx}"    
   ],
-  testTimeout: 300000,                 
+  testTimeout: 60000,                 
   setupFilesAfterEnv: ["expect-puppeteer"],
 
   collectCoverage: true,
