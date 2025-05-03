@@ -143,10 +143,15 @@ endif::arc42help[]
 | The dedicated user service can be extended for it to save more information about users to represent it on the ranking.
 | Medium
 
-| _Multiplayer_
-| Competitive and extra fun with friends.
-| User service is extended for this, making possible to play against someone in a 1v1 match.
-| Low
+| _Game History_
+| Give the user the opportunity to see what went wrong (or good).
+| User service is extended for this, making possible to view the last games the user has played.
+| Medium
+
+| _Friends System_
+| To give the user the possibility of adding users.
+| User service is extended for this, a user can add another one as their friend to see how it's doing in the app. This functionality can be easily extended to build multiplayer games where you can play against your friends.
+| Medium
 
 | _Adding an admin panel_
 | To give the admin a clear view of the users in the system and manage them.
@@ -155,7 +160,7 @@ endif::arc42help[]
 
 | _Game Settings_
 | To give the user the chance of adjusting parameters to play the game (response time, number of questions, what type of questions does he wants).
-| Question service is adapted for this, as it is responsible for the questions and the game component is adapted to handle the new parameters.
+| Question service is adapted for this, as it is responsible for the questions and the game component is adapted to handle the new parameters. User service is extended too to save the user settings for the next time he wants to log in again into the app.
 | Medium
 
 |===

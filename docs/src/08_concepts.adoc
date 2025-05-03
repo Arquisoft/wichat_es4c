@@ -25,7 +25,7 @@ Minimalist UI Design: A clean and distraction-free interface.
 
 Real-time Feedback: Immediate responses to user input.
 
-Gamification Elements: Leaderboards and achievements to boost user engagement.
+Gamification Elements: Leaderboards and friend system to boost user engagement.
 
 === Security and Safety Concepts
 
@@ -42,7 +42,6 @@ WIChat follows established software design principles to ensure scalability and 
 
 Microservices Architecture: Decoupled services to improve scalability.
 
-MVC Pattern: Structuring the web application using Model-View-Controller.
 
 
 === "Under-the-hood" - Technical Implementation
