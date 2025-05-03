@@ -10,7 +10,6 @@ let browser;
 defineFeature(feature, test => {
 
   beforeAll(async () => {
-    jest.setTimeout(60000); // más tiempo para entornos lentos
     browser = process.env.GITHUB_ACTIONS
       ? await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] })
       : await puppeteer.launch({ headless: false, slowMo: 30 });
