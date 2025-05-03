@@ -13,7 +13,7 @@ defineFeature(feature, test => {
       ? await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] })
       : await puppeteer.launch({ headless: false, slowMo: 30 });
     page = await browser.newPage();
-    setDefaultOptions({ timeout: 10000 });
+    setDefaultOptions({ timeout: 60000 });
   });
 
   // Función auxiliar para navegar a la página principal

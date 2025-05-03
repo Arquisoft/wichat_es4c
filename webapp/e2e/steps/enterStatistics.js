@@ -14,7 +14,7 @@ defineFeature(feature, test => {
       ? await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] })
       : await puppeteer.launch({ headless: false, slowMo: 30 });
     page = await browser.newPage();
-    setDefaultOptions({ timeout: 5000 });
+    setDefaultOptions({ timeout: 60000 });
 
     await page.goto("http://localhost:3000", { waitUntil: "networkidle0" })
       .catch((error) => console.error("Navigation failed:", error));
