@@ -7,7 +7,7 @@ ifdef::arc42help[]
 [role="arc42help"]
 ****
 .Contents
-This section provides a detailed report of the tests conducted on the WIChat system, including unit tests, acceptance tests (end-to-end tests), code coverage and load tests. It outlines the methodologies, scenarios, and results.
+This section provides a detailed report of the tests conducted on the WIChat system, including unit tests, acceptance tests (end-to-end tests), code coverage and load tests. It outlines the methodologies, scenarios, and results. Finally, it also analyzes the results obtained via monitoring/profiling 
 
 .Motivation
 To ensure the reliability and proper functionality of the system, comprehensive testing was conducted. This report serves to document the process and outcomes.

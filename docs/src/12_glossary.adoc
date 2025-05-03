@@ -70,15 +70,17 @@ endif::arc42help[]
 |UserService
 |A service managing user-related operations.
 
-
 |LLMService
 |A service that connects to Gemini AI for hint generation.
+
+|QuestionService
+|A service responsible for retrieving information from WikiData, translating it into generated questions, saving them in a database for later use in the game.
 
 |WebApp
 |The frontend interface used by players to interact with WIChat.
 
 |MongoDB
-|The database system used to store user and game-related data.
+|The database system used to store user and game-related data like questions.
 
 |Docker
 |The containerization platform used for deployment and scalability.
@@ -94,6 +96,9 @@ endif::arc42help[]
 
 |Node.js
 |The runtime environment for executing JavaScript code server-side.
+
+|Java
+|Programming language used for load tests.
 
 |CI/CD
 |Continuous Integration and Deployment processes for automation and code deployment.
