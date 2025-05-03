@@ -32,6 +32,7 @@ const Game = () => {
   const [questionCounter, setQuestionCounter] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
+  const [timeCount, setTimeCount] = useState(0);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   // Nuevo estado para almacenar las preguntas ya mostradas
   const [usedQuestionIds, setUsedQuestionIds] = useState([]);
@@ -76,6 +77,7 @@ const Game = () => {
     try { if (username) await axios.post(`${apiEndpoint}/incrementGamesPlayed`, { username }); }
     catch (error) { console.error("Error incrementing game:", error); }
   }, [username, apiEndpoint]);
+
 
   const fetchQuestion = useCallback(async () => {
     if (loadingQuestion) return;
@@ -128,7 +130,7 @@ const Game = () => {
     }
   }, [loadingQuestion, apiEndpoint, settings.answerTime, settings.capitalQuestions, settings.flagQuestions, settings.monumentQuestions, settings.foodQuestions, usedQuestionIds]);
   
-  useEffect(() => { if (!hasFetched.current && settings.answerTime) { newGame(); fetchQuestion(); hasFetched.current = true; } }, [newGame, fetchQuestion, settings.answerTime]);
+  useEffect(() => { if (!hasFetched.current && settings.answerTime) {  fetchQuestion(); hasFetched.current = true; } }, [fetchQuestion, settings.answerTime]);
 
   useEffect(() => {
     if (!username) {
@@ -161,6 +163,22 @@ const Game = () => {
     }
   }, [user]);
 
+  const finishGame = useCallback(async (correctExtra = 0, wrongExtra = 0, timeExtra = 0) => {
+    const finalCorrect = correctCount + correctExtra;
+    const finalWrong = wrongCount + wrongExtra;
+    const finalTime = timeCount + timeExtra;
+  
+    await newGame();
+    await axios.post(`${apiEndpoint}/updateStats`, {
+      username,
+      correct: finalCorrect,
+      wrong: finalWrong,
+      timeTaken: finalTime
+    });
+  }, [correctCount, wrongCount, timeCount, newGame, username, apiEndpoint]);
+  
+  
+
   const handleAnswer = async (answer) => {
     if (!answer || loadingQuestion || answered) return;
     const isCorrect = answer === questionData.answer;
@@ -177,19 +195,16 @@ const Game = () => {
       setWrongCount((prev) => prev + 1);
       playSound(wrongSound);
     }
+    setTimeCount((prev) => prev + timeTaken);
   
-    if (username) {
-      try {
-        await axios.post(`${apiEndpoint}/updateStats`, { username, isCorrect, timeTaken });
-      } catch (error) {
-        console.error("Error al actualizar estadísticas:", error);
-      }
-    }
+    
   
     setTimeout(() => {
       const next = questionCounter + 1;
       if (next >= settings.questionAmount) {
+        finishGame(isCorrect ? 1 : 0, isCorrect ? 0 : 1, timeTaken);
         setShowSummaryModal(true);
+        
       } else {
         setQuestionCounter(next);
         setTimerEndTime(Date.now() + (settings.answerTime || 60) * 1000);
@@ -224,6 +239,7 @@ const Game = () => {
   const handlePlayAgain = () => {
     setCorrectCount(0);
     setWrongCount(0);
+    setTimeCount(0);
     setQuestionCounter(0);
     setShowSummaryModal(false);
     setAnswered(false);
@@ -370,7 +386,9 @@ const Game = () => {
                       setTimeout(() => {
                         const next = questionCounter + 1;
                         if (next >= settings.questionAmount) {
+                          finishGame(0, 1, settings.answerTime);
                           setShowSummaryModal(true);
+                          
                         } else {
                           setQuestionCounter(next);
                           setTimerEndTime(Date.now() + (settings.answerTime || 60) * 1000);
