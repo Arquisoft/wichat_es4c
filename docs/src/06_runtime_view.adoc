@@ -64,9 +64,43 @@ WebApp --> User: Displays response and redirects the user
 
 ----
 
-=== Question Generation
+=== Question generation
 
 [plantuml, Question Generation Diagram, png]
+
+----
+
+@startuml
+
+participant "QuestionService" as QS
+database "Wikidata" as Wiki
+database "MongoDB" as Mongo
+
+note over QS: Service initialization
+
+loop Multiple queries for different categories
+    QS -> Wiki: Query data
+    Wiki --> QS: Returns raw information
+    
+    QS -> QS: Filter and process data\nto extract relevant information
+    
+    loop For each set of relevant data
+        QS -> QS: Generate question based on filtered information
+        QS -> QS: Format and structure the question
+        QS -> Mongo: Store generated question
+        Mongo --> QS: Confirm storage
+    end
+end
+
+note over QS: Questions ready to be used in the game
+
+@enduml
+
+----
+
+=== How does the user gets the questions to play the game
+
+[plantuml, Get Questions Diagram, png]
 ----
 @startuml
 
@@ -74,16 +108,13 @@ actor User
 participant WebApp
 participant GatewayService
 participant QuestionService
-database Wikidata
 database MongoDB
 
 User -> WebApp: Starts game
 WebApp -> GatewayService: Requests question
 GatewayService -> QuestionService: Requests question
-QuestionService -> Wikidata: Fetches relevant info
-Wikidata --> QuestionService: Returns relevan info
-QuestionService --> QuestionService: Generates question
-QuestionService -> MongoDB: Stores question
+QuestionService -> MongoDB: Asks for a stored question
+QuestionService <- MongoDB: Retrieves a question
 QuestionService --> GatewayService: Returns question
 GatewayService --> WebApp: Returns Question
 WebApp --> User: Displays question to the user
@@ -106,7 +137,7 @@ entity GeminiAI
 
 User -> WebApp: Asks for a hint
 WebApp -> GatewayService: Requests hint
-GatewayService -> LLMService: Foorwards Request
+GatewayService -> LLMService: Forwards Request
 LLMService -> GeminiAI: Queries hint
 GeminiAI --> GeminiAI: Generates hint
 GeminiAI --> LLMService: Returns hint
@@ -116,11 +147,12 @@ WebApp --> User: Displays hint to the user
 
 @enduml
 
+
 ----
 
 === Game
 
-[plantuml, Clue Generation Diagram, png]
+[plantuml, Game Process Diagram, png]
 ----
 
 @startuml
