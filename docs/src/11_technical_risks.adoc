@@ -37,6 +37,7 @@ endif::arc42help[]
 | Teamwork | The methodology used and the participation, communication and commitment of the team are cruzial for the succes of this project. 
 | Design | A bad desing decision at the beggining of the project can cause a more difficult development, with more complications when updating or scalating the project, specially in a an application of this size and complexity.
 | Wikidata | Every aspect related to Wikidata: lack of knowledge wiht the platform, incorrect use, possible unavailability of the platform...
+| Gemini AI | Gemini API is not free, so it can be a big bottleneck if we send too many requests in a short period of time.
 |===
 
 === Technical Debt

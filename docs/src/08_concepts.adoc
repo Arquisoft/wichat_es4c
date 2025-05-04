@@ -17,6 +17,8 @@ Hints: AI-generated assistance to guide users.
 
 Ranking: Scores and leaderboards to enhance engagement.
 
+Game settings: Personalize your games
+
 === User Experience (UX) Concepts
 
 User experience is a fundamental aspect of WIChat, ensuring seamless interaction and intuitive design.
@@ -25,7 +27,7 @@ Minimalist UI Design: A clean and distraction-free interface.
 
 Real-time Feedback: Immediate responses to user input.
 
-Gamification Elements: Leaderboards and friend system to boost user engagement.
+Gamification Elements: Leaderboards, game settings and friend system to boost user engagement.
 
 === Security and Safety Concepts
 
@@ -55,6 +57,8 @@ Database: MongoDB as the primary data store.
 LLM Integration: Gemini AI used for hint generation.
 
 External Data Source: WikiData for retrieving question-related information.
+
+External Data Source: Gemini AI retrieves hints for the user.
 
 === Development Concepts
 
