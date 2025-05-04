@@ -140,3 +140,35 @@ When: The user fills the data in the form and presses submit
 Then: The message "duplicate key error" should be shown on the screen
 
 |===
+
+=== Monitoring/Profiling
+
+To validate the behavior and performance of the WIChat system under realistic conditions, we used Prometheus as the metrics collector and Grafana for visualization. The following graphs were collected from a local environment using test data. Although the values are not representative of a production system, they serve as a baseline to confirm correct integration and stable behavior of the services.
+
+image::monitoring1.png["First Metric"]
+
+Metric: scrape_duration_seconds
+
+This metric represents the time Prometheus takes to scrape and process metrics from the gatewayservice:8000 via the /metrics endpoint. Values ranged between 0.001 and 0.006 seconds, reflecting very fast and efficient responses. These results are expected in a local environment, where traffic is limited and resource usage is low. It confirms that Prometheus is working correctly and that the Gateway service exposes its metrics reliably. However, values in production may vary due to concurrency, network latency, or server load.
+
+image::monitoring2.png["Second Metric"]
+
+Metric: http_request_duration_seconds_count
+
+This graph shows the cumulative number of HTTP requests made to gatewayservice:8000, grouped by method (GET/POST) and status code. The majority of requests returned status 200, indicating successful interactions with the endpoints. A few 304 responses were also recorded, which are expected when requesting cacheable resources. One 400 response was generated deliberately during testing by submitting invalid login credentials, demonstrating correct error handling by the backend.
+
+image::monitoring3.png["Third Metric"]
+
+Metric: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))
+
+This query calculates the 95th percentile of HTTP request durations, meaning 95% of requests in the last 5 minutes completed faster than the reported value. In this test setup, several peaks were observed, with one reaching up to 0.75 seconds. These peaks coincide with a series of login attempts using various users, which naturally involve more validation and database queries. In contrast, lower and more stable values reflect typical application usage, such as navigating profiles or performing light data fetches.
+
+image::monitoring4.png["Fourth Metric"]
+
+Metric: http_request_duration_seconds_sum (by HTTP method)
+
+This graph represents the total accumulated time (in seconds) taken by gatewayservice to process all HTTP requests during the session, grouped by method. POST requests accumulated over 3.5 seconds, while GET requests barely exceeded 1.2 seconds. This difference is expected since POST requests were directed at more complex operations such as login or data submission, which require more server-side computation. GET requests, used mostly for fetching user profiles or settings, are lighter in processing.
+
+These metrics confirm that the system behaves efficiently under test conditions, with proper request handling and no major performance bottlenecks. The monitoring setup also provides a foundation for future observability in production deployments.
+
+
