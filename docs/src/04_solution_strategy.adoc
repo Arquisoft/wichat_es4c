@@ -81,7 +81,8 @@ To ensure usability, we have planned:
 | **Performance Efficiency**  
 | The system needs to be optimized to handle potential traffic surges and deliver quick responses to users.  
 The following strategies are planned to optimize performance:  
-* Reducing request frequency to external services (like WikiData) to avoid overloading the system.  
+* Reducing request frequency to external services (like WikiData) to avoid overloading the system.
+* The information retrieved from WikiData and processed by the question service will be stored in a database for a quick access.  
 
 | **Maintainability & Scalability**  
 | The system must be modular, easy to maintain, and scalable for future growth.  
@@ -109,19 +110,19 @@ To ensure availability, the following actions are being planned:
 
 === 4.4. Organizational Decisions  
 
-As we are in the early planning phase of the WiChat application, we have outlined the following **organizational decisions** to help guide the development process once the project begins:  
+We have outlined the following **organizational decisions** to help guide the development process once the project begins:  
 
 * **Task Distribution** – We plan to distribute tasks as evenly as possible among team members to ensure a balanced workload. The goal is to make sure that once a task is completed, at least 50% of the team should review it before it is considered valid. This review process will help maintain high-quality standards throughout the development cycle.  
 
 * **GitHub Issues** – To manage tasks effectively, we will utilize **GitHub Issues**. This will allow us to create, assign, and track tasks while also providing a platform for discussing any critical decisions that may arise during development.  
 
-* **GitHub Projects** – We will incorporate **GitHub Projects** to organize our workflow and track the overall progress of the project. This will provide a clear overview of tasks and help ensure we stay on track during development.  
+* **GitHub Actions** – We will be using **GitHub Actions** to make workflows for CI/CD, deploying documentation and deploying the application itself, this will help us to track better our progress and find bugs during development.  
 
-* **Language** – The project will be developed in **English**. This decision ensures that both the code and documentation are accessible to all team members, as well as to future contributors.  
+* **Language** – The documentation and code will be developed in **English**. This decision ensures that both the code and documentation are accessible to all team members, as well as to future contributors.  
 
 * **External Meetings** – Regular external meetings will be held to review the project’s progress and determine the next steps. These meetings will help ensure we stay aligned with the project goals and timelines.  
 
-* **Internal Communication** – We will use **Discord** as the primary communication platform for internal discussions. This tool will facilitate real-time collaboration and help resolve issues as they arise during development. Additionally, **GitHub Webhooks** will be integrated to notify the team of any changes made in the repository, ensuring that everyone stays updated.  
+* **Internal Communication** – We will use **Discord** and *WhatsApp* as the primary communication platforms for internal discussions. This tools will facilitate real-time collaboration and help resolve issues as they arise during development.
 
 * **Documentation** – For documentation purposes, we have decided to use **Asciidoc**. This tool was chosen because it simplifies the process of deploying and maintaining project documentation, making it easier for the team to collaborate and contribute.
 
