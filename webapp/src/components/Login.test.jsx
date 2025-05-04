@@ -180,4 +180,62 @@ describe('Login Component', () => {
     window.innerHeight = initialHeight + 50;
     fireEvent(window, new Event('resize'));
   });
+
+  it('should reach login success state', async () => {
+    axios.post.mockResolvedValueOnce({ data: { token: 'token123', role: 'user', createdAt: new Date().toISOString() } });
+  
+    render(
+      <Router>
+        <Login onLoginSuccess={mockOnLoginSuccess} />
+      </Router>
+    );
+  
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'testpass' } });
+    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+  
+    await waitFor(() => {
+      // Verificamos que el login ha sido exitoso
+      expect(screen.getByText(/your account was created on/i)).toBeInTheDocument();
+    });
+  });
+  
+  it('should trigger login when Enter key is pressed in password field', async () => {
+    axios.post.mockResolvedValueOnce({ data: { token: 'abc', createdAt: new Date().toISOString(), role: 'admin' } });
+  
+    render(
+      <Router>
+        <Login onLoginSuccess={mockOnLoginSuccess} />
+      </Router>
+    );
+  
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'keyboardUser' } });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'keyboardPass' } });
+    fireEvent.keyDown(screen.getByPlaceholderText(/password/i), { key: 'Enter', code: 'Enter' });
+  
+    await waitFor(() => {
+      expect(mockOnLoginSuccess).toHaveBeenCalled();
+      expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
+    });
+  });
+
+  it('should navigate to /startmenu when "Go to Game" button is clicked after login', async () => {
+    axios.post.mockResolvedValueOnce({ data: { token: 'abc', createdAt: new Date().toISOString(), role: 'admin' } });
+  
+    render(
+      <Router>
+        <Login onLoginSuccess={mockOnLoginSuccess} />
+      </Router>
+    );
+  
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'user' } });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'pass' } });
+    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+  
+    const goToGameBtn = await screen.findByRole('button', { name: /go to game/i });
+    fireEvent.click(goToGameBtn);
+  
+    expect(mockedNavigate).toHaveBeenCalledWith('/startmenu'); // Verifica acción del botón
+  });
+  
 });
