@@ -33,7 +33,7 @@ See https://docs.arc42.org/section-7/[Deployment View] in the arc42 documentatio
 ****
 endif::arc42help[]
 
-=== Infrastructure Level 1
+=== Infrastructure
 
 The following overview diagram shows the overall deployment of the Quiz Web Application. It illustrates how the system is distributed within an Azure Virtual Machine using Docker containers, and how the individual services interact with each other as well as with external services.
 
@@ -45,7 +45,6 @@ The infrastructure has been designed to support a distributed system where each 
 Mapping of Building Blocks to Infrastructure::
 Software components are each deployed in their own Docker container within Azure. The GatewayService orchestrates communication among these services, while persistent data is managed by a MongoDB database. The QuestionService also interacts with the external Wikidata service to retrieve dynamic content for the quiz.
 
-=== Infrastructure Level 2
 image::Deploy.png[Deployment Diagram for Quiz Web Application]
 ==== _Azure VM and Docker Containers_
 
@@ -78,3 +77,6 @@ Communication between these containers is managed internally within Azure, ensur
 
 * **Wikidata:**  
   The QuestionService accesses Wikidata to fetch additional data for quiz questions. 
+
+* **Gemini AI:**  
+  The LLM Service uses Gemini to give the user the hints requested. 
