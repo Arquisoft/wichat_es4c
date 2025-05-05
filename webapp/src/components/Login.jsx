@@ -1,57 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Typography, TextField, Button, Snackbar, Box, styled, InputAdornment } from '@mui/material';
-import Globe from 'react-globe.gl';
-import { useSpring, animated } from 'react-spring';
+import { Container, Typography, Button, Snackbar, Box, InputAdornment } from '@mui/material';
+import { useSpring } from 'react-spring';
 import { FaUser, FaLock } from 'react-icons/fa';
 
-// Constantes para configuración del globo
-const ARC_INTERVAL_MS = 2000;
-const MAX_ARCS = 5;
-const ARC_STROKE = 0.5;
-const ARC_ANIMATION_SPEED = 3000;
-
-// Estilos para el contenedor del formulario
-const AnimatedPaper = styled(animated(Box))(({ theme }) => ({
-  padding: theme.spacing(4),
-  borderRadius: 16,
-  textAlign: 'center',
-  maxWidth: 420,
-  width: '100%',
-  background: 'rgba(255, 255, 255, 0.1)',
-  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-  backdropFilter: 'blur(8px)',
-  WebkitBackdropFilter: 'blur(8px)',
-  border: '1px solid rgba(255, 255, 255, 0.18)',
-  color: 'white',
-  position: 'relative',
-  zIndex: 1,
-}));
-
-// Estilos para los campos de texto
-const InputField = styled(TextField)(({ theme }) => ({
-  margin: theme.spacing(2, 0),
-  '& .MuiOutlinedInput-root': {
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    '& fieldset': {
-      borderColor: 'rgba(255, 255, 255, 0.5)',
-    },
-    '&:hover fieldset': {
-      borderColor: theme.palette.primary.light,
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: theme.palette.secondary.main,
-    },
-  },
-}));
+// Importamos el componente del fondo del globo
+import GlobeBackground from './GlobeBackground';
+// Importamos los estilos compartidos
+import { AnimatedPaper, InputField } from '../../src/assets/styles/StyledComponents';
 
 const Login = ({ onLoginSuccess }) => {
-  const globeEl = useRef();
-  const [globeWidth, setGlobeWidth] = useState(window.innerWidth);
-  const [globeHeight, setGlobeHeight] = useState(window.innerHeight);
-  const [arcsData, setArcsData] = useState([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -62,54 +21,12 @@ const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const apiEndpoint = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:8000';
 
+  // Esta animación es específica del formulario, se queda aquí
   const formAnimation = useSpring({
     from: { opacity: 0, transform: 'translateY(-50px)' },
     to: { opacity: 1, transform: 'translateY(0)' },
     config: { mass: 1, tension: 170, friction: 26 },
   });
-
-  useEffect(() => {
-    const generateRandomArc = () => {
-      const startLat = (Math.random() - 0.5) * 180;
-      const startLng = (Math.random() - 0.5) * 360;
-      const endLat = (Math.random() - 0.5) * 180;
-      const endLng = (Math.random() - 0.5) * 360;
-      return {
-        startLat,
-        startLng,
-        endLat,
-        endLng,
-        color: `rgba(${100 + Math.random() * 155}, ${200 + Math.random() * 55}, 255, 0.8)`,
-      };
-    };
-
-    const interval = setInterval(() => {
-      setArcsData(prevArcs => [...prevArcs.slice(-(MAX_ARCS - 1)), generateRandomArc()]);
-    }, ARC_INTERVAL_MS);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setGlobeWidth(window.innerWidth);
-      setGlobeHeight(window.innerHeight);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (globeEl.current) {
-      const controls = globeEl.current.controls();
-      controls.enableZoom = false;
-      controls.autoRotate = true;
-      controls.autoRotateSpeed = 2;
-      controls.enablePan = false;
-      controls.minPolarAngle = Math.PI / 2;
-      controls.maxPolarAngle = Math.PI / 2;
-    }
-  }, []);
 
   const loginUser = async () => {
     try {
@@ -121,13 +38,14 @@ const Login = ({ onLoginSuccess }) => {
       localStorage.setItem("username", username);
       localStorage.setItem("role", response.data.role);
       onLoginSuccess();
-      navigate('/startmenu');
+      // Only navigate if login was successful
+      setTimeout(() => navigate('/startmenu'), 1000);
     } catch (error) {
       let errMsg = "Login failed. Please try again.";
-
+  
       if (error.response?.data) {
         const data = error.response.data;
-
+  
         if (typeof data === "string") {
           errMsg = data;
         } else if (Array.isArray(data)) {
@@ -137,6 +55,8 @@ const Login = ({ onLoginSuccess }) => {
         }
       }
       setError(errMsg);
+      setOpenSnackbar(true);
+      return; // Explicit return to prevent any further execution
     }
   };
 
@@ -147,72 +67,63 @@ const Login = ({ onLoginSuccess }) => {
     }
   };
 
-  const handleGoBack = (e) => {
+  const handleGoBack = () => { // handleGoBack no necesita el evento
     navigate('/');
   };
 
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+    // Si hay un error, también limpiarlo al cerrar el snackbar (opcional)
+    if (error) setError('');
+  };
+
+
   return (
+    // Esta caja es el contenedor principal, se queda en el componente
     <Box sx={{
       height: '100vh',
       width: '100vw',
-      position: 'relative',
+      position: 'relative', // Importante para que el fondo absoluto funcione
       overflow: 'hidden',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      background: '#000010',
+      background: '#000010', // El fondo oscuro también se queda aquí
     }}>
-    <Box
-      sx={{
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        zIndex: 10,
-      }}
-    >
-      <Button
-        variant="contained"
-        onClick={handleGoBack}
-        sx={{
-          textTransform: "none",
-          fontWeight: "bold",
-          fontFamily: "Orbitron, sans-serif",
-          backgroundColor:"#454c5a",
-          color: "#fff",
-          "&:hover": {
-            backgroundColor: "#3a404c",
-          },
-        }}
-      >
-        Volver atrás
-      </Button>
-    </Box>
+      {/* Renderizamos el componente del fondo del globo */}
+      <GlobeBackground />
+
+      {/* Botón de Volver atrás, se queda en el componente principal */}
       <Box
         sx={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: 0,
+          top: 16,
+          right: 16,
+          zIndex: 10, // Asegura que esté por encima del globo y el formulario
         }}
       >
-        <Globe
-          ref={globeEl}
-          globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
-          atmosphereColor="rgba(60, 120, 255, 0.5)"
-          atmosphereAltitude={0.15}
-          width={globeWidth}
-          height={globeHeight}
-          arcsData={arcsData}
-          arcColor="color"
-          arcDashLength={0.3}
-          arcDashGap={0.15}
-          arcDashAnimateTime={ARC_ANIMATION_SPEED}
-          arcStroke={() => ARC_STROKE}
-        />
+        <Button
+          variant="contained"
+          onClick={handleGoBack}
+          sx={{
+            textTransform: "none",
+            fontWeight: "bold",
+            fontFamily: "Orbitron, sans-serif",
+            backgroundColor:"#454c5a",
+            color: "#fff",
+            "&:hover": {
+              backgroundColor: "#3a404c",
+            },
+          }}
+        >
+          Volver atrás
+        </Button>
       </Box>
 
+      {/* Contenedor del formulario, se queda en el componente */}
       <Container component="main" maxWidth="xs" sx={{ zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <AnimatedPaper style={formAnimation}>
           {loginSuccess ? (
@@ -235,7 +146,7 @@ const Login = ({ onLoginSuccess }) => {
                 Login
               </Typography>
               <InputField
-                margin="normal"
+                // margin="normal" // Eliminado, ahora viene del estilo compartido
                 fullWidth
                 id="username"
                 variant="outlined"
@@ -252,7 +163,7 @@ const Login = ({ onLoginSuccess }) => {
                 }}
               />
               <InputField
-                margin="normal"
+                // margin="normal" // Eliminado, ahora viene del estilo compartido
                 fullWidth
                 id="password"
                 type="password"
@@ -275,7 +186,7 @@ const Login = ({ onLoginSuccess }) => {
                 color="secondary"
                 data-testid="submit-button"
                 sx={{
-                  mt: 3,
+                  mt: 3, // Este margen es específico del botón, se queda
                   borderRadius: 4,
                   fontWeight: 'bold',
                 }}
@@ -283,8 +194,20 @@ const Login = ({ onLoginSuccess }) => {
               >
                 Login
               </Button>
-              <Snackbar open={openSnackbar} autoHideDuration={6000} message="Login successful" />
-              {error && <Snackbar open={!!error} autoHideDuration={6000} message={`Error: ${error}`} />}
+              {/* Usamos un solo Snackbar y controlamos su contenido y apertura */}
+              <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                message={error ? `Error: ${error}` : "Login successful"}
+                // Opcional: dar color de error al snackbar si hay error
+                ContentProps={{
+                  sx: {
+                    backgroundColor: error ? 'red' : 'green',
+                  }
+                }}
+              />
+              {/* Eliminamos el Snackbar de error duplicado */}
             </div>
           )}
         </AnimatedPaper>

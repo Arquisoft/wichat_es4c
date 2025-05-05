@@ -213,10 +213,10 @@ const StartMenu = () => {
             <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold", color: "#FF6584", fontFamily: "Orbitron, sans-serif" }}>
               ¿CÓMO JUGAR?
             </Typography>
-            <Typography variant="body1" sx={{ fontSize: "20px", fontWeight: "bold", color: "#FED43F", fontFamily: "Orbitron, sans-serif", marginTop: 8 }}>
-            ¡Pon a prueba tus conocimientos geográficos! Pulsa 'Comenzar' y empieza el reto. Se te mostrará una imagen y 4 posibles
-              respuestas. Cada pregunta debe ser respondida en un tiempo determinado. Se ofrece la posibilidad de obtener
-              pistas mediante un chatbot.
+            <Typography variant="body1" sx={{ fontSize: "20px", textAlign: "left", fontWeight: "bold", color: "#FFFF",  marginTop: 2 }}>
+            ¡Pon a prueba tus conocimientos geográficos!<br /> - Se te mostrará una imagen y 4 posibles
+              respuestas.<br />- Cada pregunta debe ser respondida en un tiempo determinado.<br /> - Se ofrece la posibilidad de obtener
+              pistas mediante un chatbot.<br /> - También puedes modificar los ajustes de la partida en tu cuenta
             </Typography>
           </CardContent>
           <Button

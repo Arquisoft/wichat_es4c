@@ -48,48 +48,61 @@ describe('Login Component', () => {
   });
 
   it('should handle successful login and display success message', async () => {
-    axios.post.mockResolvedValueOnce({ data: { token: 'test-token', createdAt: '2025-04-27T10:00:00.000Z', role: 'user' } });
-
+    axios.post.mockResolvedValueOnce({ 
+      data: { 
+        token: 'test-token', 
+        createdAt: '2025-04-27T10:00:00.000Z', 
+        role: 'user' 
+      } 
+    });
+  
     render(
       <Router>
         <Login onLoginSuccess={mockOnLoginSuccess} />
       </Router>
     );
-
+  
     fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'testpass' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
-
+  
     await waitFor(() => {
       expect(mockOnLoginSuccess).toHaveBeenCalled();
       expect(localStorage.setItem).toHaveBeenCalledWith('token', 'test-token');
       expect(localStorage.setItem).toHaveBeenCalledWith('username', 'testuser');
       expect(localStorage.setItem).toHaveBeenCalledWith('role', 'user');
-      expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
-      expect(screen.getByText(/your account was created on/i)).toBeInTheDocument(); // Verifica el mensaje de éxito
-      expect(screen.getByRole('button', { name: /go to game/i })).toBeInTheDocument(); // Verifica el botón "Go to Game"
+      expect(screen.getByText(/your account was created on/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /go to game/i })).toBeInTheDocument();
     });
+  
+    // Wait for the navigation to happen
+    await waitFor(() => {
+      expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
+    }, { timeout: 2000 }); // Increase timeout if needed
   });
 
   it('should handle login error with string message', async () => {
     axios.post.mockRejectedValueOnce({ response: { data: 'Invalid credentials' } });
-
+  
     render(
       <Router>
         <Login onLoginSuccess={mockOnLoginSuccess} />
       </Router>
     );
-
+  
     fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'wronguser' } });
     fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'wrongpass' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
-
+  
     await waitFor(() => {
       const errorSnackbar = screen.getByRole('alert');
       expect(errorSnackbar).toHaveTextContent(/invalid credentials/i);
-      expect(mockOnLoginSuccess).not.toHaveBeenCalled();
-      expect(mockedNavigate).not.toHaveBeenCalled();
     });
+  
+    // Verify no navigation happened after some time
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    expect(mockOnLoginSuccess).not.toHaveBeenCalled();
+    expect(mockedNavigate).not.toHaveBeenCalled();
   });
 
   it('should handle login error with array message', async () => {

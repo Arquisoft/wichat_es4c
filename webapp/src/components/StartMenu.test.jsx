@@ -47,11 +47,13 @@ describe('StartMenu Component', () => {
         <StartMenu />
       </BrowserRouter>
     );
+    
     const accountButton = screen.getByRole('button', { name: /Cuenta/i });
     fireEvent.click(accountButton);
-    expect(screen.getByText(/Perfil/i)).toBeVisible();
-    expect(screen.getByText(/Ajustes/i)).toBeVisible();
-    expect(screen.getByText(/Cerrar Sesión/i)).toBeVisible();
+    
+    expect(screen.getByTestId('profile-button')).toBeVisible();
+    expect(screen.getByTestId('settings-button')).toBeVisible();
+    expect(screen.getByTestId('logout-button')).toBeVisible();
   });
 
   it('should navigate to the profile page if username exists when clicking "Perfil"', () => {
@@ -90,10 +92,13 @@ describe('StartMenu Component', () => {
         <StartMenu />
       </BrowserRouter>
     );
+    
     const accountButton = screen.getByRole('button', { name: /Cuenta/i });
     fireEvent.click(accountButton);
-    const settingsButton = screen.getByText(/Ajustes/i);
+    
+    const settingsButton = screen.getByTestId('settings-button');
     fireEvent.click(settingsButton);
+    
     expect(mockNavigate).toHaveBeenCalledWith('/settings/testUser');
   });
 
