@@ -6,7 +6,7 @@ ifndef::imagesdir[:imagesdir: ../images]
 
 === Unit Tests
 
-Unit tests were conducted across all microservices and the WebApp frontend to ensure the correct behavior of individual components and services. The primary goals were:
+Unit tests were conducted across all services and the WebApp frontend to ensure the correct behavior of individual components and services. The primary goals were:
 
 * Validate the functionality of individual methods, classes, and components.
 * Detect bugs early in the development process.
@@ -130,6 +130,10 @@ Then: The message "duplicate key error" should be shown on the screen
 For our project, we implemented thorough software testing practices to ensure code quality and reliability. Specifically, we utilized SonarQube's code coverage metric to measure how much of our codebase is covered by automated tests.
 Code coverage is a critical quality metric that indicates the percentage of code that is executed during the testing process. It helps identify areas of the codebase that lack proper testing, potentially harboring undiscovered bugs or issues.
 Through our continuous integration pipeline, we achieved a code coverage rate of 81.5%. This means that our test suite successfully executes 81.5% of the application code, providing a substantial degree of confidence in the stability and correctness of our implementation. This coverage level reflects our commitment to developing a robust and reliable decentralized chat application that aligns with the project's quality standards.
+
+=== Load Testing
+
+For detailed results of our load testing process, please refer to our link:{imagesdir}/loadtests.pdf[Load Testing Report]
 
 === Monitoring/Profiling
 
