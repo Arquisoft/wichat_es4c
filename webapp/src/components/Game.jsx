@@ -254,18 +254,19 @@ const Game = () => {
     <>
       <Box
         sx={{
-          width: "100vw",
-          height: "100vh",
+          width: "100%",
+          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "flex-start", // usa flex-start en lugar de center para permitir scroll
           background: `url(${mapBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       >
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Container maxWidth="lg" sx={{ py: 4 , mt: 12}}>
           <Grid container spacing={4} alignItems="stretch">
             <Grid item xs={12} md={6}>
               <Paper
