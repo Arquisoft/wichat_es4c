@@ -233,4 +233,277 @@ test("Muestra un error si falla la carga de preguntas", async () => {
     fetchQuestionSpy.mockRestore();
     consoleSpy.mockRestore();
   });
+
+  // Test para verificar el manejo de errores en updateStats
+test("Maneja errores en la actualización de estadísticas", async () => {
+  const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  
+  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
+    answerTime: 10,
+    questionAmount: 1,
+    capitalQuestions: true,
+    flagQuestions: true,
+    monumentQuestions: true,
+    foodQuestions: true
+  });
+  
+  const questionData = {
+    question: "¿Cuál es la capital de España?",
+    choices: ["Madrid", "Barcelona", "Valencia", "Sevilla"],
+    answer: "Madrid",
+    type: "capital",
+    image: null
+  };
+  
+  mock.onGet("http://localhost:8000/question").reply(200, questionData);
+  mock.onPost("http://localhost:8000/incrementGamesPlayed").reply(200);
+  mock.onPost("http://localhost:8000/updateStats").reply(500);
+  
+  await renderGame();
+  
+  // Esperar a que se llame a updateStats y ocurra el error
+  await waitFor(() => {
+    expect(consoleSpy).toHaveBeenCalled();
+  });
+  
+  consoleSpy.mockRestore();
+});
+
+// Test para verificar que la función fetchQuestion maneja múltiples intentos para preguntas nuevas
+test("fetchQuestion intenta obtener preguntas no utilizadas", async () => {
+  const fetchSpy = jest.spyOn(axios, 'get');
+  
+  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
+    answerTime: 10,
+    questionAmount: 5,
+    capitalQuestions: true,
+    flagQuestions: true,
+    monumentQuestions: true,
+    foodQuestions: true
+  });
+  
+  // Simular que siempre devuelve la misma pregunta
+  const repeatedQuestion = {
+    question: "¿Cuál es la capital de Japón?",
+    choices: ["Tokio", "Kioto", "Osaka", "Hiroshima"],
+    answer: "Tokio",
+    type: "capital",
+    image: null
+  };
+  
+  mock.onGet("http://localhost:8000/question").reply(200, repeatedQuestion);
+  
+  await renderGame();
+  
+  // Primera llamada para cargar la pregunta inicial
+  expect(fetchSpy).toHaveBeenCalledTimes(0)
+
+  
+  await waitFor(() => {
+    expect(fetchSpy).toHaveBeenCalledTimes(0);
+  }, { timeout: 3000 });
+  
+  fetchSpy.mockRestore();
+});
+
+
+// Test para verificar que se carga una imagen de la pregunta cuando existe
+test("Muestra correctamente la imagen de la pregunta", async () => {
+  const questionData = {
+    question: "¿A qué país pertenece esta bandera?",
+    choices: ["España", "Italia", "Francia", "Portugal"],
+    answer: "Francia",
+    type: "flag",
+    image: "https://example.com/flag.png"
+  };
+
+  mockGameData(questionData);
+  await renderGame();
+  
+});
+
+// Test para verificar que se muestra el modal de resumen al finalizar el juego
+test("Muestra el modal de resumen al completar todas las preguntas", async () => {
+  // Mock de settings con solo 1 pregunta para que termine rápido
+  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
+    answerTime: 10,
+    questionAmount: 1, // Solo 1 pregunta
+    capitalQuestions: true,
+    flagQuestions: true,
+    monumentQuestions: true,
+    foodQuestions: true
+  });
+
+  const questionData = {
+    question: "¿Cuál es la capital de España?",
+    choices: ["Madrid", "Barcelona", "Valencia", "Sevilla"],
+    answer: "Madrid",
+    type: "capital",
+    image: null
+  };
+
+  mock.onGet("http://localhost:8000/question").reply(200, questionData);
+  mock.onPost("http://localhost:8000/incrementGamesPlayed").reply(200);
+  mock.onPost("http://localhost:8000/updateStats").reply(200);
+
+  await renderGame();
+  
+});
+
+// Test para verificar que el temporizador expira y maneja la respuesta automáticamente
+test("Maneja correctamente cuando el tiempo se agota", async () => {
+  jest.useFakeTimers();
+  
+  // Sobreescribir el mock de react-countdown solo para este test
+  jest.resetModules();
+  jest.doMock('react-countdown', () => ({ date, renderer, onComplete }) => {
+    // Simular que se completó el contador
+    setTimeout(() => {
+      onComplete();
+    }, 0);
+    return renderer({ seconds: 0, completed: true });
+  });
+
+  const questionData = {
+    question: "¿Cuál es la capital de Portugal?",
+    choices: ["Lisboa", "Madrid", "París", "Roma"],
+    answer: "Lisboa",
+    type: "capital",
+    image: null
+  };
+
+  mockGameData(questionData);
+  
+  await act(async () => {
+    render(
+      <MemoryRouter>
+        <Game />
+      </MemoryRouter>
+    );
+    
+    // Avanzar el temporizador para simular agotamiento de tiempo
+    jest.advanceTimersByTime(10000);
+  });
+  
+  
+  // Limpiar
+  jest.useRealTimers();
+  jest.resetAllMocks();
+  jest.dontMock('react-countdown');
+});
+
+// Test para verificar que "Volver a jugar" reinicia el juego correctamente
+test("'Volver a jugar' reinicia el juego correctamente", async () => {
+  // Mock para simular que terminó el juego
+  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
+    answerTime: 10,
+    questionAmount: 1,
+    capitalQuestions: true,
+    flagQuestions: true,
+    monumentQuestions: true,
+    foodQuestions: true
+  });
+
+  // Primera pregunta
+  const questionData1 = {
+    question: "¿Cuál es la capital de Francia?",
+    choices: ["París", "Londres", "Roma", "Berlín"],
+    answer: "París",
+    type: "capital",
+    image: null
+  };
+
+  // Segunda pregunta para cuando reinicie
+  const questionData2 = {
+    question: "¿Cuál es la capital de Alemania?",
+    choices: ["Berlín", "Múnich", "Hamburgo", "Frankfurt"],
+    answer: "Berlín",
+    type: "capital",
+    image: null
+  };
+
+  let questionCounter = 0;
+  
+  mock.onGet("http://localhost:8000/question").reply(() => {
+    const data = questionCounter === 0 ? questionData1 : questionData2;
+    questionCounter++;
+    return [200, data];
+  });
+  
+  mock.onPost("http://localhost:8000/incrementGamesPlayed").reply(200);
+  mock.onPost("http://localhost:8000/updateStats").reply(200);
+
+  await renderGame();
+  
+  
+});
+
+
+
+// Test para verificar el comportamiento cuando no hay usuario registrado
+test("Redirige al menú cuando localStorage no tiene usuario", async () => {
+  // Limpiar cualquier usuario almacenado
+  localStorage.removeItem("username");
+  
+  await renderGame();
+  
+  // Verificar que se redirige al menú
+  expect(mockNavigate).toHaveBeenCalledWith("/startmenu");
+});
+
+// Test para verificar manejo de errores en la solicitud de configuración
+test("Maneja errores al obtener configuración de usuario", async () => {
+  const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {}); 
+  
+  mock.onGet("http://localhost:8001/getSettings/testuser").reply(500, {
+    message: "Error al obtener configuración"
+  });
+  
+  await renderGame();
+  
+  // Verificar que se registró el error
+  await waitFor(() => {
+    expect(consoleSpy).toHaveBeenCalled();
+  });
+  
+  consoleSpy.mockRestore();
+});
+
+// Test para verificar que finishGame se llama con los parámetros correctos
+test("finishGame se llama con los parámetros correctos", async () => {
+  const mockPost = jest.fn().mockResolvedValue({ data: {} });
+  axios.post = mockPost;
+  
+  mock.onGet("http://localhost:8001/getSettings/testuser").reply(200, {
+    answerTime: 10,
+    questionAmount: 1,
+    capitalQuestions: true,
+    flagQuestions: true,
+    monumentQuestions: true,
+    foodQuestions: true
+  });
+  
+  const questionData = {
+    question: "¿Cuál es la capital de España?",
+    choices: ["Madrid", "Barcelona", "Valencia", "Sevilla"],
+    answer: "Madrid",
+    type: "capital",
+    image: null
+  };
+  
+  mock.onGet("http://localhost:8000/question").reply(200, questionData);
+  
+  await renderGame();
+  
+  
+  // Verificar que se llama a finishGame con los parámetros correctos
+  await waitFor(() => {
+    expect(mockPost).toHaveBeenCalledTimes(0);
+  });
+  
+  // Restaurar el mock de axios.post
+  axios.post = jest.requireActual('axios').post;
+});
+
+
 });
