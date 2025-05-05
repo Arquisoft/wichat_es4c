@@ -13,6 +13,9 @@
 [![CodeScene Average Code Health](https://codescene.io/projects/65544/status-badges/average-code-health)](https://codescene.io/projects/65544)
 [![CodeScene System Mastery](https://codescene.io/projects/65544/status-badges/system-mastery)](https://codescene.io/projects/65544)
 [![CodeScene Hotspot Code Health](https://codescene.io/projects/65544/status-badges/hotspot-code-health)](https://codescene.io/projects/65544)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_wichat_es4c&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Arquisoft_wichat_es4c)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_wichat_es4c&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Arquisoft_wichat_es4c)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_wichat_es4c&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Arquisoft_wichat_es4c)
 
 <p float="left">
   <img src="https://blog.wildix.com/wp-content/uploads/2020/06/react-logo.jpg" height="100">
