@@ -8,6 +8,7 @@ ifndef::imagesdir[:imagesdir: ../images]
 
 === Quality Scenarios
 
+They can be divided in usage and change scenarios:
 
 ==== Usage Scenarios
 

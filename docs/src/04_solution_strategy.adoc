@@ -22,9 +22,9 @@ As part of the project’s initial planning phase, we have identified a set of *
 
 === 4.2. System Architecture  
 
-The architecture for the WiChat application is currently planned to be based on a **microservices architecture**, a modular approach that allows distinct services to be developed and maintained independently. This structure is chosen to provide scalability, flexibility, and ease of maintainability as the project progresses.  
+The architecture for the WiChat application is currently planned to be based on a **services architecture**, a modular approach that allows distinct services to be developed and maintained independently, it's not exactly a microservices arquitecture due to the fact that user and auth service share the same database instance, quiestion service has another one different though. This structure is chosen to provide scalability, flexibility, and ease of maintainability as the project progresses.  
 
-The system will consist of the following microservices, each designed to handle specific responsibilities:  
+The system will consist of the following services, each designed to handle specific responsibilities:  
 
 * **User Service** – This service will manage user registration, profile management, and the friend system.  
 

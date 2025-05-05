@@ -41,7 +41,7 @@ Within Azure, the following Docker containers are deployed:
   Generates quiz questions and, in addition to accessing the internal MongoDB, retrieves external data from Wikidata.
   
 * **MongoDB (Database):**  
-  Provides persistence for user data and other application data.
+  Provides persistence for user data and other application data like questions.
 
 Communication between these containers is managed internally within Azure, ensuring secure and efficient data transfer.
 

@@ -42,7 +42,7 @@ Input Validation: Preventing injection attacks and ensuring data integrity.
 
 WIChat follows established software design principles to ensure scalability and maintainability.
 
-Microservices Architecture: Decoupled services to improve scalability.
+Services Architecture: Decoupled services to improve scalability, its not pure microservices because the auth service and user service both share the same instance in the database, question service uses other one different though.
 
 
 

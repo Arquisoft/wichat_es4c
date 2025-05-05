@@ -18,7 +18,7 @@ image::model.png[Business Context]
 
 | _LLM_API_ | _API integrating an LLM that will be used to dynamically generate hints and follow a conversational dialogue to help the contestant answer the questions without explicitly giving away the answer._  
 
-| _Database_ | _Storage system that keeps relevant user information and past game sessions._  
+| _Database_ | _Storage system that keeps relevant user information and past game sessions and also stores questions, there's a one instance for user related information and another one for questions ._  
 |===
 
 
