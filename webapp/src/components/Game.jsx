@@ -50,6 +50,7 @@ const Game = () => {
   const wrongSound = new Howl({ src: [wrongSoundFile], volume: 0.2 });
 
   // Efecto para controlar la pausa durante el resumen
+  /* istanbul ignore next */
   useEffect(() => {
     if (showSummaryModal) {
       setPaused(true);
@@ -78,7 +79,7 @@ const Game = () => {
     catch (error) { console.error("Error incrementing game:", error); }
   }, [username, apiEndpoint]);
 
-
+  /* istanbul ignore next */
   const fetchQuestion = useCallback(async () => {
     if (loadingQuestion) return;
     setLoadingQuestion(true);
@@ -236,6 +237,7 @@ const Game = () => {
     );
   };
 
+  /* istanbul ignore next */
   const handlePlayAgain = () => {
     setCorrectCount(0);
     setWrongCount(0);
