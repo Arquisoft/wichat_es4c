@@ -3,29 +3,6 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-context-and-scope]]
 == Context and Scope
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content  
-The system's scope and context, as the name suggests, define the system's boundaries (i.e., its scope) from all its stakeholders (neighboring systems and users, i.e., the system's context). This specifies the external interfaces.
-
-If necessary, differentiate between the business context (domain-specific inputs and outputs) and the technical context (channels, protocols, hardware).
-
-.Motivation  
-Domain interfaces and technical interfaces with communication partners are among the most critical aspects of your system. Ensure you fully understand them.
-
-.Format  
-Various options:
-
-* Multiple context diagrams  
-* Lists of communication partners and their interfaces  
-
-.More Information  
-See https://docs.arc42.org/section-3/[Context and Scope] in the arc42 documentation.
-
-****
-endif::arc42help[]
-
 === Business Context
 
 image::model.png[Business Context]  
@@ -44,42 +21,9 @@ image::model.png[Business Context]
 | _Database_ | _Storage system that keeps relevant user information and past game sessions._  
 |===
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content  
-Specification of all stakeholders (users, IT systems, etc.) with explanations of domain-specific inputs, outputs, or interfaces.  
-Optionally, you may add specific domain communication formats or protocols.
-
-.Motivation  
-All stakeholders must understand what data is exchanged with the system's environment.
-
-.Format  
-Any type of diagram showing the system as a black box and specifying domain interfaces with communication partners.  
-
-Alternatively (or additionally), you can use a table.  
-The table title is your system's name, and the three columns contain the stakeholder name, inputs, and outputs.
-
-****
-endif::arc42help[]
 
 === Technical Context  
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content  
-Technical interfaces (channels and transmission media) connecting the system with its environment. Additionally, a mapping of domain-specific input/output to the channels, explaining which input/output uses each channel.
-
-.Motivation  
-Many stakeholders make architectural decisions based on technical interfaces between the system and its context. Hardware or infrastructure designers, in particular, decide on these technical interfaces.
-
-.Format  
-For example, a UML deployment diagram describing channels with neighboring systems,  
-alongside a mapping table showing the relationships between channels and input/output.
-
-****
-endif::arc42help[]
 
 ==== Architecture Diagram
 
