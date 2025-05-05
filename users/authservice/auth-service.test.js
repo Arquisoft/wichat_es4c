@@ -182,4 +182,123 @@ describe('Auth Service', () => {
         );
      });
   });
+
+  describe('/login endpoint additional tests', () => {
+    it('should return 400 for invalid username format', async () => {
+      const response = await request(app).post('/login').send({
+        username: 'a', 
+        password: 'validpassword'
+      });
+      
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+    });
+    
+    it('should return 400 for invalid password format', async () => {
+      const response = await request(app).post('/login').send({
+        username: 'validuser',
+        password: 'ab' 
+      });
+      
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+    });
+    
+    it('should return 401 for non-existent user', async () => {
+      const response = await request(app).post('/login').send({
+        username: 'nonexistentuser',
+        password: 'somepassword'
+      });
+      
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Invalid credentials');
+    });
+    
+    it('should sanitize input properly', async () => {
+      const response = await request(app).post('/login').send({
+        username: '<script>alert("XSS")</script>',
+        password: 'password123'
+      });
+      
+      expect(response.status).toBeGreaterThanOrEqual(400);
+    });
+  });
+
+  describe('JWT token handling', () => {
+    it('should generate token with correct payload structure', async () => {
+      // Hacer login para obtener token
+      const response = await request(app).post('/login').send({
+        username: regularUser.username,
+        password: regularUser.password
+      });
+      
+      const token = response.body.token;
+      expect(token).toBeTruthy();
+      
+      // Decodificar el token para verificar su estructura
+      const decoded = jwt.verify(token, 'your-secret-key');
+      
+      // Verificar la estructura del payload
+      expect(decoded).toHaveProperty('userId');
+      expect(decoded).toHaveProperty('role', regularUser.role);
+      expect(decoded).toHaveProperty('iat'); // issued at
+      expect(decoded).toHaveProperty('exp'); // expiration
+      
+      // Verificar que la expiración es aproximadamente en 1 hora
+      const oneHourInSeconds = 3600;
+      expect(decoded.exp - decoded.iat).toBe(oneHourInSeconds);
+    });
+  });
+
+
+  describe('Error handling', () => {
+  it('should handle internal errors in login endpoint', async () => {
+    // Mockear User.findOne para simular un error de BD
+    const originalFindOne = User.findOne;
+    User.findOne = jest.fn().mockRejectedValue(new Error('Database error'));
+    
+    try {
+      const response = await request(app).post('/login').send({
+        username: regularUser.username,
+        password: regularUser.password
+      });
+      
+      // Verificar respuesta de error
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error', 'Internal Server Error');
+    } finally {
+      // Restaurar la función original
+      User.findOne = originalFindOne;
+    }
+  });
+  
+  it('should handle internal errors in adminPanel endpoint', async () => {
+    let adminToken;
+    
+    // Obtener token de admin
+    const adminLogin = await request(app).post('/login').send({
+      username: adminUser.username,
+      password: adminUser.password
+    });
+    adminToken = adminLogin.body.token;
+    
+    // Mockear User.find para simular error
+    const originalFind = User.find;
+    User.find = jest.fn().mockRejectedValue(new Error('Database error'));
+    
+    try {
+      const response = await request(app)
+        .get('/adminPanel')
+        .set('Authorization', `Bearer ${adminToken}`);
+      
+      // Verificar respuesta de error
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty('error');
+    } finally {
+      // Restaurar la función original
+      User.find = originalFind;
+    }
+  });
+});
+  
 });
