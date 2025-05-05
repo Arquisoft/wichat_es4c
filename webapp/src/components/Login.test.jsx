@@ -214,7 +214,13 @@ describe('Login Component', () => {
   });
   
   it('should trigger login when Enter key is pressed in password field', async () => {
-    axios.post.mockResolvedValueOnce({ data: { token: 'abc', createdAt: new Date().toISOString(), role: 'admin' } });
+    axios.post.mockResolvedValueOnce({ 
+      data: { 
+        token: 'abc', 
+        createdAt: new Date().toISOString(), 
+        role: 'admin' 
+      } 
+    });
   
     render(
       <Router>
@@ -222,14 +228,24 @@ describe('Login Component', () => {
       </Router>
     );
   
-    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'keyboardUser' } });
-    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'keyboardPass' } });
-    fireEvent.keyDown(screen.getByPlaceholderText(/password/i), { key: 'Enter', code: 'Enter' });
+    fireEvent.change(screen.getByPlaceholderText(/username/i), { 
+      target: { value: 'keyboardUser' } 
+    });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), { 
+      target: { value: 'keyboardPass' } 
+    });
+    fireEvent.keyDown(screen.getByPlaceholderText(/password/i), { 
+      key: 'Enter', 
+      code: 'Enter' 
+    });
   
     await waitFor(() => {
       expect(mockOnLoginSuccess).toHaveBeenCalled();
-      expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
     });
+  
+    await waitFor(() => {
+      expect(mockedNavigate).toHaveBeenCalledWith('/startmenu');
+    }, { timeout: 2000 });
   });
 
   it('should navigate to /startmenu when "Go to Game" button is clicked after login', async () => {
