@@ -6,7 +6,7 @@ ifndef::imagesdir[:imagesdir: ../images]
 
 === Login
 
-[plantuml, Question Generation Diagram, png]
+[plantuml, Login Diagram, png]
 ----
 
 @startuml
@@ -146,7 +146,7 @@ WebApp --> User: Displays stats
 
 === Show User Info
 
-[plantuml, Clue Generation Diagram, png]
+[plantuml, Show User Info Diagram, png]
 ----
 
 @startuml
